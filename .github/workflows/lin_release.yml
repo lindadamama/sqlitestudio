@@ -1,8 +1,8 @@
 env:
     QT_VERSION: '5.15.2'
     TCL_VERSION: '8.6'
-    SQLITE_VERSION: '3400000'
-    SQLITE_RELEASE_YEAR: '2022'
+    SQLITE_VERSION: '3410200'
+    SQLITE_RELEASE_YEAR: '2023'
     PYTHON_VERSION: '3.9'
     PORTABLE_DIR: ${{ github.workspace }}/output/portable/SQLiteStudio
     INSTALLBUILDER_DIR: ../ib
@@ -100,7 +100,7 @@ jobs:
                     echo "gcc misc/$f.c $FLAGS -lz -o ../../ext/$f.so"
                     gcc misc/$f.c $FLAGS -lz -o ../../ext/$f.so
                 done
-                for f in csv decimal eval ieee754 percentile rot13 series uint uuid zorder; do
+                for f in csv decimal eval ieee754 percentile rot13 series sqlar uint uuid zorder; do
                     echo "gcc misc/$f.c $FLAGS -o ../../ext/$f.so"
                     gcc misc/$f.c $FLAGS -o ../../ext/$f.so
                 done

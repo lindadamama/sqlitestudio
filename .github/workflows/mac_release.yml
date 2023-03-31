@@ -1,8 +1,8 @@
 env:
     QT_VERSION: '5.15.2'
     TCL_VERSION: '8.6'
-    SQLITE_VERSION: '3400000'
-    SQLITE_RELEASE_YEAR: '2022'
+    SQLITE_VERSION: '3410200'
+    SQLITE_RELEASE_YEAR: '2023'
     PYTHON_VERSION: '3.9'
     ICU_VERSION: '72.1'
     PORTABLE_DIR: ${{ github.workspace }}/output/portable/SQLiteStudio
@@ -111,7 +111,7 @@ jobs:
                 cd sqlite-src-$SQLITE_VERSION/ext
                 ls -l
                 FLAGS="-ldl -Os -fpic -shared -I/usr/local/include/ -L/usr/local/lib -lsqlite3"
-                for f in compress; do
+                for f in compress sqlar; do
                     echo "gcc misc/$f.c -Imisc $FLAGS -lz -o ../../ext/$f.dylib"
                     gcc misc/$f.c -Imisc $FLAGS -lz -o ../../ext/$f.dylib
                 done
