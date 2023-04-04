@@ -259,6 +259,7 @@ void ConfigDialog::init()
     resettingColors = false;
     colorChanged();
     updateStylePreview();
+    updateColorsAfterLoad();
 
     ui->categoriesTree->expandAll();
 }
@@ -1179,7 +1180,7 @@ QList<QWidget*> ConfigDialog::prepareCodeSyntaxColorsForStyle()
 void ConfigDialog::initColors()
 {
     CFG_UI.Colors.begin();
-    connect(configMapper, &ConfigMapper::modified,
+    connect(configMapper, &ConfigMapper::modified, this,
             [this](QWidget* widget)
             {
                 CfgEntry* key = configMapper->getBindConfigForWidget(widget);
@@ -1193,12 +1194,38 @@ void ConfigDialog::initColors()
                     return;
 
                 configMapper->saveFromWidget(widget, key);
+                if (key->getName().endsWith("Custom"))
+                    toggleColorButtonState(key);
 
                 if (resettingColors)
                     return;
 
                 colorChanged();
             });
+}
+
+void ConfigDialog::updateColorsAfterLoad()
+{
+    QHash<QString, CfgEntry*> entries = CFG_UI.Colors.getEntries();
+    auto it = entries.begin();
+    while (it != entries.end())
+    {
+        if (it.key().endsWith("Custom"))
+            toggleColorButtonState(it.value());
+
+        it++;
+    }
+}
+
+void ConfigDialog::toggleColorButtonState(CfgEntry* colorCheckEntry)
+{
+    CfgEntry* colorKey = colorCheckEntry->getCategory()->getEntryByName(colorCheckEntry->getName().chopped(6));
+    if (colorKey)
+    {
+        QWidget* button = configMapper->getBindWidgetForConfig(colorKey);
+        if (button)
+            button->setEnabled(colorCheckEntry->get().toBool());
+    }
 }
 
 void ConfigDialog::updatePluginCategoriesVisibility(QTreeWidgetItem* categoryItem)
@@ -1797,8 +1824,10 @@ void ConfigDialog::initTooltips()
         ));
 
     setValidStateTooltip(ui->commonCodeColorsGroup,
-                         tr("Here you can configure colors for code syntax highlighting."
-                            "They are shared across different languages - not only for SQL, but also JavaScript and others."));
+                         tr("Here you can configure colors for code syntax highlighting. "
+                            "They are shared across different languages - not only for SQL, but also JavaScript and others. "
+                            "By default a theme-based color is used. To define your own color, enable a custom color "
+                            "by selecting a checkbox next to a particular color."));
 
 }
 
