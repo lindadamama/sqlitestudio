@@ -231,6 +231,21 @@
     </message>
     <message>
       <location filename="../windows/collationseditor.ui" line="208"/>
+      <source>Collation type:</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../windows/collationseditor.ui" line="217"/>
+      <source>Function-based</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../windows/collationseditor.ui" line="224"/>
+      <source>Extension-based</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../windows/collationseditor.ui" line="233"/>
       <source>Implementation language:</source>
       <translation>Idioma de implementação:</translation>
     </message>
@@ -265,22 +280,37 @@
       <translation>Editar ordenamento manual</translation>
     </message>
     <message>
-      <location filename="../windows/collationseditor.cpp" line="288"/>
+      <location filename="../windows/collationseditor.cpp" line="298"/>
       <source>Enter a non-empty, unique name of the collation.</source>
       <translation>Insira um nome único e vazio para a coleção.</translation>
     </message>
     <message>
-      <location filename="../windows/collationseditor.cpp" line="296"/>
+      <location filename="../windows/collationseditor.cpp" line="308"/>
       <source>Pick the implementation language.</source>
       <translation>Escolha a linguagem de implementação.</translation>
     </message>
     <message>
-      <location filename="../windows/collationseditor.cpp" line="299"/>
+      <location filename="../windows/collationseditor.cpp" line="313"/>
+      <source>Registration code</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../windows/collationseditor.cpp" line="314"/>
+      <source>Enter a non-empty registration code.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../windows/collationseditor.cpp" line="318"/>
+      <source>Implementation code</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../windows/collationseditor.cpp" line="319"/>
       <source>Enter a non-empty implementation code.</source>
       <translation>Digite um código de implementação não vazio.</translation>
     </message>
     <message>
-      <location filename="../windows/collationseditor.cpp" line="392"/>
+      <location filename="../windows/collationseditor.cpp" line="442"/>
       <source>Collations editor window has uncommitted modifications.</source>
       <translation>A janela do editor de colagens possui modificações não autorizadas.</translation>
     </message>
@@ -1830,13 +1860,13 @@ Key</translation>
       <translation>Mostrar formulário de visualização de resultados</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="1005"/>
+      <location filename="../dataview.cpp" line="1007"/>
       <source>Filter by text (if contains)</source>
       <comment>data view</comment>
       <translation>Filtrar por texto (se conter)</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="1006"/>
+      <location filename="../dataview.cpp" line="1008"/>
       <source>Filter strictly by text (if equals)</source>
       <comment>data view</comment>
       <translation>Filtrar estritamente por texto (se igual)</translation>
@@ -1872,47 +1902,47 @@ Key</translation>
       <translation>Coloque novas linhas no final da exibição de dados</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="674"/>
+      <location filename="../dataview.cpp" line="676"/>
       <source>Total number of rows is being counted.
 Browsing other pages will be possible after the row counting is done.</source>
       <translation>O número total de linhas está sendo contado.
 Navegar por outras páginas será possível após a contagem de linhas ser finalizada.</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="685"/>
+      <location filename="../dataview.cpp" line="687"/>
       <source>Row: %1</source>
       <translation>Linha: %1</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="974"/>
+      <location filename="../dataview.cpp" line="976"/>
       <source>Filter</source>
       <translation>Filtro</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="977"/>
+      <location filename="../dataview.cpp" line="979"/>
       <source>Hit Enter key or press &quot;Apply filter&quot; button on toolbar to apply new value.</source>
       <translation>Pressione a tecla Enter ou pressione &quot;Aplicar filtro&quot; botão na barra de ferramentas para aplicar o novo valor.</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="1007"/>
+      <location filename="../dataview.cpp" line="1009"/>
       <source>Filter by the Regular Expression</source>
       <comment>data view</comment>
       <translation>Filtrar pela Expressão Regular</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="1008"/>
+      <location filename="../dataview.cpp" line="1010"/>
       <source>Filter by SQL expression</source>
       <comment>data view</comment>
       <translation>Filtrar por expressão SQL</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="1027"/>
+      <location filename="../dataview.cpp" line="1029"/>
       <source>Show filter inputs per column</source>
       <comment>data view</comment>
       <translation>Mostrar entradas de filtro por coluna</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="1031"/>
+      <location filename="../dataview.cpp" line="1033"/>
       <source>Apply filter</source>
       <comment>data view</comment>
       <translation>Aplicar filtro</translation>
@@ -2027,12 +2057,12 @@ Navegar por outras páginas será possível após a contagem de linhas ser final
       <translation>Selecione um tipo de banco de dados.</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="743"/>
+      <location filename="../dialogs/dbdialog.cpp" line="756"/>
       <source>Choose a location for the new database file</source>
       <translation type="unfinished"/>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="744"/>
+      <location filename="../dialogs/dbdialog.cpp" line="757"/>
       <source>Browse for existing database file on local computer</source>
       <translation type="unfinished"/>
     </message>
@@ -4542,12 +4572,12 @@ Digite um nome novo, único ou pressione &apos;%1&apos; para abortar a operaçã
       <translation>Diminuir o tamanho da fonte</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="651"/>
+      <location filename="../dataview.cpp" line="653"/>
       <source>Total pages available: %1</source>
       <translation>Total de páginas disponíveis: %1</translation>
     </message>
     <message>
-      <location filename="../dataview.cpp" line="661"/>
+      <location filename="../dataview.cpp" line="663"/>
       <source>Total rows loaded: %1</source>
       <translation>Total de linhas carregadas: %1</translation>
     </message>
@@ -5139,7 +5169,7 @@ Digite um nome novo, único ou pressione &apos;%1&apos; para abortar a operaçã
     </message>
     <message>
       <location filename="../windows/codesnippeteditor.h" line="17"/>
-      <location filename="../windows/collationseditor.h" line="21"/>
+      <location filename="../windows/collationseditor.h" line="22"/>
       <location filename="../windows/functionseditor.h" line="23"/>
       <location filename="../windows/sqliteextensioneditor.h" line="21"/>
       <source>Commit the pending changes</source>
@@ -5147,14 +5177,14 @@ Digite um nome novo, único ou pressione &apos;%1&apos; para abortar a operaçã
     </message>
     <message>
       <location filename="../windows/codesnippeteditor.h" line="18"/>
-      <location filename="../windows/collationseditor.h" line="22"/>
+      <location filename="../windows/collationseditor.h" line="23"/>
       <location filename="../windows/functionseditor.h" line="24"/>
       <location filename="../windows/sqliteextensioneditor.h" line="22"/>
       <source>Rollback the pending changes</source>
       <translation>Restaurar as alterações pendentes</translation>
     </message>
     <message>
-      <location filename="../windows/collationseditor.h" line="20"/>
+      <location filename="../windows/collationseditor.h" line="21"/>
       <source>A collation editor window</source>
       <translation>Uma janela de editor de ordenação</translation>
     </message>

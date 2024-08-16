@@ -6,6 +6,7 @@
 #include "common/utils_sql.h"
 #include "common/unused.h"
 #include "services/collationmanager.h"
+#include "services/notifymanager.h"
 #include "sqlitestudio.h"
 #include "db/sqlerrorcodes.h"
 #include "log.h"
@@ -556,6 +557,12 @@ bool AbstractDb3<T>::registerCollationInternal(const QString& name)
     if (!dbHandle)
         return false;
 
+    CollationManager::CollationPtr collation = COLLATIONS->getCollation(name);
+    if (collation == nullptr)
+        return false;
+    if (collation->type == CollationManager::CollationType::EXTENSION_BASED)
+        return !(exec(collation->code, Flag::NO_LOCK)->isError());
+
     CollationUserData* userData = new CollationUserData;
     userData->name = name;
 
@@ -849,7 +856,7 @@ void AbstractDb3<T>::registerDefaultCollation(void* fnUserData, typename T::hand
     if (res != T::OK)
         qWarning() << "Could not register default collation in AbstractDb3<T>::registerDefaultCollation().";
     else
-        qDebug() << "Registered default collation on demand, under name:" << collationName;
+        notifyWarn(tr("Registered default collation on demand, under name: %1").arg(collationName));
 }
 
 template <class T>
