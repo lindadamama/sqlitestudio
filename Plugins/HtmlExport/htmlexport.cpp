@@ -1,11 +1,11 @@
 #include "htmlexport.h"
 #include "services/pluginmanager.h"
+#include "schemaresolver.h"
 #include "common/unused.h"
 #include <QFile>
-#include <QTextCodec>
 #include <QDebug>
 #include <QRegularExpression>
-#include <schemaresolver.h>
+#include <QStringEncoder>
 
 QString HtmlExport::getFormatName() const
 {

@@ -596,7 +596,7 @@
     <message>
       <location filename="../dialogs/columndialog.cpp" line="445"/>
       <source>Referenced column type (%1) is different than type declared in this column. It may cause issues while inserting or updating data.</source>
-      <translation type="unfinished">Referenced column type (%1) is different than type declared in this column. It may cause issues while inserting or updating data.</translation>
+      <translation>引用的列类型 (%1) 与此列中声明的类型不同。这可能会在插入或更新数据时导致问题。</translation>
     </message>
     <message>
       <location filename="../dialogs/columndialog.cpp" line="700"/>
@@ -2052,22 +2052,27 @@ Browsing other pages will be possible after the row counting is done.</source>
       <translation>输入一个数据库文件的路径。</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="584"/>
+      <location filename="../dialogs/dbdialog.cpp" line="581"/>
+      <source>You&apos;re using a relative file path, which will be resolved to &quot;%1&quot; according to the application&apos;s working directory. It&apos;s always better to use absolute file path to avoid unexpected database location.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../dialogs/dbdialog.cpp" line="591"/>
       <source>This database is already on the list under name: %1</source>
       <translation>该数据库已在列表中，名为：%1</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="606"/>
+      <location filename="../dialogs/dbdialog.cpp" line="613"/>
       <source>Select a database type.</source>
       <translation>请选择一个数据库类型。</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="756"/>
+      <location filename="../dialogs/dbdialog.cpp" line="763"/>
       <source>Choose a location for the new database file</source>
       <translation>选择新数据库文件的位置</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="757"/>
+      <location filename="../dialogs/dbdialog.cpp" line="764"/>
       <source>Browse for existing database file on local computer</source>
       <translation>浏览本地计算机上的现有数据库文件</translation>
     </message>
@@ -3460,7 +3465,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
     <message>
       <location filename="../windows/functionseditor.cpp" line="620"/>
       <source>Function argument cannot be empty and it cannot have duplicated name.</source>
-      <translation type="unfinished">Function argument cannot be empty and it cannot have duplicated name.</translation>
+      <translation>函数参数不能为空且不能有重复的名称。</translation>
     </message>
     <message>
       <location filename="../windows/functionseditor.cpp" line="668"/>
@@ -4070,17 +4075,17 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
       <translation>您使用的是最新版，不需要更新。</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1026"/>
+      <location filename="../mainwindow.cpp" line="1025"/>
       <source>Database passed in command line parameters (%1) was already on the list under name: %2</source>
       <translation>命令行参数传递的数据库（%1）已在列表中，名为：%2</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1033"/>
+      <location filename="../mainwindow.cpp" line="1032"/>
       <source>Database passed in command line parameters (%1) has been temporarily added to the list under name: %2</source>
       <translation>命令行参数传递的数据库（%1）已临时添加到列表中，名为：%2</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1038"/>
+      <location filename="../mainwindow.cpp" line="1037"/>
       <source>Could not add database %1 to list.</source>
       <translation>未能将数据 %1 添加到列表</translation>
     </message>
@@ -4122,23 +4127,23 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
       <translation>打开另一个选项卡</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="295"/>
+      <location filename="../multieditor/multieditor.cpp" line="303"/>
       <source>Foreign Key</source>
       <translation>外键</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="342"/>
+      <location filename="../multieditor/multieditor.cpp" line="350"/>
       <source>Data editor plugin &apos;%1&apos; not loaded, while it is defined for editing &apos;%2&apos; data type.</source>
       <translation>数据编辑器插件 &apos;%1&apos; 未加载，而它已被定义为编辑 &apos;%1&apos; 数据类型的编辑器。 {1&apos;?} {2&apos;?} {1&apos; or 2&apos;?}</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="436"/>
+      <location filename="../multieditor/multieditor.cpp" line="444"/>
       <source>Deleted</source>
       <comment>multieditor</comment>
       <translation>已删除</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="438"/>
+      <location filename="../multieditor/multieditor.cpp" line="446"/>
       <source>Read only</source>
       <comment>multieditor</comment>
       <translation>只读</translation>
@@ -4147,7 +4152,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditorBoolPlugin</name>
     <message>
-      <location filename="../multieditor/multieditorbool.cpp" line="216"/>
+      <location filename="../multieditor/multieditorbool.cpp" line="226"/>
       <source>Boolean</source>
       <translation>布尔</translation>
     </message>
@@ -4427,78 +4432,83 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>QObject</name>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="74"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="76"/>
+      <source>Cannot edit columns that are result of an inline subquery.</source>
+      <translation type="unfinished">Cannot edit columns that are result of an inline subquery.</translation>
+    </message>
+    <message>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="78"/>
       <source>Cannot edit columns that are result of compound %1 statements (one that includes %2, %3 or %4 keywords).</source>
       <translation>无法编辑列，它是复合 %1 语句（包含 %2、%3 或 %4 关键字）的结果。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="77"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="81"/>
       <source>The query execution mechanism had problems with extracting ROWID&apos;s properly. This might be a bug in the application. You may want to report this.</source>
       <translation>查询执行机制提取 ROWID 的属性时遇到问题。这可能是软件中的 bug，您可以报告该问题。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="79"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="83"/>
       <source>Requested column is a result of SQL expression, instead of a simple column selection. Such columns cannot be edited.</source>
       <translation>请求的列是一个 SQL 表达式的结果，而非普通的列。不能编辑这些列。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="81"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="85"/>
       <source>Requested column belongs to restricted SQLite table. Those tables cannot be edited directly.</source>
       <translation>请求的列属于受限制的 SQLite 表。这些表不能被直接编辑。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="83"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="87"/>
       <source>Cannot edit results of query other than %1.</source>
       <translation>无法编辑 %1 以外的查询结果。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="85"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="89"/>
       <source>Cannot edit columns that are result of aggregated %1 statements.</source>
       <translation>无法编辑列，它是聚合的 %1 语句的结果。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="87"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="91"/>
       <source>Cannot edit columns that are result of %1 statement.</source>
       <translation>无法编辑列，它是 %1 语句的结果。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="89"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="93"/>
       <source>Cannot edit columns that are result of common table expression statement (%1).</source>
       <translation>无法编辑列，它是通用表生成语句 %1 的结果。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="91"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="95"/>
       <source>Cannot edit table generated columns.</source>
       <translation>无法编辑表生成的列。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="93"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="97"/>
       <source>Cannot edit columns that are result of a view if the executed query reads from any multilevel views (i.e. a view that queries another view).</source>
       <translation>无法编辑此列，因为它是在另一个多级视图上执行查询的视图结果（即查询另一个视图的视图）。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="424"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="465"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="483"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="519"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="428"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="469"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="487"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="523"/>
       <source>on conflict: %1</source>
       <comment>data view tooltip</comment>
       <translation>当冲突时：%1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="449"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="453"/>
       <source>references table %1, column %2</source>
       <comment>data view tooltip</comment>
       <translation>引用表 %1，列 %2</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="516"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="520"/>
       <source>condition: %1</source>
       <comment>data view tooltip</comment>
       <translation>字符序：%1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="536"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="540"/>
       <source>collation name: %1</source>
       <comment>data view tooltip</comment>
       <translation>字符序名称：%1</translation>
@@ -5500,7 +5510,7 @@ find next</source>
     <message>
       <location filename="../sqleditor.cpp" line="1222"/>
       <source>This file is huge (over %1 MB). Are you sure you want to load it into SQL query editor?</source>
-      <translation type="unfinished">This file is huge (over %1 MB). Are you sure you want to load it into SQL query editor?</translation>
+      <translation>此文件非常大（超过 %1 MB）。您确定要将其加载到 SQL 查询编辑器中吗？</translation>
     </message>
     <message>
       <location filename="../sqleditor.cpp" line="1232"/>
@@ -5977,32 +5987,32 @@ Such deletion will be permanent. Are you sure you want to delete them?</source>
       <translation>无法加载扩展：%1</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="368"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="369"/>
       <source>Invalid initialization function name. Function name can contain only alpha-numeric characters and underscore.</source>
       <translation>初始化函数名无效。函数名只能包含字母数字字符和下划线。</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="437"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="438"/>
       <source>Dynamic link libraries (*.dll);;All files (*)</source>
       <translation>动态链接库 (*.dll);;所有文件 (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="439"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="440"/>
       <source>Shared objects (*.so);;All files (*)</source>
       <translation>共享库 (*.so);;All files (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="441"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="442"/>
       <source>Dynamic libraries (*.dylib);;All files (*)</source>
       <translation>动态库 (*.dylib);;所有文件 (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="443"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="444"/>
       <source>All files (*)</source>
       <translation>所有文件 (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="445"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="446"/>
       <source>Open file</source>
       <translation>打开文件</translation>
     </message>
@@ -6117,7 +6127,7 @@ Such deletion will be permanent. Are you sure you want to delete them?</source>
     <message>
       <location filename="../constraints/tableforeignkeypanel.cpp" line="416"/>
       <source>Referenced column type (%1) is different than type declared for local column (%2). It may cause issues while inserting or updating data.</source>
-      <translation type="unfinished">Referenced column type (%1) is different than type declared for local column (%2). It may cause issues while inserting or updating data.</translation>
+      <translation>引用的列类型 (%1) 与本地列 (%2) 声明的类型不同。这可能会在插入或更新数据时导致问题。</translation>
     </message>
   </context>
   <context>

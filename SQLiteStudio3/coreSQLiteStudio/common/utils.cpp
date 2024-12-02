@@ -3,8 +3,10 @@
 #include "dbobjecttype.h"
 #include "rsa/RSA.h"
 #include "common/compatibility.h"
-#include <QTextCodec>
 #include <QString>
+#include <QStringConverter>
+#include <QStringEncoder>
+#include <QStringDecoder>
 #include <QSet>
 #include <QVariant>
 #include <QDateTime>
@@ -627,30 +629,54 @@ QStringList common(const QStringList& list1, const QStringList& list2, Qt::CaseS
 
 QStringList textCodecNames()
 {
-    QList<QByteArray> codecs = QTextCodec::availableCodecs();
-    QStringList names;
-    QSet<QString> nameSet;
-    for (const QByteArray& codec : codecs)
-        nameSet << QString::fromLatin1(codec.constData());
-
-    names = nameSet.values();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    QStringList codecs = QStringConverter::availableCodecs();
+#else
+    QStringList codecs;
+    for (QStringConverter::Encoding enc : {
+         QStringConverter::Utf8,
+         QStringConverter::Utf16,
+         QStringConverter::Utf16LE,
+         QStringConverter::Utf16BE,
+         QStringConverter::Utf32,
+         QStringConverter::Utf32LE,
+         QStringConverter::Utf32BE,
+         QStringConverter::Latin1,
+         QStringConverter::System
+    })
+    {
+        codecs << QStringConverter::nameForEncoding(enc);
+    }
+#endif
+    QSet<QString> codecSet = QSet<QString>(codecs.begin(), codecs.end());
+    QStringList names = QStringList(codecSet.begin(), codecSet.end());
     sSort(names);
     return names;
 }
 
-QTextCodec* codecForName(const QString& name)
+QStringEncoder* textEncoderForName(const QString& name)
 {
-    return QTextCodec::codecForName(name.toLatin1());
+    return new QStringEncoder(name.toLatin1());
 }
 
-QTextCodec* defaultCodec()
+QStringDecoder* textDecoderForName(const QString& name)
 {
-    return QTextCodec::codecForLocale();
+    return new QStringDecoder(name.toLatin1());
+}
+
+QStringEncoder* defaultTextEncoder()
+{
+    return new QStringEncoder();
+}
+
+QStringDecoder* defaultTextDecoder()
+{
+    return new QStringDecoder();
 }
 
 QString defaultCodecName()
 {
-    return QString::fromLatin1(QTextCodec::codecForLocale()->name());
+    return QStringConverter::nameForEncoding(QStringConverter::System);
 }
 
 QStringList splitByLines(const QString& str)
@@ -876,19 +902,31 @@ void sortWithReferenceList(QList<QString>& listToSort, const QList<QString>& ref
 
 QByteArray serializeToBytes(const QVariant& value)
 {
+    return serializeToBytes(value, QDataStream::Qt_5_15);
+}
+
+QByteArray serializeToBytes(const QVariant& value, QDataStream::Version version)
+{
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);
+    stream.setVersion(version);
     stream << value;
     return bytes;
 }
 
 QVariant deserializeFromBytes(const QByteArray& bytes)
 {
+    return deserializeFromBytes(bytes, QDataStream::Qt_5_15);
+}
+
+QVariant deserializeFromBytes(const QByteArray& bytes, QDataStream::Version version)
+{
     if (bytes.isNull())
         return QVariant();
 
     QVariant deserializedValue;
     QDataStream stream(bytes);
+    stream.setVersion(version);
     stream >> deserializedValue;
     return deserializedValue;
 }
@@ -1024,4 +1062,10 @@ void runInThread(std::function<void()> func)
 #else
     QThreadPool::globalInstance()->start(func);
 #endif
+}
+
+QStringConverter::Encoding textEncodingForName(const QString& name)
+{
+    auto encoding = QStringConverter::encodingForName(name.toLatin1().constData());
+    return encoding ? *encoding : QStringConverter::System;
 }

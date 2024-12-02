@@ -2052,22 +2052,27 @@ Browsing other pages will be possible after the row counting is done.</source>
       <translation>Entrez le chemin du fichier de la base de données.</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="584"/>
+      <location filename="../dialogs/dbdialog.cpp" line="581"/>
+      <source>You&apos;re using a relative file path, which will be resolved to &quot;%1&quot; according to the application&apos;s working directory. It&apos;s always better to use absolute file path to avoid unexpected database location.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../dialogs/dbdialog.cpp" line="591"/>
       <source>This database is already on the list under name: %1</source>
       <translation>Cette base de données est déjà dans la liste sous le nom de : %1</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="606"/>
+      <location filename="../dialogs/dbdialog.cpp" line="613"/>
       <source>Select a database type.</source>
       <translation>Sélectionnez un type de base de données.</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="756"/>
+      <location filename="../dialogs/dbdialog.cpp" line="763"/>
       <source>Choose a location for the new database file</source>
       <translation>Choisissez un emplacement pour le nouveau fichier de base de données</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="757"/>
+      <location filename="../dialogs/dbdialog.cpp" line="764"/>
       <source>Browse for existing database file on local computer</source>
       <translation>Chercher un fichier de base de données sur l&apos;ordinateur local</translation>
     </message>
@@ -4071,17 +4076,17 @@ Entrez SVP un nouveau nom, unique, ou cliquez « %1 » pour d’interrompre l’
       <translation>Vous utilisez déjà la version la plus récente. Aucune mise à jour n&apos;est disponible.</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1026"/>
+      <location filename="../mainwindow.cpp" line="1025"/>
       <source>Database passed in command line parameters (%1) was already on the list under name: %2</source>
       <translation>La base de données passée dans les paramètres de la ligne de commande (%1) était déjà dans la liste sous le nom : %2</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1033"/>
+      <location filename="../mainwindow.cpp" line="1032"/>
       <source>Database passed in command line parameters (%1) has been temporarily added to the list under name: %2</source>
       <translation>La base de données passée en paramètre dans la ligne de commande (%1)a été temporairement ajoutée à la liste sous le nom : %2</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1038"/>
+      <location filename="../mainwindow.cpp" line="1037"/>
       <source>Could not add database %1 to list.</source>
       <translation>Impossible d’ajouter la base de données %1 à la liste.</translation>
     </message>
@@ -4123,23 +4128,23 @@ Entrez SVP un nouveau nom, unique, ou cliquez « %1 » pour d’interrompre l’
       <translation>Ouvrir un autre onglet</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="295"/>
+      <location filename="../multieditor/multieditor.cpp" line="303"/>
       <source>Foreign Key</source>
       <translation>Clef étrangère</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="342"/>
+      <location filename="../multieditor/multieditor.cpp" line="350"/>
       <source>Data editor plugin &apos;%1&apos; not loaded, while it is defined for editing &apos;%2&apos; data type.</source>
       <translation>Donnée du plugin dans l&apos;éditeur &apos;%1&apos; ne c&apos;est pas chargé, alors qu&apos;il est défini pour l&apos;édition du type de données &apos;%2&apos;.</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="436"/>
+      <location filename="../multieditor/multieditor.cpp" line="444"/>
       <source>Deleted</source>
       <comment>multieditor</comment>
       <translation>Suppression</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="438"/>
+      <location filename="../multieditor/multieditor.cpp" line="446"/>
       <source>Read only</source>
       <comment>multieditor</comment>
       <translation>Lecture seule</translation>
@@ -4148,7 +4153,7 @@ Entrez SVP un nouveau nom, unique, ou cliquez « %1 » pour d’interrompre l’
   <context>
     <name>MultiEditorBoolPlugin</name>
     <message>
-      <location filename="../multieditor/multieditorbool.cpp" line="216"/>
+      <location filename="../multieditor/multieditorbool.cpp" line="226"/>
       <source>Boolean</source>
       <translation>booleen</translation>
     </message>
@@ -4428,78 +4433,83 @@ Entrez SVP un nouveau nom, unique, ou cliquez « %1 » pour d’interrompre l’
   <context>
     <name>QObject</name>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="74"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="76"/>
+      <source>Cannot edit columns that are result of an inline subquery.</source>
+      <translation type="unfinished">Cannot edit columns that are result of an inline subquery.</translation>
+    </message>
+    <message>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="78"/>
       <source>Cannot edit columns that are result of compound %1 statements (one that includes %2, %3 or %4 keywords).</source>
       <translation>impossible d’éditer les colonnes qui ont le résultat composé des déclarations %1 (inclus %2, %3 ou %4 mots-clefs).</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="77"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="81"/>
       <source>The query execution mechanism had problems with extracting ROWID&apos;s properly. This might be a bug in the application. You may want to report this.</source>
       <translation>Le mécanisme d&apos;exécution de requête a eu des problèmes avec l&apos;extraction de ROWID. Ceci peut être un bug dans l&apos;application. Vous pouvez le signaler.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="79"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="83"/>
       <source>Requested column is a result of SQL expression, instead of a simple column selection. Such columns cannot be edited.</source>
       <translation>La colonne demandée est un résultat d’expression de SQL, au lieu d’une sélection de colonne simple. De telles colonnes ne peuvent pas être éditées.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="81"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="85"/>
       <source>Requested column belongs to restricted SQLite table. Those tables cannot be edited directly.</source>
       <translation>La colonne demandée appartient à une table limitée SQLite. Ces tables ne peuvent pas être éditées directement.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="83"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="87"/>
       <source>Cannot edit results of query other than %1.</source>
       <translation>Impossible d’éditer les résultats de la requëte autrement que %1.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="85"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="89"/>
       <source>Cannot edit columns that are result of aggregated %1 statements.</source>
       <translation>Impossible d’éditer les colonnes qui sont le résultat de déclarations agrégées %1.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="87"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="91"/>
       <source>Cannot edit columns that are result of %1 statement.</source>
       <translation>Impossible d’éditer les colonnesqui sont le résultat de déclaration %1.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="89"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="93"/>
       <source>Cannot edit columns that are result of common table expression statement (%1).</source>
       <translation>Impossible d’éditer les colonnes qui sont le résultat de table commune de déclaration (%1).</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="91"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="95"/>
       <source>Cannot edit table generated columns.</source>
       <translation>Impossible de modifier les colonnes générées par la table.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="93"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="97"/>
       <source>Cannot edit columns that are result of a view if the executed query reads from any multilevel views (i.e. a view that queries another view).</source>
       <translation>Impossible de modifier les colonnes qui sont le résultat d&apos;une vue si la requête exécutée lit à partir d&apos;une vue à plusieurs niveaux (c.-à-d. une vue qui interroge une autre vue).</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="424"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="465"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="483"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="519"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="428"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="469"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="487"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="523"/>
       <source>on conflict: %1</source>
       <comment>data view tooltip</comment>
       <translation>Sur conflit : %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="449"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="453"/>
       <source>references table %1, column %2</source>
       <comment>data view tooltip</comment>
       <translation>Références table %1, colonne %2</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="516"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="520"/>
       <source>condition: %1</source>
       <comment>data view tooltip</comment>
       <translation>Condition : %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="536"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="540"/>
       <source>collation name: %1</source>
       <comment>data view tooltip</comment>
       <translation>Nom de collation : %1</translation>
@@ -5977,32 +5987,32 @@ Cette suppression sera permanente. Êtes-vous sûr de vouloir les supprimer ?</t
       <translation>Impossible de charger l&apos;extension : %1</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="368"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="369"/>
       <source>Invalid initialization function name. Function name can contain only alpha-numeric characters and underscore.</source>
       <translation>Nom de la fonction d&apos;initialisation invalide. Le nom de la fonction ne peut contenir que des caractères alphanumériques et des tirets bas.</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="437"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="438"/>
       <source>Dynamic link libraries (*.dll);;All files (*)</source>
       <translation>Librairies de liens dynamiques (*.dll);Tous les fichiers (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="439"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="440"/>
       <source>Shared objects (*.so);;All files (*)</source>
       <translation>Objets partagés (*.so);Tous les fichiers (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="441"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="442"/>
       <source>Dynamic libraries (*.dylib);;All files (*)</source>
       <translation>Bibliothèques dynamiques (*.dylib);;Tous les fichiers (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="443"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="444"/>
       <source>All files (*)</source>
       <translation>Tous les fichiers(*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="445"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="446"/>
       <source>Open file</source>
       <translation>Fichier ouvert</translation>
     </message>

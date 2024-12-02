@@ -110,7 +110,7 @@ QSet<SelectResolver::Table> SelectResolver::resolveTables(SqliteSelect::Core::Jo
     QList<Column> columns = resolveAvailableColumns(joinSrc);
     for (const Column& col : columns)
     {
-        if (col.type != Column::Type::COLUMN)
+        if (col.type != Column::Type::COLUMN || (col.flags & SelectResolver::FROM_RES_COL_SUBSELECT))
             continue;
 
         tables << col.getTable();
@@ -319,7 +319,7 @@ void SelectResolver::resolve(SqliteSelect::Core::ResultColumn *resCol)
 void SelectResolver::resolveStar(SqliteSelect::Core::ResultColumn *resCol)
 {
     bool foundAtLeastOne = false;
-    for (SelectResolver::Column column : qAsConst(currentCoreSourceColumns))
+    for (SelectResolver::Column column : std::as_const(currentCoreSourceColumns))
     {
         if (!resCol->table.isNull())
         {
@@ -382,8 +382,10 @@ void SelectResolver::resolveExpr(SqliteSelect::Core::ResultColumn *resCol)
         column.alias = resCol->alias;
         column.column = getResColTokensWithoutAlias(resCol).detokenize().trimmed();
         column.displayName = !resCol->alias.isNull() ? column.alias : column.column;
-
         column.type = Column::OTHER;
+        if (expr->mode == SqliteExpr::Mode::SUB_SELECT)
+            column.flags |= SelectResolver::FROM_RES_COL_SUBSELECT;
+
         currentCoreResults << column;
 
         // In this case we end it here.

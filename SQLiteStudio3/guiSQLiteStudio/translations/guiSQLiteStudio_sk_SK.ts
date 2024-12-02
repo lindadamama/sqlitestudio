@@ -2052,22 +2052,27 @@ Prezeranie ďalších strán bude možné až po dokončení spočítavania.</tr
       <translation>Zadajte cestu k databázovému súboru.</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="584"/>
+      <location filename="../dialogs/dbdialog.cpp" line="581"/>
+      <source>You&apos;re using a relative file path, which will be resolved to &quot;%1&quot; according to the application&apos;s working directory. It&apos;s always better to use absolute file path to avoid unexpected database location.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../dialogs/dbdialog.cpp" line="591"/>
       <source>This database is already on the list under name: %1</source>
       <translation>Táto databáza už je v zozname pod názvom: %1</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="606"/>
+      <location filename="../dialogs/dbdialog.cpp" line="613"/>
       <source>Select a database type.</source>
       <translation>Vyberte typ databázy.</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="756"/>
+      <location filename="../dialogs/dbdialog.cpp" line="763"/>
       <source>Choose a location for the new database file</source>
       <translation type="unfinished">Choose a location for the new database file</translation>
     </message>
     <message>
-      <location filename="../dialogs/dbdialog.cpp" line="757"/>
+      <location filename="../dialogs/dbdialog.cpp" line="764"/>
       <source>Browse for existing database file on local computer</source>
       <translation type="unfinished">Browse for existing database file on local computer</translation>
     </message>
@@ -4071,17 +4076,17 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
       <translation>Niesú dostupné žiadne aktualizácie. Používate aktuálnu verziu.</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1026"/>
+      <location filename="../mainwindow.cpp" line="1025"/>
       <source>Database passed in command line parameters (%1) was already on the list under name: %2</source>
       <translation>Databáza prebratá z príkazového riadka (%1) už je v zozname pod názvom: %2</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1033"/>
+      <location filename="../mainwindow.cpp" line="1032"/>
       <source>Database passed in command line parameters (%1) has been temporarily added to the list under name: %2</source>
       <translation>Databáza prebratá z príkazového riadka (%1) bola dočasne pridaná do zoznamu pod názvom: %2</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1038"/>
+      <location filename="../mainwindow.cpp" line="1037"/>
       <source>Could not add database %1 to list.</source>
       <translation>Nemôžem pridať databázu %1 do zoznamu.</translation>
     </message>
@@ -4123,23 +4128,23 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
       <translation type="unfinished">Open another tab</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="295"/>
+      <location filename="../multieditor/multieditor.cpp" line="303"/>
       <source>Foreign Key</source>
       <translation>Cudzí klúč</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="342"/>
+      <location filename="../multieditor/multieditor.cpp" line="350"/>
       <source>Data editor plugin &apos;%1&apos; not loaded, while it is defined for editing &apos;%2&apos; data type.</source>
       <translation>Data editor plugin &apos;%1&apos; not loaded, while it is defined for editing &apos;%1&apos; data type. {1&apos;?} {2&apos;?} {1&apos; or 2&apos;?}</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="436"/>
+      <location filename="../multieditor/multieditor.cpp" line="444"/>
       <source>Deleted</source>
       <comment>multieditor</comment>
       <translation type="unfinished">Deleted</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="438"/>
+      <location filename="../multieditor/multieditor.cpp" line="446"/>
       <source>Read only</source>
       <comment>multieditor</comment>
       <translation>Iba na čítanie</translation>
@@ -4148,7 +4153,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditorBoolPlugin</name>
     <message>
-      <location filename="../multieditor/multieditorbool.cpp" line="216"/>
+      <location filename="../multieditor/multieditorbool.cpp" line="226"/>
       <source>Boolean</source>
       <translation type="unfinished">Boolean</translation>
     </message>
@@ -4428,78 +4433,83 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>QObject</name>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="74"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="76"/>
+      <source>Cannot edit columns that are result of an inline subquery.</source>
+      <translation type="unfinished">Cannot edit columns that are result of an inline subquery.</translation>
+    </message>
+    <message>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="78"/>
       <source>Cannot edit columns that are result of compound %1 statements (one that includes %2, %3 or %4 keywords).</source>
       <translation type="unfinished">Cannot edit columns that are result of compound %1 statements (one that includes %2, %3 or %4 keywords).</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="77"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="81"/>
       <source>The query execution mechanism had problems with extracting ROWID&apos;s properly. This might be a bug in the application. You may want to report this.</source>
       <translation type="unfinished">The query execution mechanism had problems with extracting ROWID&apos;s properly. This might be a bug in the application. You may want to report this.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="79"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="83"/>
       <source>Requested column is a result of SQL expression, instead of a simple column selection. Such columns cannot be edited.</source>
       <translation type="unfinished">Requested column is a result of SQL expression, instead of a simple column selection. Such columns cannot be edited.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="81"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="85"/>
       <source>Requested column belongs to restricted SQLite table. Those tables cannot be edited directly.</source>
       <translation type="unfinished">Requested column belongs to restricted SQLite table. Those tables cannot be edited directly.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="83"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="87"/>
       <source>Cannot edit results of query other than %1.</source>
       <translation type="unfinished">Cannot edit results of query other than %1.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="85"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="89"/>
       <source>Cannot edit columns that are result of aggregated %1 statements.</source>
       <translation type="unfinished">Cannot edit columns that are result of aggregated %1 statements.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="87"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="91"/>
       <source>Cannot edit columns that are result of %1 statement.</source>
       <translation type="unfinished">Cannot edit columns that are result of %1 statement.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="89"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="93"/>
       <source>Cannot edit columns that are result of common table expression statement (%1).</source>
       <translation type="unfinished">Cannot edit columns that are result of common table expression statement (%1).</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="91"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="95"/>
       <source>Cannot edit table generated columns.</source>
       <translation type="unfinished">Cannot edit table generated columns.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="93"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="97"/>
       <source>Cannot edit columns that are result of a view if the executed query reads from any multilevel views (i.e. a view that queries another view).</source>
       <translation type="unfinished">Cannot edit columns that are result of a view if the executed query reads from any multilevel views (i.e. a view that queries another view).</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="424"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="465"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="483"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="519"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="428"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="469"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="487"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="523"/>
       <source>on conflict: %1</source>
       <comment>data view tooltip</comment>
       <translation>Pri konflikte: %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="449"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="453"/>
       <source>references table %1, column %2</source>
       <comment>data view tooltip</comment>
       <translation type="unfinished">references table %1, column %2</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="516"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="520"/>
       <source>condition: %1</source>
       <comment>data view tooltip</comment>
       <translation type="unfinished">condition: %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="536"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="540"/>
       <source>collation name: %1</source>
       <comment>data view tooltip</comment>
       <translation>Názov porovnánavania: %1</translation>
@@ -5979,32 +5989,32 @@ Such deletion will be permanent. Are you sure you want to delete them?</translat
       <translation type="unfinished">Unable to load extension: %1</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="368"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="369"/>
       <source>Invalid initialization function name. Function name can contain only alpha-numeric characters and underscore.</source>
       <translation type="unfinished">Invalid initialization function name. Function name can contain only alpha-numeric characters and underscore.</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="437"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="438"/>
       <source>Dynamic link libraries (*.dll);;All files (*)</source>
       <translation type="unfinished">Dynamic link libraries (*.dll);;All files (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="439"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="440"/>
       <source>Shared objects (*.so);;All files (*)</source>
       <translation type="unfinished">Shared objects (*.so);;All files (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="441"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="442"/>
       <source>Dynamic libraries (*.dylib);;All files (*)</source>
       <translation type="unfinished">Dynamic libraries (*.dylib);;All files (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="443"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="444"/>
       <source>All files (*)</source>
       <translation>Všetky súbory (*)</translation>
     </message>
     <message>
-      <location filename="../windows/sqliteextensioneditor.cpp" line="445"/>
+      <location filename="../windows/sqliteextensioneditor.cpp" line="446"/>
       <source>Open file</source>
       <translation>Otvoriť súbor</translation>
     </message>

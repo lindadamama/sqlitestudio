@@ -4,18 +4,18 @@
   <context>
     <name>AbstractDb</name>
     <message>
-      <location filename="../db/abstractdb.cpp" line="349"/>
-      <location filename="../db/abstractdb.cpp" line="366"/>
+      <location filename="../db/abstractdb.cpp" line="350"/>
+      <location filename="../db/abstractdb.cpp" line="367"/>
       <source>Cannot execute query on closed database.</source>
       <translation>연결되지 않은 데이터베이스에서 쿼리를 실행할 수 없습니다</translation>
     </message>
     <message>
-      <location filename="../db/abstractdb.cpp" line="661"/>
+      <location filename="../db/abstractdb.cpp" line="707"/>
       <source>Error attaching database %1: %2</source>
       <translation>데이터베이스 등록 중 오류 %1: %2</translation>
     </message>
     <message>
-      <location filename="../db/abstractdb.cpp" line="931"/>
+      <location filename="../db/abstractdb.cpp" line="956"/>
       <source>Failed to make full WAL checkpoint on database &apos;%1&apos;. Error returned from SQLite engine: %2</source>
       <translation type="unfinished">Failed to make full WAL checkpoint on database &apos;%1&apos;. Error returned from SQLite engine: %2</translation>
     </message>
@@ -50,7 +50,7 @@
       <location filename="../db/chainexecutor.cpp" line="89"/>
       <source>Interrupted</source>
       <comment>chain executor</comment>
-      <translation type="unfinished">Interrupted</translation>
+      <translation>중지되었습니다.</translation>
     </message>
     <message>
       <location filename="../db/chainexecutor.cpp" line="151"/>
@@ -64,32 +64,32 @@
     <message>
       <location filename="../completionhelper.cpp" line="159"/>
       <source>New row reference</source>
-      <translation type="unfinished">New row reference</translation>
+      <translation>새로운 행 참조</translation>
     </message>
     <message>
       <location filename="../completionhelper.cpp" line="166"/>
       <source>Old row reference</source>
-      <translation type="unfinished">Old row reference</translation>
+      <translation>기존 행 참조</translation>
     </message>
     <message>
       <location filename="../completionhelper.cpp" line="171"/>
       <source>New table name</source>
-      <translation type="unfinished">New table name</translation>
+      <translation>새 테이블 이름</translation>
     </message>
     <message>
       <location filename="../completionhelper.cpp" line="174"/>
       <source>New index name</source>
-      <translation type="unfinished">New index name</translation>
+      <translation>새 인덱스 이름</translation>
     </message>
     <message>
       <location filename="../completionhelper.cpp" line="177"/>
       <source>New view name</source>
-      <translation type="unfinished">New view name</translation>
+      <translation>새 뷰 이름</translation>
     </message>
     <message>
       <location filename="../completionhelper.cpp" line="180"/>
       <source>New trigger name</source>
-      <translation type="unfinished">New trigger name</translation>
+      <translation>새 트리거 이름</translation>
     </message>
     <message>
       <location filename="../completionhelper.cpp" line="183"/>
@@ -104,7 +104,7 @@
     <message>
       <location filename="../completionhelper.cpp" line="189"/>
       <source>New column name</source>
-      <translation type="unfinished">New column name</translation>
+      <translation>새 열 이름</translation>
     </message>
     <message>
       <location filename="../completionhelper.cpp" line="192"/>
@@ -418,7 +418,7 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
   <context>
     <name>ImportWorker</name>
     <message>
-      <location filename="../importworker.cpp" line="25"/>
+      <location filename="../importworker.cpp" line="24"/>
       <source>No columns provided by the import plugin.</source>
       <translation type="unfinished">No columns provided by the import plugin.</translation>
     </message>
@@ -433,36 +433,36 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
       <translation type="unfinished">Could not commit transaction for imported data: %1</translation>
     </message>
     <message>
-      <location filename="../importworker.cpp" line="102"/>
+      <location filename="../importworker.cpp" line="101"/>
       <source>Table &apos;%1&apos; has less columns than there are columns in the data to be imported. Excessive data columns will be ignored.</source>
       <translation type="unfinished">Table &apos;%1&apos; has less columns than there are columns in the data to be imported. Excessive data columns will be ignored.</translation>
     </message>
     <message>
-      <location filename="../importworker.cpp" line="107"/>
+      <location filename="../importworker.cpp" line="106"/>
       <source>Table &apos;%1&apos; has more columns than there are columns in the data to be imported. Some columns in the table will be left empty.</source>
       <translation type="unfinished">Table &apos;%1&apos; has more columns than there are columns in the data to be imported. Some columns in the table will be left empty.</translation>
     </message>
     <message>
-      <location filename="../importworker.cpp" line="126"/>
+      <location filename="../importworker.cpp" line="125"/>
       <source>Could not create table to import to: %1</source>
       <translation type="unfinished">Could not create table to import to: %1</translation>
     </message>
     <message>
-      <location filename="../importworker.cpp" line="135"/>
-      <location filename="../importworker.cpp" line="186"/>
-      <location filename="../importworker.cpp" line="193"/>
+      <location filename="../importworker.cpp" line="134"/>
+      <location filename="../importworker.cpp" line="185"/>
+      <location filename="../importworker.cpp" line="192"/>
       <source>Error while importing data: %1</source>
       <translation type="unfinished">Error while importing data: %1</translation>
     </message>
     <message>
-      <location filename="../importworker.cpp" line="135"/>
-      <location filename="../importworker.cpp" line="193"/>
+      <location filename="../importworker.cpp" line="134"/>
+      <location filename="../importworker.cpp" line="192"/>
       <source>Interrupted.</source>
       <comment>import process status update</comment>
-      <translation type="unfinished">Interrupted.</translation>
+      <translation>중지되었습니다.</translation>
     </message>
     <message>
-      <location filename="../importworker.cpp" line="181"/>
+      <location filename="../importworker.cpp" line="180"/>
       <source>Could not import data row number %1. The row was ignored. Problem details: %2</source>
       <translation type="unfinished">Could not import data row number %1. The row was ignored. Problem details: %2</translation>
     </message>
@@ -493,13 +493,13 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
       <location filename="../services/impl/pluginmanagerimpl.cpp" line="743"/>
       <source>min: %1</source>
       <comment>plugin dependency version</comment>
-      <translation type="unfinished">min: %1</translation>
+      <translation>최소값: %1</translation>
     </message>
     <message>
       <location filename="../services/impl/pluginmanagerimpl.cpp" line="744"/>
       <source>max: %1</source>
       <comment>plugin dependency version</comment>
-      <translation type="unfinished">max: %1</translation>
+      <translation>최대값: %1</translation>
     </message>
   </context>
   <context>
@@ -508,7 +508,7 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
       <location filename="../plugins/populateconstant.cpp" line="10"/>
       <source>Constant</source>
       <comment>populate constant plugin name</comment>
-      <translation type="unfinished">Constant</translation>
+      <translation>상수</translation>
     </message>
   </context>
   <context>
@@ -516,7 +516,7 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
     <message>
       <location filename="../plugins/populateconstant.ui" line="20"/>
       <source>Constant value:</source>
-      <translation type="unfinished">Constant value:</translation>
+      <translation>상수값:</translation>
     </message>
   </context>
   <context>
@@ -543,17 +543,17 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
     <message>
       <location filename="../plugins/populatedictionary.ui" line="39"/>
       <source>Word separator</source>
-      <translation type="unfinished">Word separator</translation>
+      <translation>단어 구분 기호</translation>
     </message>
     <message>
       <location filename="../plugins/populatedictionary.ui" line="45"/>
       <source>Whitespace</source>
-      <translation type="unfinished">Whitespace</translation>
+      <translation>공백 문자</translation>
     </message>
     <message>
       <location filename="../plugins/populatedictionary.ui" line="58"/>
       <source>Line break</source>
-      <translation type="unfinished">Line break</translation>
+      <translation>줄바꿈</translation>
     </message>
     <message>
       <location filename="../plugins/populatedictionary.ui" line="74"/>
@@ -563,12 +563,12 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
     <message>
       <location filename="../plugins/populatedictionary.ui" line="80"/>
       <source>Ordered</source>
-      <translation type="unfinished">Ordered</translation>
+      <translation>정렬된 순서</translation>
     </message>
     <message>
       <location filename="../plugins/populatedictionary.ui" line="93"/>
       <source>Randomly</source>
-      <translation type="unfinished">Randomly</translation>
+      <translation>무작위 순서</translation>
     </message>
   </context>
   <context>
@@ -584,7 +584,7 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
     <message>
       <location filename="../plugins/populaterandom.cpp" line="13"/>
       <source>Random number</source>
-      <translation type="unfinished">Random number</translation>
+      <translation>난수</translation>
     </message>
   </context>
   <context>
@@ -602,12 +602,12 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
     <message>
       <location filename="../plugins/populaterandom.ui" line="39"/>
       <source>Minimum value</source>
-      <translation type="unfinished">Minimum value</translation>
+      <translation>최소값</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandom.ui" line="61"/>
       <source>Maximum value</source>
-      <translation type="unfinished">Maximum value</translation>
+      <translation>최대값</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandom.ui" line="86"/>
@@ -625,7 +625,7 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
     <message>
       <location filename="../plugins/populaterandomtext.cpp" line="14"/>
       <source>Random text</source>
-      <translation type="unfinished">Random text</translation>
+      <translation>무작위 스트링</translation>
     </message>
   </context>
   <context>
@@ -633,67 +633,67 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="20"/>
       <source>Use characters from common sets:</source>
-      <translation type="unfinished">Use characters from common sets:</translation>
+      <translation>문자 집합 사용:</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="36"/>
       <source>Minimum length</source>
-      <translation type="unfinished">Minimum length</translation>
+      <translation>최소 길이</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="64"/>
       <source>Letters from a to z.</source>
-      <translation type="unfinished">Letters from a to z.</translation>
+      <translation>a~z</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="67"/>
       <source>Alpha</source>
-      <translation type="unfinished">Alpha</translation>
+      <translation>알파벳</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="77"/>
       <source>Numbers from 0 to 9.</source>
-      <translation type="unfinished">Numbers from 0 to 9.</translation>
+      <translation>0~9</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="80"/>
       <source>Numeric</source>
-      <translation type="unfinished">Numeric</translation>
+      <translation>숫자</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="90"/>
       <source>A whitespace, a tab and a new line character.</source>
-      <translation type="unfinished">A whitespace, a tab and a new line character.</translation>
+      <translation>공백 문자, 탭, 줄바꿈</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="93"/>
       <source>Whitespace</source>
-      <translation type="unfinished">Whitespace</translation>
+      <translation>공백 문자</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="103"/>
       <source>Includes all above and all others.</source>
-      <translation type="unfinished">Includes all above and all others.</translation>
+      <translation>상기 모두와 그 외 문자를 포함</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="106"/>
       <source>Binary</source>
-      <translation type="unfinished">Binary</translation>
+      <translation>이진 문자</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="119"/>
       <source>Use characters from my custom set:</source>
-      <translation type="unfinished">Use characters from my custom set:</translation>
+      <translation>커스텀 문자 집합 사용:</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="132"/>
       <source>Maximum length</source>
-      <translation type="unfinished">Maximum length</translation>
+      <translation>최대 길이</translation>
     </message>
     <message>
       <location filename="../plugins/populaterandomtext.ui" line="160"/>
       <source>If you type some character multiple times, it&apos;s more likely to be used.</source>
-      <translation type="unfinished">If you type some character multiple times, it&apos;s more likely to be used.</translation>
+      <translation>여러 번 입력된 글자는 출현 확률이 증가합니다.</translation>
     </message>
   </context>
   <context>
@@ -769,33 +769,33 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
   <context>
     <name>QObject</name>
     <message>
-      <location filename="../common/utils.cpp" line="902"/>
+      <location filename="../common/utils.cpp" line="940"/>
       <source>Could not open file &apos;%1&apos; for reading: %2</source>
       <translation type="unfinished">Could not open file &apos;%1&apos; for reading: %2</translation>
     </message>
     <message>
-      <location filename="../db/abstractdb3.h" line="436"/>
+      <location filename="../db/abstractdb3.h" line="437"/>
       <source>Could not open database: %1</source>
       <translation type="unfinished">Could not open database: %1</translation>
     </message>
     <message>
-      <location filename="../db/abstractdb3.h" line="1225"/>
+      <location filename="../db/abstractdb3.h" line="1235"/>
       <source>Result set expired or no row available.</source>
       <translation type="unfinished">Result set expired or no row available.</translation>
     </message>
     <message>
-      <location filename="../db/abstractdb3.h" line="332"/>
-      <location filename="../db/abstractdb3.h" line="336"/>
+      <location filename="../db/abstractdb3.h" line="333"/>
+      <location filename="../db/abstractdb3.h" line="337"/>
       <source>Could not load extension %1: %2</source>
       <translation type="unfinished">Could not load extension %1: %2</translation>
     </message>
     <message>
-      <location filename="../db/abstractdb3.h" line="422"/>
+      <location filename="../db/abstractdb3.h" line="423"/>
       <source>Could not run WAL checkpoint: %1</source>
       <translation type="unfinished">Could not run WAL checkpoint: %1</translation>
     </message>
     <message>
-      <location filename="../db/abstractdb3.h" line="460"/>
+      <location filename="../db/abstractdb3.h" line="461"/>
       <source>Could not close database: %1</source>
       <translation type="unfinished">Could not close database: %1</translation>
     </message>
@@ -881,7 +881,7 @@ Tables, indexes, triggers and views copied to database %3 will remain.</translat
       <translation type="unfinished">Could not resolve data source for column: %1</translation>
     </message>
     <message>
-      <location filename="../selectresolver.cpp" line="442"/>
+      <location filename="../selectresolver.cpp" line="444"/>
       <source>Could not resolve table for column &apos;%1&apos;.</source>
       <translation type="unfinished">Could not resolve table for column &apos;%1&apos;.</translation>
     </message>
@@ -990,28 +990,28 @@ The view will remain as it is.</translation>
   <context>
     <name>QueryExecutor</name>
     <message>
-      <location filename="../db/queryexecutor.cpp" line="196"/>
+      <location filename="../db/queryexecutor.cpp" line="203"/>
       <source>Execution interrupted.</source>
       <translation type="unfinished">Execution interrupted.</translation>
     </message>
     <message>
-      <location filename="../db/queryexecutor.cpp" line="237"/>
+      <location filename="../db/queryexecutor.cpp" line="244"/>
       <source>Database is not open.</source>
       <translation type="unfinished">Database is not open.</translation>
     </message>
     <message>
-      <location filename="../db/queryexecutor.cpp" line="245"/>
+      <location filename="../db/queryexecutor.cpp" line="252"/>
       <source>Only one query can be executed simultaneously.</source>
       <translation type="unfinished">Only one query can be executed simultaneously.</translation>
     </message>
     <message>
       <location filename="../db/queryexecutor.cpp" line="349"/>
-      <location filename="../db/queryexecutor.cpp" line="598"/>
+      <location filename="../db/queryexecutor.cpp" line="595"/>
       <source>An error occured while executing the count(*) query, thus data paging will be disabled. Error details from the database: %1</source>
       <translation type="unfinished">An error occured while executing the count(*) query, thus data paging will be disabled. Error details from the database: %1</translation>
     </message>
     <message>
-      <location filename="../db/queryexecutor.cpp" line="509"/>
+      <location filename="../db/queryexecutor.cpp" line="514"/>
       <source>SQLiteStudio was unable to extract metadata from the query. Results won&apos;t be editable.</source>
       <translation type="unfinished">SQLiteStudio was unable to extract metadata from the query. Results won&apos;t be editable.</translation>
     </message>
@@ -1040,37 +1040,37 @@ The view will remain as it is.</translation>
   <context>
     <name>SqlFileExecutor</name>
     <message>
-      <location filename="../sqlfileexecutor.cpp" line="57"/>
+      <location filename="../sqlfileexecutor.cpp" line="56"/>
       <source>Could not execute SQL, because application has failed to start transaction: %1</source>
       <translation type="unfinished">Could not execute SQL, because application has failed to start transaction: %1</translation>
     </message>
     <message>
-      <location filename="../sqlfileexecutor.cpp" line="88"/>
+      <location filename="../sqlfileexecutor.cpp" line="87"/>
       <source>Execution from file cancelled. Any queries executed so far have been rolled back.</source>
       <translation type="unfinished">Execution from file cancelled. Any queries executed so far have been rolled back.</translation>
     </message>
     <message>
-      <location filename="../sqlfileexecutor.cpp" line="104"/>
+      <location filename="../sqlfileexecutor.cpp" line="103"/>
       <source>Could not open file &apos;%1&apos; for reading: %2</source>
       <translation type="unfinished">Could not open file &apos;%1&apos; for reading: %2</translation>
     </message>
     <message>
-      <location filename="../sqlfileexecutor.cpp" line="151"/>
+      <location filename="../sqlfileexecutor.cpp" line="150"/>
       <source>Could not execute SQL, because application has failed to commit the transaction: %1</source>
       <translation type="unfinished">Could not execute SQL, because application has failed to commit the transaction: %1</translation>
     </message>
     <message>
-      <location filename="../sqlfileexecutor.cpp" line="156"/>
+      <location filename="../sqlfileexecutor.cpp" line="155"/>
       <source>Finished executing %1 queries in %2 seconds. %3 were not executed due to errors.</source>
       <translation type="unfinished">Finished executing %1 queries in %2 seconds. %3 were not executed due to errors.</translation>
     </message>
     <message>
-      <location filename="../sqlfileexecutor.cpp" line="162"/>
+      <location filename="../sqlfileexecutor.cpp" line="161"/>
       <source>Finished executing %1 queries in %2 seconds.</source>
       <translation type="unfinished">Finished executing %1 queries in %2 seconds.</translation>
     </message>
     <message>
-      <location filename="../sqlfileexecutor.cpp" line="169"/>
+      <location filename="../sqlfileexecutor.cpp" line="168"/>
       <source>Could not execute SQL due to error.</source>
       <translation type="unfinished">Could not execute SQL due to error.</translation>
     </message>
@@ -1081,7 +1081,7 @@ The view will remain as it is.</translation>
       <location filename="../sqlhistorymodel.cpp" line="32"/>
       <source>Database</source>
       <comment>sql history header</comment>
-      <translation type="unfinished">Database</translation>
+      <translation>데이터베이스</translation>
     </message>
     <message>
       <location filename="../sqlhistorymodel.cpp" line="34"/>
@@ -1105,13 +1105,13 @@ The view will remain as it is.</translation>
       <location filename="../sqlhistorymodel.cpp" line="40"/>
       <source>SQL</source>
       <comment>sql history header</comment>
-      <translation type="unfinished">SQL</translation>
+      <translation>SQL</translation>
     </message>
   </context>
   <context>
     <name>T</name>
     <message>
-      <location filename="../db/abstractdb3.h" line="863"/>
+      <location filename="../db/abstractdb3.h" line="864"/>
       <source>Registered default collation on demand, under name: %1</source>
       <translation type="unfinished">Registered default collation on demand, under name: %1</translation>
     </message>

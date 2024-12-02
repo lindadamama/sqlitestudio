@@ -13,7 +13,9 @@
 #include <QVariant>
 #include <QDataStream>
 
-class QTextCodec;
+class QStringConverter;
+class QStringEncoder;
+class QStringDecoder;
 
 API_EXPORT void initUtils();
 
@@ -259,8 +261,11 @@ API_EXPORT QStringList common(const QStringList& list1, const QStringList& list2
 
 API_EXPORT QStringList textCodecNames();
 API_EXPORT QString defaultCodecName();
-API_EXPORT QTextCodec* defaultCodec();
-API_EXPORT QTextCodec* codecForName(const QString& name);
+API_EXPORT QStringEncoder* defaultTextEncoder();
+API_EXPORT QStringDecoder* defaultTextDecoder();
+API_EXPORT QStringConverter::Encoding textEncodingForName(const QString& name);
+API_EXPORT QStringEncoder* textEncoderForName(const QString& name);
+API_EXPORT QStringDecoder* textDecoderForName(const QString& name);
 API_EXPORT QStringList splitByLines(const QString& str);
 API_EXPORT QString joinLines(const QStringList& lines);
 API_EXPORT QStringList sharedLibFileFilters();
@@ -357,6 +362,10 @@ API_EXPORT TYPE_OF_QHASH qHash(const QVariant& var);
 API_EXPORT QByteArray serializeToBytes(const QVariant& value);
 
 API_EXPORT QVariant deserializeFromBytes(const QByteArray& bytes);
+
+API_EXPORT QByteArray serializeToBytes(const QVariant& value, QDataStream::Version version);
+
+API_EXPORT QVariant deserializeFromBytes(const QByteArray& bytes, QDataStream::Version version);
 
 API_EXPORT QString readFileContents(const QString& path, QString* err);
 
