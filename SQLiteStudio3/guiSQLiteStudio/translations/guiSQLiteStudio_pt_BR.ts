@@ -2055,7 +2055,7 @@ Navegar por outras páginas será possível após a contagem de linhas ser final
     <message>
       <location filename="../dialogs/dbdialog.cpp" line="581"/>
       <source>You&apos;re using a relative file path, which will be resolved to &quot;%1&quot; according to the application&apos;s working directory. It&apos;s always better to use absolute file path to avoid unexpected database location.</source>
-      <translation type="unfinished"/>
+      <translation type="unfinished">You&apos;re using a relative file path, which will be resolved to &quot;%1&quot; according to the application&apos;s working directory. It&apos;s always better to use absolute file path to avoid unexpected database location.</translation>
     </message>
     <message>
       <location filename="../dialogs/dbdialog.cpp" line="591"/>
@@ -3363,7 +3363,7 @@ Digite um nome novo, único ou pressione &apos;%1&apos; para abortar a operaçã
     </message>
     <message>
       <location filename="../windows/functionseditor.ui" line="320"/>
-      <location filename="../windows/functionseditor.cpp" line="437"/>
+      <location filename="../windows/functionseditor.cpp" line="439"/>
       <source>Function implementation code:</source>
       <translation>Código de implementação da função:</translation>
     </message>
@@ -3438,38 +3438,42 @@ Digite um nome novo, único ou pressione &apos;%1&apos; para abortar a operaçã
       <translation>Agregar</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="420"/>
-      <source>Enter a non-empty, unique name of the function.</source>
-      <translation>Insira um nome único e completo da função.</translation>
+      <location filename="../windows/functionseditor.cpp" line="422"/>
+      <source>Enter a unique, non-empty function name. Duplicate names are allowed if the number of input parameters differs.</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="433"/>
+      <source>Enter a non-empty, unique name of the function.</source>
+      <translation type="vanished">Insira um nome único e completo da função.</translation>
+    </message>
+    <message>
+      <location filename="../windows/functionseditor.cpp" line="435"/>
       <source>Pick the implementation language.</source>
       <translation>Escolha a linguagem de implementação.</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="437"/>
+      <location filename="../windows/functionseditor.cpp" line="439"/>
       <source>Per step code:</source>
       <translation>Código de cada passo:</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="443"/>
+      <location filename="../windows/functionseditor.cpp" line="445"/>
       <source>Enter a non-empty implementation code.</source>
       <translation>Digite um código de implementação não vazio.</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="516"/>
+      <location filename="../windows/functionseditor.cpp" line="518"/>
       <source>argument</source>
       <comment>new function argument name in function editor window</comment>
       <translation>argumento</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="620"/>
+      <location filename="../windows/functionseditor.cpp" line="622"/>
       <source>Function argument cannot be empty and it cannot have duplicated name.</source>
       <translation type="unfinished">Function argument cannot be empty and it cannot have duplicated name.</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="668"/>
+      <location filename="../windows/functionseditor.cpp" line="670"/>
       <source>Functions editor window has uncommitted modifications.</source>
       <translation>Janela do editor de funções tem modificações não autorizadas.</translation>
     </message>

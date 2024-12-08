@@ -89,7 +89,7 @@ void ScriptingPython::initPython()
     else
         PyImport_AppendInittab("db", pyDbModuleInit);
 #else
-#if PYTHON_VERSION_HEX < 0x03070000
+#if PY_VERSION_HEX < 0x03070000
     PyImport_AppendInittab("db", &pyDbModuleCompatInit);
 #else
     PyImport_AppendInittab("db", &pyDbModuleInit);
@@ -216,7 +216,7 @@ QStringList ScriptingPython::discoverLibraries() const
         {"/Library/Frameworks/Python.framework/Versions/"}, {"*"}, {"/Python"}
 #elif defined(Q_OS_UNIX)
         QStringList({"", "/usr", "/usr/local", "/usr/pkg"}) + dirNames(pathEnv),
-        {"/lib/", "/lib64/"}, {"libpython*.so*"}
+        {"/lib/", "/lib64/", "/lib/x86_64-linux-gnu/", "/lib64/x86_64-linux-gnu/", "/lib/x86-linux-gnu/"}, {"libpython*.so*"}
 #elif defined(Q_OS_WINDOWS)
         QStringList({QDir::homePath() + "/AppData/Local/Programs/Python"}) + pathEnv,
         {"", "/bin", "/lib"}, {"*python*.dll"}
@@ -835,11 +835,7 @@ SqlQueryPtr ScriptingPython::dbCommonEval(PyObject* sqlArg, const char* fnName)
 QVariant ScriptingPython::getVariable(const QString& name)
 {
     PyThreadState* state = PyThreadState_Get();
-#if PY_VERSION_HEX < 0x030a0000
-    PyFrameObject* frame = state->frame;
-#else
     PyFrameObject* frame = PyThreadState_GetFrame(state);
-#endif
     if (!frame)
         return QVariant();
 
@@ -847,13 +843,8 @@ QVariant ScriptingPython::getVariable(const QString& name)
     PyObject* obj = nullptr;
 
     PyFrame_FastToLocals(frame);
-#if PY_VERSION_HEX < 0x030b0000
-    PyObject* locals = frame->f_locals;
-    PyObject* globals = frame->f_globals;
-#else
     PyObject* locals = PyFrame_GetLocals(frame);
     PyObject* globals = PyFrame_GetGlobals(frame);
-#endif
     if (PyMapping_Check(locals))
         obj = PyMapping_GetItemString(locals, varName);
     else if (PyDict_Check(globals))

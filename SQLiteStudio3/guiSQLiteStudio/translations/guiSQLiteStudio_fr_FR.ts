@@ -2054,7 +2054,7 @@ Browsing other pages will be possible after the row counting is done.</source>
     <message>
       <location filename="../dialogs/dbdialog.cpp" line="581"/>
       <source>You&apos;re using a relative file path, which will be resolved to &quot;%1&quot; according to the application&apos;s working directory. It&apos;s always better to use absolute file path to avoid unexpected database location.</source>
-      <translation type="unfinished"/>
+      <translation type="unfinished">You&apos;re using a relative file path, which will be resolved to &quot;%1&quot; according to the application&apos;s working directory. It&apos;s always better to use absolute file path to avoid unexpected database location.</translation>
     </message>
     <message>
       <location filename="../dialogs/dbdialog.cpp" line="591"/>
@@ -3362,7 +3362,7 @@ Entrez SVP un nouveau nom, unique, ou cliquez « %1 » pour d’interrompre l’
     </message>
     <message>
       <location filename="../windows/functionseditor.ui" line="320"/>
-      <location filename="../windows/functionseditor.cpp" line="437"/>
+      <location filename="../windows/functionseditor.cpp" line="439"/>
       <source>Function implementation code:</source>
       <translation>Fonction de code d’implémentation :</translation>
     </message>
@@ -3437,38 +3437,42 @@ Entrez SVP un nouveau nom, unique, ou cliquez « %1 » pour d’interrompre l’
       <translation>Agregate</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="420"/>
-      <source>Enter a non-empty, unique name of the function.</source>
-      <translation>Saississez un nom unique de fonction.</translation>
+      <location filename="../windows/functionseditor.cpp" line="422"/>
+      <source>Enter a unique, non-empty function name. Duplicate names are allowed if the number of input parameters differs.</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="433"/>
+      <source>Enter a non-empty, unique name of the function.</source>
+      <translation type="vanished">Saississez un nom unique de fonction.</translation>
+    </message>
+    <message>
+      <location filename="../windows/functionseditor.cpp" line="435"/>
       <source>Pick the implementation language.</source>
       <translation>Choississez un langage.</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="437"/>
+      <location filename="../windows/functionseditor.cpp" line="439"/>
       <source>Per step code:</source>
       <translation>Code par étape :</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="443"/>
+      <location filename="../windows/functionseditor.cpp" line="445"/>
       <source>Enter a non-empty implementation code.</source>
       <translation>Saississez un code d’implémentation non vide.</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="516"/>
+      <location filename="../windows/functionseditor.cpp" line="518"/>
       <source>argument</source>
       <comment>new function argument name in function editor window</comment>
       <translation>argument</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="620"/>
+      <location filename="../windows/functionseditor.cpp" line="622"/>
       <source>Function argument cannot be empty and it cannot have duplicated name.</source>
       <translation type="unfinished">Function argument cannot be empty and it cannot have duplicated name.</translation>
     </message>
     <message>
-      <location filename="../windows/functionseditor.cpp" line="668"/>
+      <location filename="../windows/functionseditor.cpp" line="670"/>
       <source>Functions editor window has uncommitted modifications.</source>
       <translation>La fenêtre de l&apos;éditeur de fonctions contient des modifications invalidées.</translation>
     </message>

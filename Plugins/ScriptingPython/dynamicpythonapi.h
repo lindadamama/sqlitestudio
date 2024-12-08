@@ -17,6 +17,10 @@ extern PyObject *Py_InitModule4(const char*, PyMethodDef*, const char*, PyObject
 extern PyObject *_PyUnicode_AsDefaultEncodedString(PyObject*, const char*);
 extern int PyUnicode_SetDefaultEncoding(const char*);
 
+#if (Py_LIMITED_API && PY_VERSION_HEX < 0x030a0000 || PY_VERSION_HEX < 0x03090000)
+// In Python pre-3.10 SDK, we need these prototypes from future
+extern PyFrameObject* PyThreadState_GetFrame(PyThreadState*);
+#endif
 #if PY_VERSION_HEX < 0x030b0000
 // In Python pre-3.11 SDK, we need these prototypes from future
 extern PyObject* PyFrame_GetGlobals(PyFrameObject*);
@@ -38,6 +42,7 @@ extern PyObject* PyFrame_GetLocals(PyFrameObject*);
     PYAPI_METHOD(Py_IncRef) \
     PYAPI_METHOD(Py_Initialize) \
     PYAPI_METHOD(Py_NewInterpreter) \
+    PYAPI_METHOD(PyThreadState_GetFrame) \
     PYAPI_METHOD(PyBool_FromLong) \
     PYAPI_METHOD(PyByteArray_AsString) \
     PYAPI_METHOD(PyByteArray_Size) \

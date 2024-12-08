@@ -138,8 +138,6 @@ jobs:
                 tee -a $GITHUB_ENV <<EOF_ENV
                 ICU_FLAGS=-I$(pwd)/icu/include -L$(pwd)/icu/lib -licuio -licuin -licuuc -licudt
                 ICU_LIBDIR=$(pwd)/icu/bin
-                QT5_LIBDIR=$QT_ROOT_DIR/bin
-                QT5_PLUGINDIR=$QT_ROOT_DIR/plugins
                 ZLIB_FLAGS=-lzlib1
                 EOF_ENV
 
@@ -229,11 +227,11 @@ jobs:
             - name: Prepare portable distro (Qt)
               shell: bash
               run: |
-                cd "$QT5_LIBDIR"
-                for f in Qt5Core Qt5Gui Qt5Network Qt5PrintSupport Qt5Qml Qt5Svg Qt5Widgets Qt5Xml Qt6OpenGL Qt6OpenGLWidgets Qt6UiTools libgcc_s_seh-1 libstdc++-6 libwinpthread-1; do cp bin/$f.dll "$ABSOLUTE_PORTABLE_DIR"; done
-                cp bin/qt.conf "$ABSOLUTE_PORTABLE_DIR"
+                cd $QT_ROOT_DIR/bin
+                for f in Qt6Core Qt6Gui Qt6Network Qt6PrintSupport Qt6Qml Qt6Svg Qt6Widgets Qt6Xml Qt6OpenGL Qt6OpenGLWidgets Qt6UiTools libgcc_s_seh-1 libstdc++-6 libwinpthread-1; do cp $f.dll "$ABSOLUTE_PORTABLE_DIR"; done
+                cp qt.conf "$ABSOLUTE_PORTABLE_DIR"
                 
-                cd "$QT5_PLUGINDIR"
+                cd $QT_ROOT_DIR/plugins
                 mkdir -p "$ABSOLUTE_PORTABLE_DIR/iconengines"
                 mkdir -p "$ABSOLUTE_PORTABLE_DIR/platforms"
                 mkdir -p "$ABSOLUTE_PORTABLE_DIR/styles"
@@ -243,8 +241,7 @@ jobs:
                 cp iconengines/qsvgicon.dll "$ABSOLUTE_PORTABLE_DIR/iconengines"
                 cp platforms/qwindows.dll "$ABSOLUTE_PORTABLE_DIR/platforms"
                 cp styles/q*windows*style.dll "$ABSOLUTE_PORTABLE_DIR/styles"
-                cp printsupport/windowsprintersupport.dll "$ABSOLUTE_PORTABLE_DIR/printsupport"
-                for f in qgif qicns qico qjpeg qsvg qtga qtiff qwbmp qjp2 qmng qwebp; do
+                for f in qgif qicns qico qjpeg qsvg qtga qtiff qwbmp qwebp; do
                     cp imageformats/$f.dll "$ABSOLUTE_PORTABLE_DIR/imageformats"
                 done
                 cp tls/qopensslbackend.dll "$ABSOLUTE_PORTABLE_DIR/tls"
@@ -272,13 +269,14 @@ jobs:
                 SQLITESTUDIO_VERSION="$(./sqlitestudiocli.exe --version | cut -f 2 -d ' ')"
                 [ -n "$SQLITESTUDIO_VERSION" ] || exit 1
                 echo "SQLITESTUDIO_VERSION=$SQLITESTUDIO_VERSION" >> $GITHUB_ENV
-                echo "PACKAGE_VERSION=$SQLITESTUDIO_VERSION\_x64" >> $GITHUB_ENV
+                echo "PACKAGE_VERSION=${SQLITESTUDIO_VERSION}_x64" >> $GITHUB_ENV
 
             - name: Assemble portable package
               shell: bash
               run: |
                 cd $ABSOLUTE_PORTABLE_DIR/..
-                7z a -r sqlitestudio-$PACKAGE_VERSION.zip SQLiteStudio
+                7z a -r sqlitestudio-${{ env.PACKAGE_VERSION }}.zip SQLiteStudio
+                ls -l
 
             - name: Install the InstalBuilder
               shell: bash
@@ -300,8 +298,6 @@ jobs:
                     --setvars project.outputDirectory=$(pwd) \
                     --setvars project.version=$SQLITESTUDIO_VERSION
                 ls -l
-                mv SQLiteStudio-${{ env.SQLITESTUDIO_VERSION }}-windows-x64-installer.exe \
-                    SQLiteStudio-$SQLITESTUDIO_VERSION-windows-x64-installer.exe \
 
             - name: SHA256 checksums
               shell: bash
