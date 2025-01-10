@@ -127,6 +127,22 @@
       <translation>任意单词</translation>
     </message>
     <message>
+      <location filename="../completionhelper.cpp" line="260"/>
+      <source>String</source>
+      <translation>字符串</translation>
+    </message>
+    <message>
+      <location filename="../completionhelper.cpp" line="263"/>
+      <location filename="../completionhelper.cpp" line="266"/>
+      <source>Number</source>
+      <translation>编号</translation>
+    </message>
+    <message>
+      <location filename="../completionhelper.cpp" line="278"/>
+      <source>BLOB literal</source>
+      <translation>BLOB 文字</translation>
+    </message>
+    <message>
       <location filename="../completionhelper.cpp" line="438"/>
       <source>Default database</source>
       <translation>默认数据库</translation>
@@ -163,25 +179,25 @@
       <translation>数据库 %1 没有被更新，由于错误：%2</translation>
     </message>
     <message>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="353"/>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="382"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="365"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="394"/>
       <source>Database file doesn&apos;t exist.</source>
       <translation>数据库文件不存在。</translation>
     </message>
     <message>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="355"/>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="384"/>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="603"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="367"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="396"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="615"/>
       <source>No supporting plugin loaded.</source>
       <translation>没有加载所需的插件。</translation>
     </message>
     <message>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="521"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="533"/>
       <source>Database could not be initialized.</source>
       <translation>无法初始化数据库。</translation>
     </message>
     <message>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="531"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="543"/>
       <source>No suitable database driver plugin found.</source>
       <translation>没有找到合适的数据库驱动插件。</translation>
     </message>
@@ -811,12 +827,12 @@ Tables, indexes, triggers and views copied to database %3 will remain.</source>
       <translation>不完整的查询。</translation>
     </message>
     <message>
-      <location filename="../parser/sqlite3_parse.cpp" line="2526"/>
+      <location filename="../parser/sqlite3_parse.cpp" line="2527"/>
       <source>Parser stack overflow</source>
       <translation>解析堆栈溢出</translation>
     </message>
     <message>
-      <location filename="../parser/sqlite3_parse.cpp" line="5937"/>
+      <location filename="../parser/sqlite3_parse.cpp" line="5962"/>
       <source>Syntax error</source>
       <translation>语法错误</translation>
     </message>

@@ -127,6 +127,22 @@
       <translation>N’importe quel mot</translation>
     </message>
     <message>
+      <location filename="../completionhelper.cpp" line="260"/>
+      <source>String</source>
+      <translation type="unfinished">String</translation>
+    </message>
+    <message>
+      <location filename="../completionhelper.cpp" line="263"/>
+      <location filename="../completionhelper.cpp" line="266"/>
+      <source>Number</source>
+      <translation type="unfinished">Number</translation>
+    </message>
+    <message>
+      <location filename="../completionhelper.cpp" line="278"/>
+      <source>BLOB literal</source>
+      <translation type="unfinished">BLOB literal</translation>
+    </message>
+    <message>
       <location filename="../completionhelper.cpp" line="438"/>
       <source>Default database</source>
       <translation>Base de données par défaut</translation>
@@ -163,25 +179,25 @@
       <translation>La base de données %1 ne peut être mise à jour à cause de l’erreur : %2</translation>
     </message>
     <message>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="353"/>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="382"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="365"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="394"/>
       <source>Database file doesn&apos;t exist.</source>
       <translation>Le fichier de la base de données n&apos;existe pas.</translation>
     </message>
     <message>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="355"/>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="384"/>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="603"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="367"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="396"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="615"/>
       <source>No supporting plugin loaded.</source>
       <translation>Aucun plugin supporté chargé.</translation>
     </message>
     <message>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="521"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="533"/>
       <source>Database could not be initialized.</source>
       <translation>La base de données ne peut être initialisée.</translation>
     </message>
     <message>
-      <location filename="../services/impl/dbmanagerimpl.cpp" line="531"/>
+      <location filename="../services/impl/dbmanagerimpl.cpp" line="543"/>
       <source>No suitable database driver plugin found.</source>
       <translation>Aucun pilote de base de données approprié trouvé.</translation>
     </message>
@@ -811,12 +827,12 @@ Tables, indexes, déclencheurs et vues copiés dans la base de données %3 reste
       <translation>Requête imcomplète.</translation>
     </message>
     <message>
-      <location filename="../parser/sqlite3_parse.cpp" line="2526"/>
+      <location filename="../parser/sqlite3_parse.cpp" line="2527"/>
       <source>Parser stack overflow</source>
       <translation>Analyse dépassement pile</translation>
     </message>
     <message>
-      <location filename="../parser/sqlite3_parse.cpp" line="5937"/>
+      <location filename="../parser/sqlite3_parse.cpp" line="5962"/>
       <source>Syntax error</source>
       <translation>Erreur de syntaxe</translation>
     </message>
