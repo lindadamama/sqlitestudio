@@ -132,8 +132,8 @@ class API_EXPORT SchemaResolver
         SqliteCreateTablePtr resolveVirtualTableAsRegularTable(const QString& table);
         SqliteCreateTablePtr resolveVirtualTableAsRegularTable(const QString& database, const QString& table);
 
-        QStringList getWithoutRowIdTableColumns(const QString& table);
-        QStringList getWithoutRowIdTableColumns(const QString& database, const QString& table);
+        QStringList getRowIdTableColumns(const QString& table);
+        QStringList getRowIdTableColumns(const QString& database, const QString& table);
 
         /**
          * @brief getTableColumns Get column names for a table.
@@ -255,7 +255,7 @@ class API_EXPORT SchemaResolver
         static ExpiringCache<QString, QString> autoIndexDdlCache;
 };
 
-TYPE_OF_QHASH qHash(const SchemaResolver::ObjectCacheKey& key);
+size_t qHash(const SchemaResolver::ObjectCacheKey& key);
 int operator==(const SchemaResolver::ObjectCacheKey& k1, const SchemaResolver::ObjectCacheKey& k2);
 
 template <class T>

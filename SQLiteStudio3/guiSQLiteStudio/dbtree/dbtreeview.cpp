@@ -46,6 +46,12 @@ DbTreeItem *DbTreeView::currentItem()
     return dynamic_cast<DbTreeItem*>(model()->itemFromIndex(currentIndex()));
 }
 
+void DbTreeView::setCurrentItem(DbTreeItem* item)
+{
+    expandToMakeVisible(item);
+    setCurrentIndex(item->index());
+}
+
 DbTreeItem* DbTreeView::currentDbItem()
 {
     DbTreeItem* item = currentItem();
@@ -68,6 +74,16 @@ QList<DbTreeItem *> DbTreeView::selectionItems()
         items += dynamic_cast<DbTreeItem*>(model()->itemFromIndex(modIdx));
 
     return items;
+}
+
+void DbTreeView::selectItems(const QList<DbTreeItem*>& items)
+{
+    selectionModel()->clearSelection();
+    for (DbTreeItem* item : items)
+    {
+        expandToMakeVisible(item);
+        selectionModel()->select(item->index(), QItemSelectionModel::Select);
+    }
 }
 
 DbTreeModel *DbTreeView::model() const
@@ -117,11 +133,7 @@ void DbTreeView::dragMoveEvent(QDragMoveEvent *event)
 {
     QTreeView::dragMoveEvent(event);
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    DbTreeItem* dstItem = itemAt(event->pos());
-#else
     DbTreeItem* dstItem = itemAt(event->position().toPoint());
-#endif
 
     // Depending on where we drop we need a type of item we drop ON,
     // or type of parent item if we drop ABOVE/BELOW. If we drop on empty space,
@@ -197,6 +209,7 @@ bool DbTreeView::handleDoubleClick(DbTreeItem *item)
         case DbTreeItem::Type::COLUMN:
             return handleColumnDoubleClick(item);
         case DbTreeItem::Type::ITEM_PROTOTYPE:
+        case DbTreeItem::Type::SIGNATURE_OF_THIS:
             break;
     }
 
@@ -243,6 +256,16 @@ bool DbTreeView::handleColumnDoubleClick(DbTreeItem *item)
     return false;
 }
 
+void DbTreeView::expandToMakeVisible(DbTreeItem* item)
+{
+    DbTreeItem* parentItem = item->parentDbTreeItem();
+    while (parentItem)
+    {
+        expand(parentItem->index());
+        parentItem = parentItem->parentDbTreeItem();
+    }
+}
+
 QPoint DbTreeView::getLastDropPosition() const
 {
     return lastDropPosition;
@@ -259,11 +282,7 @@ QModelIndexList DbTreeView::getSelectedIndexes() const
 
 void DbTreeView::dropEvent(QDropEvent* e)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    lastDropPosition = e->pos();
-#else
     lastDropPosition = e->position().toPoint();
-#endif
 
     QTreeView::dropEvent(e);
     if (!e->isAccepted() && e->mimeData()->hasUrls() && !dbTree->getModel()->hasDbTreeItem(e->mimeData()))
