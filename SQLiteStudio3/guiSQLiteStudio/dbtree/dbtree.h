@@ -33,6 +33,7 @@ CFG_KEY_LIST(DbTree, QObject::tr("Database list"),
     CFG_KEY_ENTRY(REFRESH_SCHEMA,  Qt::Key_F5,               QObject::tr("Refresh schema"))
     CFG_KEY_ENTRY(REFRESH_SCHEMAS, Qt::SHIFT | Qt::Key_F5,   QObject::tr("Refresh all schemas"))
     CFG_KEY_ENTRY(ADD_DB,          Qt::CTRL | Qt::Key_O,     QObject::tr("Add database"))
+    CFG_KEY_ENTRY(EDIT_DB,         Qt::Key_F2,               QObject::tr("Edit selected database"))
     CFG_KEY_ENTRY(SELECT_ALL,      Qt::CTRL | Qt::Key_A,     QObject::tr("Select all items"))
     CFG_KEY_ENTRY(COPY,            Qt::CTRL | Qt::Key_C,     QObject::tr("Copy selected item(s)"))
     CFG_KEY_ENTRY(PASTE,           Qt::CTRL | Qt::Key_V,     QObject::tr("Paste from clipboard"))
@@ -220,7 +221,8 @@ class GUI_API_EXPORT DbTree : public QDockWidget, public ExtActionContainer
         void editColumn(DbTreeItem* item);
         void delColumn(DbTreeItem* item);
         void currentChanged(const QModelIndex & current, const QModelIndex & previous);
-        void deleteSelected(ItemFilterFunc filterFunc = nullptr);
+        void deleteSelected();
+        void deleteSelected(ItemFilterFunc filterFunc);
         void deleteItems(const QList<DbTreeItem*>& itemsToDelete);
         void refreshSchema();
         void dbConnected(Db* db);
