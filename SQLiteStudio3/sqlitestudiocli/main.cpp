@@ -31,9 +31,6 @@ bool cliHandleCmdLineArgs()
     parser.addHelpOption();
     parser.addVersionOption();
 
-    QCommandLineOption debugOption({"d", "debug"}, QObject::tr("Enables debug messages on standard error output."));
-    QCommandLineOption lemonDebugOption("debug-lemon", QObject::tr("Enables Lemon parser debug messages for SQL code assistant."));
-    QCommandLineOption listPluginsOption({"lp", "list-plugins"}, QObject::tr("Lists plugins installed in the SQLiteStudio and quits."));
     QCommandLineOption execSqlOption({"e", "execute-sql-file"},
                                      QObject::tr("Executes provided SQL file (including all rich features of SQLiteStudio's query executor) "
                                                  "on the specified database file and quits. "
@@ -47,6 +44,9 @@ bool cliHandleCmdLineArgs()
     QCommandLineOption ignoreErrorsOption({"ie", "ignore-errors"},
                                           QObject::tr("When used together with -e option, the execution will not stop on an error, "
                                                       "but rather continue until the end, ignoring errors."));
+    QCommandLineOption debugOption({"d", "debug"}, QObject::tr("Enables debug messages on standard error output."));
+    QCommandLineOption lemonDebugOption("debug-lemon", QObject::tr("Enables Lemon parser debug messages for SQL code assistant."));
+    QCommandLineOption listPluginsOption({"lp", "list-plugins"}, QObject::tr("Lists plugins installed in the SQLiteStudio and quits."));
 #ifdef PORTABLE_CONFIG
     QCommandLineOption checkUpdatesOption({"cu", "check-updates"},
                                           QObject::tr("Checks for updates online and prints the result to standard output."));

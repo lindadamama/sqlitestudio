@@ -16,11 +16,18 @@ class API_EXPORT TableModifier
 {
     public:
         TableModifier(Db* db, const QString& table);
+        TableModifier(Db* db, const QString& table, SqliteCreateTablePtr existingCreateTable);
         TableModifier(Db* db, const QString& database, const QString& table);
+        TableModifier(Db* db, const QString& database, const QString& table, SqliteCreateTablePtr existingCreateTable);
 
         void alterTable(SqliteCreateTablePtr newCreateTable);
+        void dropTable();
+        void removeFks(const QString& referencedTable);
+        void removeColumnFk(const QString& referencedTable, const QString& srcColumn, const QString& trgColumn);
+        void removeCompoundFk(const QString& referencedTable, const QList<QPair<QString,QString>>& tableColumnPairs);
+        SqliteCreateTablePtr removeFk(const QString& referencedTable, const QList<QPair<QString,QString>>& tableColumnPairs);
 
-        QStringList generateSqls() const;
+        QStringList getGeneratedSqls() const;
         bool isValid() const;
         QStringList getErrors() const;
         QStringList getWarnings() const;
@@ -29,6 +36,11 @@ class API_EXPORT TableModifier
         QStringList getModifiedTriggers() const;
         QStringList getModifiedViews() const;
         bool hasMessages() const;
+        bool getDisableFkEnforcement() const;
+        void setDisableFkEnforcement(bool newDisableFkEnforcement);
+
+        bool getUseLegacyAlterRename() const;
+        void setUseLegacyAlterRename(bool newUseLegacyAlterRename);
 
     private:
         void init();
@@ -39,7 +51,11 @@ class API_EXPORT TableModifier
         QString renameToTemp(bool doCopyData = true);
         void copyDataTo(const QString& table);
         void copyDataTo(SqliteCreateTablePtr newCreateTable);
-
+        void prepare();
+        void postProcess();
+        void actAsSubmodifier();
+        void processColumnFkRemoval(SqliteCreateTablePtr& newCreateTable, const QString& referencedTable, const QString& srcColumn, const QString& trgColumn);
+        void processCompoundFkRemoval(SqliteCreateTablePtr& newCreateTable, const QString& referencedTable, const QList<QPair<QString,QString>>& tableColumnPairs);
         void handleIndexes();
         void handleIndex(SqliteCreateIndexPtr index);
         void handleTriggers();
@@ -70,6 +86,7 @@ class API_EXPORT TableModifier
          * Finds all tables referencing currently modified table and updates their referenced table name and columns.
          */
         void handleFks();
+        void importResultsFromSubmodier(TableModifier& subModifier);
         void handleFkAsSubModifier(const QString& oldName, const QString& theNewName);
         bool handleFkStmt(SqliteForeignKey* fk, const QString& oldName, const QString& theNewName);
         bool handleFkConstrains(SqliteCreateTable* stmt, const QString& oldName, const QString& theNewName);
@@ -111,7 +128,7 @@ class API_EXPORT TableModifier
                 }
 
                 // It wasn't modified, but it's not on existing columns list? Remove it.
-                if (indexOf(existingColumns, colName, Qt::CaseInsensitive) == -1)
+                if (!existingColumns.contains(colName, Qt::CaseInsensitive))
                 {
                     it.remove();
                     modified = true;
@@ -155,12 +172,16 @@ class API_EXPORT TableModifier
         QStringList existingColumns;
         QHash<QString, QString> tableColMap;
         QHash<QString, QString> triggerNameToDdlMap;
-        QStringList tablesHandledForFk;
+        QStringList tablesHandledForFk; // should not be shared between parent-child TableModifiers
         QStringList modifiedTables;
         QStringList modifiedIndexes;
         QStringList modifiedTriggers;
         QStringList modifiedViews;
         QStringList usedTempTableNames;
+        bool disableFkEnforcement = true;
+        bool useLegacyAlterRename = true;
+        bool fkEnforcementWasEnabled = true;
+        bool legacyAlterRenameWasEnabled = false;
 };
 
 

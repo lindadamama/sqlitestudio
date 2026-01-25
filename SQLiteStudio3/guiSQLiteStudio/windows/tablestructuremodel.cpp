@@ -227,6 +227,22 @@ void TableStructureModel::delColumn(int colIdx)
     emit columnDeleted(name);
 }
 
+void TableStructureModel::renameColumn(int colIdx, const QString& newName)
+{
+    if (createTable.isNull())
+        return;
+
+    SqliteCreateTable::Column* column = createTable->columns[colIdx];
+    QString oldColumnName = column->name;
+    column->name = newName;
+    modified = true;
+
+    QModelIndex idx = createIndex(colIdx, getHeaderColumnIdx(Columns::NAME));
+    emit modifiyStateChanged();
+    emit dataChanged(idx, idx);
+    emit columnModified(oldColumnName, column);
+}
+
 void TableStructureModel::moveColumnUp(int colIdx)
 {
     moveColumnTo(colIdx, colIdx-1);
@@ -286,6 +302,11 @@ QModelIndex TableStructureModel::findColumn(const QString& columnName, Qt::CaseS
         row++;
     }
     return QModelIndex();
+}
+
+int TableStructureModel::getHeaderColumnIdx(Columns headerColumn) const
+{
+    return static_cast<int>(headerColumn);
 }
 
 QString TableStructureModel::columnLabel(int column) const
@@ -568,24 +589,14 @@ QString TableStructureModel::getToolTip(int row, Columns modelColumn) const
             return QString();
     }
 
-    SqliteCreateTable::Column::Constraint* constraint = findFirst<SqliteCreateTable::Column::Constraint>(
-            col->constraints,
-            [lookFor](SqliteCreateTable::Column::Constraint* constr) -> bool
-            {
-                return constr->type == lookFor;
-            }
-        );
+    SqliteCreateTable::Column::Constraint* constraint = col->constraints |
+                                                        FIND_FIRST(constr, {return constr->type == lookFor;});
 
     SqliteCreateTable::Constraint* tableConstraint = nullptr;
     if (tableConstrDefined)
     {
-        tableConstraint = findFirst<SqliteCreateTable::Constraint>(
-                createTable->constraints,
-                [lookForTableType](SqliteCreateTable::Constraint* constr) -> bool
-                {
-                    return constr->type == lookForTableType;
-                }
-            );
+        tableConstraint = createTable->constraints |
+                          FIND_FIRST(constr, {return constr->type == lookForTableType;});
     }
 
     if (!constraint && !tableConstraint)

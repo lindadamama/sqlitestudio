@@ -61,7 +61,7 @@ SqliteCreateTable::~SqliteCreateTable()
 {
 }
 
-SqliteStatement*SqliteCreateTable::clone()
+SqliteStatement* SqliteCreateTable::clone()
 {
     return new SqliteCreateTable(*this);
 }
@@ -123,6 +123,81 @@ SqliteCreateTable::Column* SqliteCreateTable::getColumn(const QString& colName)
             return col;
     }
     return nullptr;
+}
+
+int SqliteCreateTable::getColumnIndex(const QString& colName)
+{
+    int idx = 0;
+    for (Column*& col : columns)
+    {
+        if (col->name.compare(colName, Qt::CaseInsensitive) == 0)
+            return idx;
+
+        idx++;
+    }
+    return -1;
+}
+
+QList<SqliteCreateTable::Constraint*> SqliteCreateTable::getTableConstraintsOnColumn(const QString& column) const
+{
+    QList<SqliteCreateTable::Constraint*> results;
+    for (auto&& constr : constraints)
+    {
+        if (constr->indexedColumns | CONTAINS(idxCol, {return idxCol->name.compare(column, Qt::CaseInsensitive) == 0;}))
+            results << constr;
+    }
+    return results;
+}
+
+QList<SqliteCreateTable::Constraint*> SqliteCreateTable::getTableConstraintsOnColumn(Column* column) const
+{
+    return getTableConstraintsOnColumn(column->name);
+}
+
+QList<SqliteCreateTable::Column::Constraint*> SqliteCreateTable::getColumnForeignKeysByTable(const QString& foreignTable, const QString& srcCol, const QString& trgCol) const
+{
+    QList<SqliteCreateTable::Column::Constraint*> results;
+    for (auto&& col : columns)
+    {
+        if (col->name.compare(srcCol, Qt::CaseInsensitive) != 0)
+            continue;
+
+        auto fks = col->getForeignKeysByTable(foreignTable);
+        for (SqliteCreateTable::Column::Constraint*& constr : fks)
+        {
+            QStringList fkCols = constr->foreignKey->getColumnNames();
+            if (fkCols.size() != 1 || fkCols.first().compare(trgCol, Qt::CaseInsensitive) != 0)
+                continue;
+
+            results << constr;
+        }
+    }
+    return results;
+}
+
+QList<SqliteCreateTable::Constraint*> SqliteCreateTable::getForeignKeysByTable(const QString& foreignTable, const QList<QPair<QString, QString> >& tableColumnPairs) const
+{
+    static_qstring(pairTpl, "%1 -> %2");
+    QSet<QString> comparablePairs = toSet(
+            tableColumnPairs |
+                MAP(pair, {return pairTpl.arg(pair.first.toLower(), pair.second.toLower());})
+        );
+
+    QList<SqliteCreateTable::Constraint*> results;
+    for (SqliteCreateTable::Constraint*& constr : getForeignKeysByTable(foreignTable))
+    {
+        QSet<QString> constrPairs;
+        for (int idx = 0; idx < constr->indexedColumns.size(); idx++)
+        {
+            QString colName = constr->indexedColumns[idx]->name;
+            QString refColName = constr->foreignKey->indexedColumns[idx]->name;
+            constrPairs << pairTpl.arg(colName.toLower(), refColName.toLower());
+        }
+
+        if (comparablePairs == constrPairs)
+            results << constr;
+    }
+    return results;
 }
 
 QList<SqliteCreateTable::Constraint*> SqliteCreateTable::getForeignKeysByTable(const QString& foreignTable) const
@@ -220,7 +295,7 @@ QList<SqliteStatement::FullObject> SqliteCreateTable::getFullObjectsInStatement(
     return result;
 }
 
-TokenList SqliteCreateTable::rebuildTokensFromContents()
+TokenList SqliteCreateTable::rebuildTokensFromContents() const
 {
     StatementTokenBuilder builder;
     builder.withTokens(SqliteQuery::rebuildTokensFromContents());
@@ -503,6 +578,36 @@ QString SqliteCreateTable::Column::Constraint::typeString() const
     return QString();
 }
 
+QString SqliteCreateTable::Column::Constraint::defaultValueAsString() const
+{
+    if (!id.isNull())
+        return id;
+    else if (!ctime.isNull())
+        return ctime;
+    else if (expr)
+        return expr->detokenize();
+    else if (literalNull)
+        return "NULL";
+    else
+        return valueToSqlLiteral(literalValue);
+}
+
+QString SqliteCreateTable::Column::Constraint::checkExprAsString() const
+{
+    if (!expr)
+        return "";
+
+    return expr->detokenize();
+}
+
+QString SqliteCreateTable::Column::Constraint::generatedExprAsString() const
+{
+    if (!expr)
+        return "";
+
+    return expr->detokenize();
+}
+
 SqliteCreateTable::Constraint::Constraint()
 {
 }
@@ -629,7 +734,12 @@ QString SqliteCreateTable::Constraint::typeString() const
     return QString();
 }
 
-TokenList SqliteCreateTable::Constraint::rebuildTokensFromContents()
+QStringList SqliteCreateTable::Constraint::getColumnNames() const
+{
+    return indexedColumns | MAP(idxCol, {return idxCol->getColumnName();});
+}
+
+TokenList SqliteCreateTable::Constraint::rebuildTokensFromContents() const
 {
     StatementTokenBuilder builder;
 
@@ -807,14 +917,14 @@ TokenList SqliteCreateTable::Column::getColumnTokensInStatement()
     return getTokenListFromNamedKey("columnid");
 }
 
-TokenList SqliteCreateTable::Column::rebuildTokensFromContents()
+TokenList SqliteCreateTable::Column::rebuildTokensFromContents() const
 {
     StatementTokenBuilder builder;
     builder.withOther(name).withStatement(type).withStatementList(constraints, "");
     return builder.build();
 }
 
-TokenList SqliteCreateTable::Column::Constraint::rebuildTokensFromContents()
+TokenList SqliteCreateTable::Column::Constraint::rebuildTokensFromContents() const
 {
     StatementTokenBuilder builder;
     if (!name.isNull())

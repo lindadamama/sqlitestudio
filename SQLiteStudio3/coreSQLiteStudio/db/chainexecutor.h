@@ -205,6 +205,10 @@ class API_EXPORT ChainExecutor : public QObject
         void setDisableObjectDropsDetection(bool value);
 
         bool isExecuting() const;
+        void setRollbackOnErrorTo(const QString& savepoint);
+
+        bool getUseLegacyAlterRename() const;
+        void setUseLegacyAlterRename(bool newUseLegacyAlterRename);
 
     private:
         /**
@@ -252,6 +256,7 @@ class API_EXPORT ChainExecutor : public QObject
         Db::Flags getExecFlags() const;
 
         void restoreFk();
+        void restoreAlterRename();
 
         /**
          * @brief Database for execution.
@@ -333,7 +338,11 @@ class API_EXPORT ChainExecutor : public QObject
         QHash<QString,QVariant> queryParams;
 
         bool disableForeignKeys = false;
+        bool foreignKeysWereDisabled = false;
+        bool useLegacyAlterRename = false;
+        bool legacyAlterRenameWasUsed = false;
         bool disableObjectDropsDetection = false;
+        QString errorSavepoint;
 
         SqlQueryPtr lastExecutionResults;
 
@@ -389,6 +398,12 @@ class API_EXPORT ChainExecutor : public QObject
          * See setMandatoryQueries() for details on mandatory queries.
          */
         void failure(int errorCode, const QString& errorText);
+
+        /**
+         * @brief Emitted just before executing each query.
+         * @param queryIndex Index of the query about to be executed.
+         */
+        void aboutToExecuteQueryNumber(int queryIndex);
 };
 
 #endif // CHAINEXECUTOR_H

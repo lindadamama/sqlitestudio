@@ -77,6 +77,9 @@ class API_EXPORT SqliteCreateTable : public SqliteQuery, public SqliteDdlWithDbC
                         void initColl(const QString& name);
                         void initGeneratedAs(SqliteExpr* expr, bool genKw, const QString& type);
                         QString typeString() const;
+                        QString defaultValueAsString() const;
+                        QString checkExprAsString() const;
+                        QString generatedExprAsString() const;
 
                         Type type;
                         QString name = QString();
@@ -99,7 +102,7 @@ class API_EXPORT SqliteCreateTable : public SqliteQuery, public SqliteDdlWithDbC
                         SqliteInitially initially = SqliteInitially::null;
 
                     protected:
-                        TokenList rebuildTokensFromContents();
+                        TokenList rebuildTokensFromContents() const;
 
                 };
 
@@ -133,7 +136,7 @@ class API_EXPORT SqliteCreateTable : public SqliteQuery, public SqliteDdlWithDbC
             protected:
                 QStringList getColumnsInStatement();
                 TokenList getColumnTokensInStatement();
-                TokenList rebuildTokensFromContents();
+                TokenList rebuildTokensFromContents() const;
 
             private:
                 static const QRegularExpression GENERATED_ALWAYS_REGEXP;
@@ -172,6 +175,7 @@ class API_EXPORT SqliteCreateTable : public SqliteQuery, public SqliteDdlWithDbC
                 bool doesAffectColumn(const QString& columnName);
                 int getAffectedColumnIdx(const QString& columnName);
                 QString typeString() const;
+                QStringList getColumnNames() const;
 
                 Type type;
                 QString name = QString();
@@ -183,7 +187,7 @@ class API_EXPORT SqliteCreateTable : public SqliteQuery, public SqliteDdlWithDbC
                 bool afterComma = false;
 
             protected:
-                TokenList rebuildTokensFromContents();
+                TokenList rebuildTokensFromContents() const;
         };
 
         typedef QSharedPointer<Constraint> ConstraintPtr;
@@ -204,8 +208,13 @@ class API_EXPORT SqliteCreateTable : public SqliteQuery, public SqliteDdlWithDbC
         SqliteStatement* getPrimaryKey() const;
         QStringList getPrimaryKeyColumns() const;
         Column* getColumn(const QString& colName);
+        int getColumnIndex(const QString& colName);
+        QList<Constraint*> getTableConstraintsOnColumn(Column* column) const;
+        QList<Constraint*> getTableConstraintsOnColumn(const QString& column) const;
         QList<Constraint*> getForeignKeysByTable(const QString& foreignTable) const;
+        QList<Constraint*> getForeignKeysByTable(const QString& foreignTable, const QList<QPair<QString, QString>>& tableColumnPairs) const;
         QList<Column::Constraint*> getColumnForeignKeysByTable(const QString& foreignTable) const;
+        QList<Column::Constraint*> getColumnForeignKeysByTable(const QString& foreignTable, const QString& srcCol, const QString& trgCol) const;
         void removeColumnConstraint(Column::Constraint* constr);
         QStringList getColumnNames() const;
         QHash<QString,QString> getModifiedColumnsMap(bool lowercaseKeys = false, Qt::CaseSensitivity cs = Qt::CaseInsensitive) const;
@@ -231,7 +240,7 @@ class API_EXPORT SqliteCreateTable : public SqliteQuery, public SqliteDdlWithDbC
         TokenList getTableTokensInStatement();
         TokenList getDatabaseTokensInStatement();
         QList<FullObject> getFullObjectsInStatement();
-        TokenList rebuildTokensFromContents();
+        TokenList rebuildTokensFromContents() const;
 
     private:
         void init(bool ifNotExistsKw, int temp, const QString& name1, const QString& name2);

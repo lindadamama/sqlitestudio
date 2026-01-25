@@ -258,7 +258,7 @@ QList<DataType> SchemaResolver::getTableColumnDataTypes(const QString& database,
 StrHash<QStringList> SchemaResolver::getAllTableColumns(const QString &database)
 {
     StrHash<QStringList> tableColumns;
-    for (auto&& table : getTables(database))
+    for (const QString& table : getTables(database))
         tableColumns[table] = getTableColumns(database, table);
 
     return tableColumns;
@@ -801,7 +801,7 @@ QStringList SchemaResolver::getObjects(const QString &database, const QString &t
     SqlQueryPtr results = db->exec(QString("SELECT name FROM %1.sqlite_master WHERE type = ?;").arg(dbName), {type}, dbFlags);
 
     QString value;
-    for (SqlResultsRowPtr row : results->getAll())
+    for (SqlResultsRowPtr& row : results->getAll())
     {
         value = row->value(0).toString();
         if (!isFilteredOut(value, type))
@@ -1176,6 +1176,46 @@ StrHash<SchemaResolver::ObjectDetails> SchemaResolver::getAllObjectDetails(const
     return details;
 }
 
+SqliteCreateTablePtr SchemaResolver::getParsedTable(const QString &name)
+{
+    return getParsedTable("main", name);
+}
+
+SqliteCreateTablePtr SchemaResolver::getParsedTable(const QString &database, const QString &name)
+{
+    return getParsedObject(database, name, TABLE).objectCast<SqliteCreateTable>();
+}
+
+SqliteCreateIndexPtr SchemaResolver::getParsedIndex(const QString &name)
+{
+    return getParsedIndex("main", name);
+}
+
+SqliteCreateIndexPtr SchemaResolver::getParsedIndex(const QString &database, const QString &name)
+{
+    return getParsedObject(database, name, INDEX).objectCast<SqliteCreateIndex>();
+}
+
+SqliteCreateTriggerPtr SchemaResolver::getParsedTrigger(const QString &name)
+{
+    return getParsedTrigger("main", name);
+}
+
+SqliteCreateTriggerPtr SchemaResolver::getParsedTrigger(const QString &database, const QString &name)
+{
+    return getParsedObject(database, name, TRIGGER).objectCast<SqliteCreateTrigger>();
+}
+
+SqliteCreateViewPtr SchemaResolver::getParsedView(const QString &name)
+{
+    return getParsedView("main", name);
+}
+
+SqliteCreateViewPtr SchemaResolver::getParsedView(const QString &database, const QString &name)
+{
+    return getParsedObject(database, name, VIEW).objectCast<SqliteCreateView>();
+}
+
 QList<SqliteCreateIndexPtr> SchemaResolver::getParsedIndexesForTable(const QString& database, const QString& table)
 {
     static_qstring(idxForTableTpl, "SELECT sql, name FROM %1.sqlite_master WHERE type = 'index' AND lower(tbl_name) = lower(?);");
@@ -1184,7 +1224,7 @@ QList<SqliteCreateIndexPtr> SchemaResolver::getParsedIndexesForTable(const QStri
     SqlQueryPtr results = db->exec(query, {table}, dbFlags);
 
     QList<SqliteCreateIndexPtr> createIndexList;
-    for (SqlResultsRowPtr row : results->getAll())
+    for (SqlResultsRowPtr& row : results->getAll())
     {
         QString ddl = row->value(0).toString();
         QString name = row->value(1).toString();
@@ -1244,7 +1284,7 @@ QList<SqliteCreateTriggerPtr> SchemaResolver::getParsedTriggersForTableOrView(co
 
     QStringList alreadyProcessed;
     QList<SqliteCreateTriggerPtr> createTriggerList;
-    for (SqlResultsRowPtr row : results->getAll())
+    for (SqlResultsRowPtr& row : results->getAll())
     {
         alreadyProcessed << wrapString(escapeString(row->value(1).toString().toLower()));
         SqliteQueryPtr parsedDdl = getParsedDdl(row->value(0).toString());
@@ -1265,7 +1305,7 @@ QList<SqliteCreateTriggerPtr> SchemaResolver::getParsedTriggersForTableOrView(co
         query = allTrigTpl.arg(wrapObjName(database), alreadyProcessed.join(", "));
         results = db->exec(query, dbFlags);
 
-        for (SqlResultsRowPtr row : results->getAll())
+        for (SqlResultsRowPtr& row : results->getAll())
         {
             SqliteQueryPtr parsedDdl = getParsedDdl(row->value(0).toString());
             if (!parsedDdl)
@@ -1277,7 +1317,7 @@ QList<SqliteCreateTriggerPtr> SchemaResolver::getParsedTriggersForTableOrView(co
                 qWarning() << "Parsed DDL was not a CREATE TRIGGER statement, while queried for triggers.";
                 continue;
             }
-            if (indexOf(createTrigger->getContextTables(), tableOrView, Qt::CaseInsensitive) > -1)
+            if (createTrigger->getContextTables().contains(tableOrView, Qt::CaseInsensitive))
                 createTriggerList << createTrigger;
         }
     }
@@ -1394,7 +1434,7 @@ QList<SqliteCreateViewPtr> SchemaResolver::getParsedViewsForTable(const QString&
             continue;
         }
 
-        if (indexOf(createView->getContextTables(), table, Qt::CaseInsensitive) > -1)
+        if (createView->getContextTables().contains(table, Qt::CaseInsensitive))
             createViewList << createView;
     }
     return createViewList;
@@ -1584,15 +1624,20 @@ QString SchemaResolver::normalizeCaseObjectNameByQuery(const QString& query, con
 
 QStringList SchemaResolver::getObjectDdlsReferencingTableOrView(const QString& database, const QString& table, ObjectType type)
 {
-    static_qstring(trigForTableTpl, "SELECT sql FROM %1.sqlite_master WHERE type = '%3' AND (tbl_name = '%2' OR lower(tbl_name) = lower('%2'));"); // non-lower variant for cyrlic alphabet
+    static_qstring(trigForTableTpl, "SELECT name, sql FROM %1.sqlite_master WHERE type = '%3' AND (tbl_name = '%2' OR lower(tbl_name) = lower('%2'));"); // non-lower variant for cyrlic alphabet
 
-    QString query = trigForTableTpl.arg(wrapObjName(database), escapeString(table), objectTypeToString(type));
+    QString typeStr = objectTypeToString(type);
+    QString query = trigForTableTpl.arg(wrapObjName(database), escapeString(table), typeStr);
     SqlQueryPtr results = db->exec(query, dbFlags);
 
     QStringList ddls;
-    for (SqlResultsRowPtr row : results->getAll())
+    for (SqlResultsRowPtr& row : results->getAll())
     {
-        QString ddl = row->value(0).toString();
+        QString objName = row->value("name").toString();
+        if (isFilteredOut(objName, typeStr))
+            continue;
+
+        QString ddl = row->value("sql").toString();
         if (!ddl.trimmed().endsWith(";"))
             ddl += ";";
 

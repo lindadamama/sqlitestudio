@@ -26,7 +26,7 @@ SqliteStatement*SqliteWith::clone()
     return new SqliteWith(*this);
 }
 
-TokenList SqliteWith::rebuildTokensFromContents()
+TokenList SqliteWith::rebuildTokensFromContents() const
 {
     StatementTokenBuilder builder;
 
@@ -61,7 +61,7 @@ SqliteStatement* SqliteWith::CommonTableExpression::clone()
     return new SqliteWith::CommonTableExpression(*this);
 }
 
-TokenList SqliteWith::CommonTableExpression::rebuildTokensFromContents()
+TokenList SqliteWith::CommonTableExpression::rebuildTokensFromContents() const
 {
     StatementTokenBuilder builder;
     builder.withOther(table);

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>320</height>
+    <height>368</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -26,7 +26,7 @@
       <item>
        <widget class="QLabel" name="fkTableLabel">
         <property name="text">
-         <string>Foreign table:</string>
+         <string>Referenced table:</string>
         </property>
        </widget>
       </item>
@@ -42,7 +42,7 @@
       <item>
        <widget class="QLabel" name="fkColumnLabel">
         <property name="text">
-         <string>Foreign column:</string>
+         <string>Referenced column:</string>
         </property>
        </widget>
       </item>

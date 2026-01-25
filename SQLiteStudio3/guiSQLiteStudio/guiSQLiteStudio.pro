@@ -32,7 +32,10 @@ QMAKE_CXXFLAGS += -pedantic
 DEFINES += GUISQLITESTUDIO_LIBRARY
 
 SOURCES +=\
+    common/colorpickerpopup.cpp \
+    common/customsplitter.cpp \
     common/dbcombobox.cpp \
+    common/deleteonfocusoutfilter.cpp \
     common/dialogsizehandler.cpp \
     common/immediatetooltip.cpp \
     common/mouseshortcut.cpp \
@@ -193,7 +196,10 @@ SOURCES +=\
     dialogs/fileexecerrorsdialog.cpp
 
 HEADERS  += mainwindow.h \
+    common/colorpickerpopup.h \
+    common/customsplitter.h \
     common/dbcombobox.h \
+    common/deleteonfocusoutfilter.h \
     common/dialogsizehandler.h \
     common/immediatetooltip.h \
     common/mouseshortcut.h \

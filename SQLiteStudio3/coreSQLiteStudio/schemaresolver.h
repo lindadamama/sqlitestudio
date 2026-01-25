@@ -79,6 +79,11 @@ class API_EXPORT SchemaResolver
         };
 
         explicit SchemaResolver(Db* db);
+        SchemaResolver(const SchemaResolver&) = delete;
+        SchemaResolver& operator=(const SchemaResolver&) = delete;
+
+        SchemaResolver(SchemaResolver&&) = delete;
+        SchemaResolver& operator=(SchemaResolver&&) = delete;
         virtual ~SchemaResolver();
 
         QStringList getTables(const QString& database = QString());
@@ -117,6 +122,15 @@ class API_EXPORT SchemaResolver
 
         StrHash<ObjectDetails> getAllObjectDetails();
         StrHash<ObjectDetails> getAllObjectDetails(const QString& database);
+
+        SqliteCreateTablePtr getParsedTable(const QString& name);
+        SqliteCreateTablePtr getParsedTable(const QString& database, const QString& name);
+        SqliteCreateIndexPtr getParsedIndex(const QString& name);
+        SqliteCreateIndexPtr getParsedIndex(const QString& database, const QString& name);
+        SqliteCreateTriggerPtr getParsedTrigger(const QString& name);
+        SqliteCreateTriggerPtr getParsedTrigger(const QString& database, const QString& name);
+        SqliteCreateViewPtr getParsedView(const QString& name);
+        SqliteCreateViewPtr getParsedView(const QString& database, const QString& name);
 
         QList<SqliteCreateIndexPtr> getParsedIndexesForTable(const QString& database, const QString& table);
         QList<SqliteCreateIndexPtr> getParsedIndexesForTable(const QString& table);

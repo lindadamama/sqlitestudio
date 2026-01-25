@@ -27,6 +27,7 @@ void ChainExecutor::setQueries(const QStringList& value)
 {
     sqls = value;
     queryParams.clear();
+    errorSavepoint.clear();
 }
 
 void ChainExecutor::exec()
@@ -47,12 +48,31 @@ void ChainExecutor::exec()
 
     if (disableForeignKeys)
     {
-        SqlQueryPtr result = db->exec("PRAGMA foreign_keys = 0;");
-        if (result->isError())
+        foreignKeysWereDisabled = db->exec("PRAGMA foreign_keys;")->getSingleCell().toBool();
+        if (!foreignKeysWereDisabled)
         {
-            emit finished(SqlQueryPtr());
-            emit failure(db->getErrorCode(), tr("Could not disable foreign keys in the database. Details: %1", "chain executor").arg(db->getErrorText()));
-            return;
+            SqlQueryPtr result = db->exec("PRAGMA foreign_keys = 0;");
+            if (result->isError())
+            {
+                emit finished(SqlQueryPtr());
+                emit failure(db->getErrorCode(), tr("Could not disable foreign keys in the database. Details: %1", "chain executor").arg(db->getErrorText()));
+                return;
+            }
+        }
+    }
+
+    if (useLegacyAlterRename)
+    {
+        legacyAlterRenameWasUsed = db->exec("PRAGMA legacy_alter_table;")->getSingleCell().toBool();
+        if (!legacyAlterRenameWasUsed)
+        {
+            SqlQueryPtr result = db->exec("PRAGMA legacy_alter_table = true;");
+            if (result->isError())
+            {
+                emit finished(SqlQueryPtr());
+                emit failure(db->getErrorCode(), tr("Could not switch to legacy ALTER RENAME behavior in the database. Details: %1", "chain executor").arg(db->getErrorText()));
+                return;
+            }
         }
     }
 
@@ -63,8 +83,10 @@ void ChainExecutor::exec()
         return;
     }
 
+    interrupted = false;
     executionInProgress = true;
     currentSqlIndex = 0;
+    executionErrors.clear();
     if (async)
         executeCurrentSql();
     else
@@ -91,6 +113,7 @@ void ChainExecutor::executeCurrentSql()
         return;
     }
 
+    emit aboutToExecuteQueryNumber(currentSqlIndex);
     asyncId = db->asyncExec(sqls[currentSqlIndex], queryParams, getExecFlags());
 }
 
@@ -135,10 +158,14 @@ void ChainExecutor::handleAsyncResults(quint32 asyncId, SqlQueryPtr results)
 
 void ChainExecutor::executionFailure(int errorCode, const QString& errorText)
 {
+    static_qstring(rollbackTpl, "ROLLBACK TO '%1'");
     if (transaction)
         db->rollback();
+    else if (!errorSavepoint.isEmpty())
+        db->exec(rollbackTpl.arg(errorSavepoint));
 
     restoreFk();
+    restoreAlterRename();
     successfulExecution = false;
     executionErrors << ExecutionError(errorCode, errorText);
     emit finished(lastExecutionResults);
@@ -155,6 +182,7 @@ void ChainExecutor::executionSuccessful(SqlQueryPtr results)
     }
 
     restoreFk();
+    restoreAlterRename();
     successfulExecution = true;
     emit finished(results);
     emit success(results);
@@ -165,8 +193,10 @@ void ChainExecutor::executeSync()
 {
     Db::Flags flags = getExecFlags();
     SqlQueryPtr results;
+    int queryIdx = 0;
     for (const QString& sql : sqls)
     {
+        emit aboutToExecuteQueryNumber(queryIdx++);
         results = db->exec(sql, queryParams, flags);
         if (!handleResults(results))
             return;
@@ -201,7 +231,7 @@ Db::Flags ChainExecutor::getExecFlags() const
 
 void ChainExecutor::restoreFk()
 {
-    if (disableForeignKeys)
+    if (disableForeignKeys && !foreignKeysWereDisabled)
     {
         SqlQueryPtr result = db->exec("PRAGMA foreign_keys = 1;");
         if (result->isError())
@@ -209,9 +239,34 @@ void ChainExecutor::restoreFk()
     }
 }
 
+void ChainExecutor::restoreAlterRename()
+{
+    if (useLegacyAlterRename && !legacyAlterRenameWasUsed)
+    {
+        SqlQueryPtr result = db->exec("PRAGMA legacy_alter_table = false;");
+        if (result->isError())
+            qCritical() << "Could not restore regular ALTER RENAME behavior in the database after chain execution. Details:" << db->getErrorText();
+    }
+}
+
+bool ChainExecutor::getUseLegacyAlterRename() const
+{
+    return useLegacyAlterRename;
+}
+
+void ChainExecutor::setUseLegacyAlterRename(bool newUseLegacyAlterRename)
+{
+    useLegacyAlterRename = newUseLegacyAlterRename;
+}
+
 bool ChainExecutor::isExecuting() const
 {
     return executionInProgress;
+}
+
+void ChainExecutor::setRollbackOnErrorTo(const QString& savepoint)
+{
+    errorSavepoint = savepoint;
 }
 
 bool ChainExecutor::getDisableObjectDropsDetection() const

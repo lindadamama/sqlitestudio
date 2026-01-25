@@ -1176,7 +1176,7 @@ QHash<QString, QVariant> DbTreeModel::collectSelectionState()
 {
     DbTreeItem* activeItem = treeView->currentItem();
     QStringList currentItem = activeItem ? activeItem->pathSignatureParts() : QStringList();
-    QList<QVariant> selectedItems = map<DbTreeItem*, QVariant>(treeView->selectionItems(), [](auto item) {return item->pathSignatureParts();});
+    QList<QVariant> selectedItems = treeView->selectionItems() | MAP(item, {return QVariant(item->pathSignatureParts());});
 
     QHash<QString, QVariant> selectionState;
     selectionState["currentItem"] = currentItem;
@@ -1195,12 +1195,9 @@ void DbTreeModel::restoreSelectionState(const QHash<QString, QVariant>& selectio
         treeView->setCurrentItem(currentItem);
 
     // Selected items
-    QList<QStringList> selectedSignatures = map<QVariant, QStringList>(selectionState["selectedItems"].toList(), [](const QVariant& v) {return v.toStringList();});
-    QList<DbTreeItem*> selectedItems = map<QStringList, DbTreeItem*>(selectedSignatures, [&allItemMap, this](const QStringList& sig)
-    {
-        return findDeepestExistingItemBySignature(sig, allItemMap);
-    });
-    selectedItems = filter<DbTreeItem*>(selectedItems, [](DbTreeItem* item) {return !!item;});
+    QList<QStringList> selectedSignatures = selectionState["selectedItems"].toList() | MAP(v, {return v.toStringList();});
+    QList<DbTreeItem*> selectedItems = selectedSignatures | MAP(sig, {return findDeepestExistingItemBySignature(sig, allItemMap);});
+    selectedItems = selectedItems | FILTER(item, {return !!item;});
     treeView->selectItems(selectedItems);
 }
 
@@ -1393,7 +1390,7 @@ void DbTreeModel::moveOrCopyDbObjects(const QList<DbTreeItem*>& srcItems, DbTree
 QHash<QStringList, DbTreeItem*> DbTreeModel::getAllItemsWithSignatures() const
 {
     QList<DbTreeItem*> allItems = getAllItemsAsFlatList();
-    return toHash<QStringList, DbTreeItem*>(allItems, [](DbTreeItem* item) {return item->pathSignatureParts();});
+    return allItems | TO_HASH(item, {return item->pathSignatureParts();});
 }
 
 DbTreeItem* DbTreeModel::findDeepestExistingItemBySignature(QStringList signature, const QHash<QStringList, DbTreeItem*>& allItemsWithSignatures) const

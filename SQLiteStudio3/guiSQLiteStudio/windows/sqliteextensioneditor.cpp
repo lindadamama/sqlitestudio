@@ -106,7 +106,6 @@ void SqliteExtensionEditor::init()
     extensionFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     dbListModel = new SelectableDbModel(this);
-    dbListModel->setDisabledVersion(2);
     dbListModel->setSourceModel(DBTREE->getModel());
     ui->databaseList->setModel(dbListModel);
     ui->databaseList->expandAll();

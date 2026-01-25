@@ -47,7 +47,7 @@ CFG_KEY_LIST(MainWindow, QObject::tr("Main window"),
     CFG_KEY_ENTRY(OPEN_DDL_HISTORY,       Qt::CTRL | Qt::Key_H,             QObject::tr("Open DDL history window"))
     CFG_KEY_ENTRY(OPEN_SNIPPETS_EDITOR,   Qt::CTRL | Qt::SHIFT | Qt::Key_P, QObject::tr("Open snippets editor window"))
     CFG_KEY_ENTRY(OPEN_FUNCTION_EDITOR,   Qt::CTRL | Qt::SHIFT | Qt::Key_F, QObject::tr("Open function editor window"))
-    CFG_KEY_ENTRY(OPEN_COLLATION_EDITOR,  Qt::CTRL | Qt::SHIFT | Qt::Key_C, QObject::tr("Open collation editor window"))
+    CFG_KEY_ENTRY(OPEN_COLLATION_EDITOR,  Qt::CTRL | Qt::SHIFT | Qt::Key_L, QObject::tr("Open collation editor window"))
     CFG_KEY_ENTRY(OPEN_EXTENSION_MANAGER, Qt::CTRL | Qt::SHIFT | Qt::Key_E, QObject::tr("Open extension manager window"))
     CFG_KEY_ENTRY(PREV_TASK,              PREV_TASK_KEY_SEQ,                QObject::tr("Previous window"))
     CFG_KEY_ENTRY(NEXT_TASK,              NEXT_TASK_KEY_SEQ,                QObject::tr("Next window"))
@@ -139,6 +139,9 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
         ThemeTuner* getThemeTuner() const;
         EditorWindow* openSqlEditor(Db* dbToSet, const QString& sql);
 
+        template <class T, typename... Args>
+        T* openMdiWindow(Args&&... args);
+
         static_char* ALLOW_MULTIPLE_SESSIONS_SETTING = "AllowMultipleSessions";
 
     protected:
@@ -165,9 +168,6 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
         SqliteExtensionEditor* openExtensionManager();
         void fixFonts();
         void fixToolbars();
-
-        template <class T>
-        T* openMdiWindow();
 
         static bool confirmQuit(const QList<Committable*>& instances);
 
@@ -250,21 +250,21 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
         void sessionValueChanged();
 };
 
-template <class T>
-T* MainWindow::openMdiWindow()
+template <class T, typename... Args>
+T* MainWindow::openMdiWindow(Args&&... args)
 {
     T* win = nullptr;
-    for (MdiWindow* mdiWin : ui->mdiArea->getWindows())
+    for (MdiWindow*& mdiWin : ui->mdiArea->getWindows())
     {
         win = dynamic_cast<T*>(mdiWin->getMdiChild());
-        if (win)
+        if (win && win->shouldReuseForArgs(sizeof...(args), args...))
         {
             ui->mdiArea->setActiveSubWindow(mdiWin);
             return win;
         }
     }
 
-    win = new T(ui->mdiArea);
+    win = new T(ui->mdiArea, args...);
     if (win->isInvalid())
     {
         delete win;

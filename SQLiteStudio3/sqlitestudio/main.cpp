@@ -25,6 +25,7 @@
 #include "services/pluginmanager.h"
 #include "singleapplication/singleapplication.h"
 #include "services/impl/configimpl.h"
+#include "common/colorpickerpopup.h"
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QApplication>
@@ -42,6 +43,7 @@
 #endif
 
 static bool listPlugins = false;
+static bool doNotLoadPlugins = false;
 
 QString uiHandleCmdLineArgs(bool applyOptions = true)
 {
@@ -50,7 +52,9 @@ QString uiHandleCmdLineArgs(bool applyOptions = true)
     parser.addHelpOption();
     parser.addVersionOption();
 
+    QCommandLineOption masterConfigOption("master-config", QObject::tr("Points to the master configuration file. Read manual at wiki page for more details."), QObject::tr("settings file"));
     QCommandLineOption safeModeOption({"X", "safe-mode"}, QObject::tr("Starts the application in safe mode without restoring the previous session. Use this to bypass issues caused by a corrupted session."));
+    QCommandLineOption noPluginsOption("no-plugins", QObject::tr("Do not load any plugins. Can be used alongside safe mode to further isolate potential issues."));
     QCommandLineOption debugOption({"d", "debug"}, QObject::tr("Enables debug messages in console (accessible with F12)."));
     QCommandLineOption debugStdOutOption({"do", "debug-stdout"}, QObject::tr("Redirects debug messages into standard output (forces debug mode)."));
     QCommandLineOption debugFileOption({"df", "debug-file"}, QObject::tr("Redirects debug messages into given file (forces debug mode)."), QObject::tr("log file"));
@@ -59,7 +63,6 @@ QString uiHandleCmdLineArgs(bool applyOptions = true)
     QCommandLineOption sqlDebugDbNameOption("debug-sql-db", QObject::tr("Limits SQL query messages to only the given <database>."), QObject::tr("database"));
     QCommandLineOption executorDebugOption("debug-query-executor", QObject::tr("Enables debugging of SQLiteStudio's query executor."));
     QCommandLineOption listPluginsOption("list-plugins", QObject::tr("Lists plugins installed in the SQLiteStudio and quits."));
-    QCommandLineOption masterConfigOption("master-config", QObject::tr("Points to the master configuration file. Read manual at wiki page for more details."), QObject::tr("settings file"));
     parser.addOption(safeModeOption);
     parser.addOption(debugOption);
     parser.addOption(debugStdOutOption);
@@ -70,6 +73,7 @@ QString uiHandleCmdLineArgs(bool applyOptions = true)
     parser.addOption(executorDebugOption);
     parser.addOption(masterConfigOption);
     parser.addOption(listPluginsOption);
+    parser.addOption(noPluginsOption);
 
     parser.addPositionalArgument(QObject::tr("file"), QObject::tr("Database file to open"));
 
@@ -87,6 +91,9 @@ QString uiHandleCmdLineArgs(bool applyOptions = true)
 
         if (parser.isSet(listPluginsOption))
             listPlugins = true;
+
+        if (parser.isSet(noPluginsOption))
+            doNotLoadPlugins = true;
 
         if (parser.isSet(masterConfigOption))
             Config::setMasterConfigFile(parser.value(masterConfigOption));
@@ -136,16 +143,19 @@ int main(int argc, char *argv[])
 
     qInstallMessageHandler(uiMessageHandler);
 
+    qRegisterMetaType<QList<QColor>>("QList<QColor>");
+    qRegisterMetaType<QVector<QColor>>("QVector<QColor>");
+
     Config::setAskUserForConfigDirFunc([]() -> QString
     {
        return QFileDialog::getExistingDirectory(nullptr, QObject::tr("Select configuration directory"), QString(), QFileDialog::ShowDirsOnly);
     });
 
     QString dbToOpen = uiHandleCmdLineArgs();
-
     DbTreeItem::initMeta();
     SqlQueryModelColumn::initMeta();
     SqlQueryModel::staticInit();
+    ColorPickerPopup::staticInit();
 
     SQLITESTUDIO->setInitialTranslationFiles({"coreSQLiteStudio", "guiSQLiteStudio", "sqlitestudio"});
     SQLITESTUDIO->init(a.arguments(), true);
@@ -166,7 +176,8 @@ int main(int argc, char *argv[])
 
     QObject::connect(&a, &SingleApplication::receivedMessage, mainWin, &MainWindow::messageFromSecondaryInstance);
 
-    SQLITESTUDIO->initPlugins();
+    if (!doNotLoadPlugins)
+        SQLITESTUDIO->initPlugins();
 
     if (listPlugins)
     {

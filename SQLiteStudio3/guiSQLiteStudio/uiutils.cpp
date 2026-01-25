@@ -27,8 +27,7 @@ const QList<QPageSize::PageSizeId> pageSizeIds = {
     QPageSize::Custom
 };
 
-const QStringList pageSizes = map<QPageSize::PageSizeId, QString>(pageSizeIds, [](QPageSize::PageSizeId id) -> QString
-{
+const QStringList pageSizes = pageSizeIds | MAP_NO_CAP(id, {
     return QPageSize::name(id);
 });
 
@@ -115,7 +114,7 @@ QString convertPageSize(QPageSize::PageSizeId size)
 
 QPageSize convertPageSize(const QString& size)
 {
-    return QPageSize(static_cast<QPageSize::PageSizeId>(indexOf(pageSizes, size, Qt::CaseInsensitive)));
+    return QPageSize(static_cast<QPageSize::PageSizeId>(pageSizes | INDEX_OF_STR(size, Qt::CaseInsensitive)));
 }
 
 const QStringList& getAllPageSizes()
@@ -182,3 +181,24 @@ void fixToolbarTooltips(QToolBar* toolbar)
         button->setToolTip(text);
     }
 }
+
+QColor findContrastingColor(const QColor& input)
+{
+    if (!input.isValid())
+        return input;
+
+    auto channel = [](int v)
+    {
+        double c = v / 255.0;
+        return (c <= 0.03928) ? (c / 12.92)
+                              : std::pow((c + 0.055) / 1.055, 2.4);
+    };
+
+    double inputLum = (0.2126 * channel(input.red())
+                       + 0.7152 * channel(input.green())
+                       + 0.0722 * channel(input.blue()));
+
+    bool isDark = inputLum < 0.15;
+    return isDark ? QColor(240,240,240) : QColor(30,30,30);
+}
+
