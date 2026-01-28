@@ -11,6 +11,7 @@ SUBDIRS += \
     PdfExport \
     SqlExport \
     SqlFormatterSimple \
+    TclSyntaxHighlighter \
     XmlExport \
     JsonExport \
     RegExpImport \
@@ -21,5 +22,5 @@ SUBDIRS += \
     DbAndroid \
     DbSqliteWx \
     MultiEditorImage \
-	PythonSyntaxHighlighter
+    PythonSyntaxHighlighter
 

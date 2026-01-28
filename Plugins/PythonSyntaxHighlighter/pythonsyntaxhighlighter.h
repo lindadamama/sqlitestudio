@@ -36,7 +36,7 @@ class PYTHONSYNTAXHIGHLIGHTERSHARED_EXPORT PythonSyntaxHighlighterPlugin : publi
         void refreshFormats();
 
     private:
-        QMap<PythonSyntaxHighlighterPlugin::State, QTextCharFormat> styles;
+        QMap<State, QTextCharFormat> styles;
 };
 
 #endif // PYTHONSYNTAXHIGHLIGHTER_H

@@ -32,6 +32,7 @@ QMAKE_CXXFLAGS += -pedantic
 DEFINES += GUISQLITESTUDIO_LIBRARY
 
 SOURCES +=\
+    common/booltoolbutton.cpp \
     common/colorpickerpopup.cpp \
     common/customsplitter.cpp \
     common/dbcombobox.cpp \
@@ -39,6 +40,7 @@ SOURCES +=\
     common/dialogsizehandler.cpp \
     common/immediatetooltip.cpp \
     common/mouseshortcut.cpp \
+    common/passwordtogglehelper.cpp \
     constraints/columngeneratedpanel.cpp \
     datagrid/fkcombobox.cpp \
     datagrid/sqlqueryitemlineedit.cpp \
@@ -196,6 +198,7 @@ SOURCES +=\
     dialogs/fileexecerrorsdialog.cpp
 
 HEADERS  += mainwindow.h \
+    common/booltoolbutton.h \
     common/colorpickerpopup.h \
     common/customsplitter.h \
     common/dbcombobox.h \
@@ -203,6 +206,7 @@ HEADERS  += mainwindow.h \
     common/dialogsizehandler.h \
     common/immediatetooltip.h \
     common/mouseshortcut.h \
+    common/passwordtogglehelper.h \
     constraints/columngeneratedpanel.h \
     datagrid/fkcombobox.h \
     datagrid/sqlqueryitemlineedit.h \

@@ -61,6 +61,18 @@ void SqlEditor::staticInit()
 {
     wrapWords = CFG_UI.General.SqlEditorWrapWords.get();
     createStaticActions();
+
+    int originalFlashTime = QApplication::cursorFlashTime();
+    if (CFG_UI.General.DisableBlinkingCursor.get())
+        QApplication::setCursorFlashTime(0);
+
+    connect(CFG_UI.General.DisableBlinkingCursor, &CfgEntry::changed, [originalFlashTime](QVariant newValue)
+    {
+        if (newValue.toBool())
+            QApplication::setCursorFlashTime(0);
+        else
+            QApplication::setCursorFlashTime(originalFlashTime);
+    });
 }
 
 SqlEditor::SqlEditor(QWidget *parent) :
@@ -297,6 +309,7 @@ void SqlEditor::saveToFile(const QString &fileName)
     file.close();
 
     notifyInfo(tr("Saved SQL contents to file: %1").arg(fileName));
+    emit fileSaved(fileName);
 }
 
 void SqlEditor::toggleLineCommentForLine(const QTextBlock& block)
@@ -311,6 +324,11 @@ void SqlEditor::toggleLineCommentForLine(const QTextBlock& block)
     }
     else
         cur.insertText("--");
+}
+
+QString SqlEditor::getLoadedFile() const
+{
+    return loadedFile;
 }
 
 bool SqlEditor::getAlwaysEnforceErrorsChecking() const
@@ -737,7 +755,7 @@ void SqlEditor::highlightCurrentQuery(QList<QTextEdit::ExtraSelection>& selectio
         return;
 
     QTextEdit::ExtraSelection selection;
-    selection.format.setBackground(Cfg::getSyntaxCurrentQueryBg());
+    selection.format = Cfg::getSyntaxCurrentQueryFormat();
 
     cursor.setPosition(boundries.first);
     cursor.setPosition(boundries.second, QTextCursor::KeepAnchor);
@@ -761,9 +779,7 @@ void SqlEditor::highlightCurrentCursorContext(bool delayedCall)
 void SqlEditor::markMatchedParenthesis(int pos1, int pos2, QList<QTextEdit::ExtraSelection>& selections)
 {
     QTextEdit::ExtraSelection selection;
-
-    selection.format.setBackground(Cfg::getSyntaxParenthesisBg());
-    selection.format.setForeground(Cfg::getSyntaxParenthesisFg());
+    selection.format = Cfg::getSyntaxParenthesisFormat();
 
     QTextCursor cursor = textCursor();
 
@@ -1107,7 +1123,7 @@ void SqlEditor::highlightCurrentLine(QList<QTextEdit::ExtraSelection>& selection
     if (!isReadOnly() && isEnabled())
     {
         QTextEdit::ExtraSelection selection;
-        selection.format.setBackground(Cfg::getSyntaxCurrentLineBg());
+        selection.format = Cfg::getSyntaxCurrentLineFormat();
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = textCursor();
         selection.cursor.clearSelection();
@@ -1222,21 +1238,29 @@ void SqlEditor::loadFromFile()
             return;
     }
 
-    QString err;
-    QString sql = readFileContents(fName, &err);
-    if (sql.isNull() && !err.isNull())
+    if (!toPlainText().trimmed().isEmpty())
     {
-        notifyError(tr("Could not open file '%1' for reading: %2").arg(fName, err));
+        MAINWINDOW->openSqlEditorForFile(db, fName);
         return;
     }
 
-    if (toPlainText().trimmed().isEmpty())
+    loadFile(fName);
+}
+
+bool SqlEditor::loadFile(const QString& fileName)
+{
+    QString err;
+    QString sql = readFileContents(fileName, &err);
+    if (sql.isNull() && !err.isNull())
     {
-        setPlainText(sql);
-        loadedFile = fName;
+        notifyError(tr("Could not open file '%1' for reading: %2").arg(fileName, err));
+        return false;
     }
-    else
-        MAINWINDOW->openSqlEditor(db, sql);
+
+    setPlainText(sql);
+    loadedFile = fileName;
+    emit fileLoaded(fileName);
+    return true;
 }
 
 void SqlEditor::deleteLine()
