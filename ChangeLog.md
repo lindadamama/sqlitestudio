@@ -9,12 +9,14 @@
 - ADDED: #5150 Added the Disable Blinkinig Cursor (for SQL Editor) option in the configuration dialog.
 - ADDED: #4117 Syntax highlighting now supports bold/italic settings.
 - ADDED: #3365 Added Tcl syntax highlighter plugin.
+- ADDED: #5449 User can now change size of icons on toolbars.
 - ADDED: #5468 Updates checking option for CLI app (--cu or --check-updates).
 - ADDED: #4232 Application will warn in status field if the open database was recently edited by a higher version of SQLite and that it may potentially cause some issues.
 - CHANGE: #4553 Application has moved to Qt 6 (dropping Qt 5 support). This solves several technical issues (for example accented characters on MacOS, better UI scaling for high DPI displays, better dark theme support and more).
 - CHANGE: #5102 All raster icons are replaced with vector icons (SVG). This makes them scalable and work well with high DPI displays.
 - CHANGE: #4862 SQL Editor is now tied to a file whenever loads or saves to that file and that tie is restored upon next application session. It also renames editor window to that file name.
 - CHANGE: #5456 Table Modifier optimization, so at most only single copying data can happen, instead of two. Also views/triggers support got improved for cases with subselects.
+- CHANGE: #5496 Code Assistant improved to suggest appropriate JOIN conditions when asked at the ON keyword of joining tables. Currently supports only plain table data sources (not subselects).
 - CHANGE: Config Dialog now remembers (until application restart) last used page and restores it when its open next time.
 - BUGFIX: #3995 Fixed blank MDI window buttons when using 150% interface scaling under Windows.
 - BIGFIX: #3146 Fixed accent characters support under MacOS.

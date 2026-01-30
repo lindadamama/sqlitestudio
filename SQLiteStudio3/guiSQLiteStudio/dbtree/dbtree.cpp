@@ -122,6 +122,7 @@ void DbTree::init()
     connect(ui->treeView, SIGNAL(expanded(QModelIndex)), this, SIGNAL(sessionValueChanged()));
     connect(ui->treeView, SIGNAL(collapsed(QModelIndex)), this, SIGNAL(sessionValueChanged()));
 
+    updateIconSize();
     updateActionsForCurrent();
 }
 
@@ -1710,12 +1711,18 @@ void DbTree::changeFontSize(int factor)
     f.setPointSize(f.pointSize() + factor);
     CFG_UI.Fonts.DbTree.set(f);
 
-    QFontMetrics fm(f);
-    ui->treeView->setIconSize(QSize(fm.height(), fm.height()));
-
     f = CFG_UI.Fonts.DbTreeLabel.get();
     f.setPointSize(f.pointSize() + factor);
     CFG_UI.Fonts.DbTreeLabel.set(f);
+
+    updateIconSize();
+}
+
+void DbTree::updateIconSize()
+{
+    auto f = CFG_UI.Fonts.DbTree.get();
+    QFontMetrics fm(f);
+    ui->treeView->setIconSize(QSize(fm.height(), fm.height()));
 }
 
 void DbTree::deleteItems(const QList<DbTreeItem*>& itemsToDelete)
@@ -1784,17 +1791,17 @@ void DbTree::deleteItems(const QList<DbTreeItem*>& itemsToDelete)
     {
         SchemaResolver resolver(dbIt.key());
         QList<DbTreeItem*>& tableItems = dbIt.value();
-        if (tableItems.size() <= 1)
-            continue;
-
-        QHash<DbTreeItem*, int> fkTableCount;
-        for (DbTreeItem*& tableItem : tableItems)
-            fkTableCount[tableItem] = resolver.getFkReferencedTables(tableItem->text()).size();
-
-        sSort(tableItems, [fkTableCount](DbTreeItem*& i1, DbTreeItem*& i2)
+        if (tableItems.size() > 1)
         {
-            return fkTableCount[i1] > fkTableCount[i2];
-        });
+            QHash<DbTreeItem*, int> fkTableCount;
+            for (DbTreeItem*& tableItem : tableItems)
+                fkTableCount[tableItem] = resolver.getFkReferencedTables(tableItem->text()).size();
+
+            sSort(tableItems, [fkTableCount](DbTreeItem*& i1, DbTreeItem*& i2)
+            {
+                return fkTableCount[i1] > fkTableCount[i2];
+            });
+        }
 
         for (DbTreeItem*& tableItem : tableItems)
             deleteItem(tableItem);
