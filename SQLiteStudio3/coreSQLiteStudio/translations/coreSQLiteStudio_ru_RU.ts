@@ -63,93 +63,93 @@
   <context>
     <name>CompletionHelper</name>
     <message>
-      <location filename="../completionhelper.cpp" line="159"/>
+      <location filename="../completionhelper.cpp" line="172"/>
       <source>New row reference</source>
       <translation>Новая ссылка на строку</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="166"/>
+      <location filename="../completionhelper.cpp" line="179"/>
       <source>Old row reference</source>
       <translation>Старая ссылка на строку</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="171"/>
+      <location filename="../completionhelper.cpp" line="184"/>
       <source>New table name</source>
       <translation>Новое имя таблицы</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="174"/>
+      <location filename="../completionhelper.cpp" line="187"/>
       <source>New index name</source>
       <translation>Новое имя индекса</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="177"/>
+      <location filename="../completionhelper.cpp" line="190"/>
       <source>New view name</source>
       <translation>Новое имя представления</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="180"/>
+      <location filename="../completionhelper.cpp" line="193"/>
       <source>New trigger name</source>
       <translation>Новое имя триггера</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="183"/>
+      <location filename="../completionhelper.cpp" line="196"/>
       <source>Table or column alias</source>
       <translation>Псевдоним таблицы или столбца</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="186"/>
+      <location filename="../completionhelper.cpp" line="199"/>
       <source>transaction name</source>
       <translation>имя транзакции</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="189"/>
+      <location filename="../completionhelper.cpp" line="202"/>
       <source>New column name</source>
       <translation>Новое имя столбца</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="192"/>
+      <location filename="../completionhelper.cpp" line="205"/>
       <source>Column data type</source>
       <translation>Тип данных столбца</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="195"/>
+      <location filename="../completionhelper.cpp" line="208"/>
       <source>Constraint name</source>
       <translation>Имя ограничения</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="208"/>
+      <location filename="../completionhelper.cpp" line="224"/>
       <source>Error message</source>
       <translation>Сообщение об ошибке</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="257"/>
+      <location filename="../completionhelper.cpp" line="273"/>
       <source>Any word</source>
       <translation>Любое слово</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="260"/>
+      <location filename="../completionhelper.cpp" line="276"/>
       <source>String</source>
       <translation>Строка</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="263"/>
-      <location filename="../completionhelper.cpp" line="266"/>
+      <location filename="../completionhelper.cpp" line="279"/>
+      <location filename="../completionhelper.cpp" line="282"/>
       <source>Number</source>
       <translation>Число</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="278"/>
+      <location filename="../completionhelper.cpp" line="294"/>
       <source>BLOB literal</source>
       <translation>Значение BLOB</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="438"/>
+      <location filename="../completionhelper.cpp" line="454"/>
       <source>Default database</source>
       <translation>База данных по умолчанию</translation>
     </message>
     <message>
-      <location filename="../completionhelper.cpp" line="439"/>
+      <location filename="../completionhelper.cpp" line="455"/>
       <source>Temporary objects database</source>
       <translation>База данных временных объектов</translation>
     </message>
@@ -823,12 +823,12 @@ Tables, indexes, triggers and views copied to database %3 will remain.</source>
       <translation>Незавершённый запрос.</translation>
     </message>
     <message>
-      <location filename="../parser/sqlite3_parse.cpp" line="2687"/>
+      <location filename="../parser/sqlite3_parse.cpp" line="2688"/>
       <source>Parser stack overflow</source>
       <translation>Переполнение стека анализатора</translation>
     </message>
     <message>
-      <location filename="../parser/sqlite3_parse.cpp" line="6297"/>
+      <location filename="../parser/sqlite3_parse.cpp" line="6306"/>
       <source>Syntax error</source>
       <translation>Синтаксическая ошибка</translation>
     </message>

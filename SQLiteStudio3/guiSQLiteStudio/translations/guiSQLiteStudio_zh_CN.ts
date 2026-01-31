@@ -333,17 +333,17 @@
     <message>
       <location filename="../common/colorpickerpopup.cpp" line="65"/>
       <source>Custom colors</source>
-      <translation type="unfinished">Custom colors</translation>
+      <translation>自定义颜色</translation>
     </message>
     <message>
       <location filename="../common/colorpickerpopup.cpp" line="73"/>
       <source>Add custom color</source>
-      <translation type="unfinished">Add custom color</translation>
+      <translation>添加自定义颜色</translation>
     </message>
     <message>
       <location filename="../common/colorpickerpopup.cpp" line="219"/>
       <source>Select color</source>
-      <translation type="unfinished">Select color</translation>
+      <translation>选择颜色</translation>
     </message>
   </context>
   <context>
@@ -658,12 +658,12 @@
     <message>
       <location filename="../constraints/columnforeignkeypanel.ui" line="29"/>
       <source>Referenced table:</source>
-      <translation type="unfinished">Referenced table:</translation>
+      <translation>引用表：</translation>
     </message>
     <message>
       <location filename="../constraints/columnforeignkeypanel.ui" line="45"/>
       <source>Referenced column:</source>
-      <translation type="unfinished">Referenced column:</translation>
+      <translation>引用列：</translation>
     </message>
     <message>
       <location filename="../constraints/columnforeignkeypanel.ui" line="58"/>
@@ -887,7 +887,13 @@
       <translation>PRAGMA 函数：%1</translation>
     </message>
     <message>
-      <location filename="../completer/completerwindow.cpp" line="286"/>
+      <location filename="../completer/completerwindow.cpp" line="245"/>
+      <source>Join condition: %1</source>
+      <comment>completer statusbar</comment>
+      <translation>加入条件： %1</translation>
+    </message>
+    <message>
+      <location filename="../completer/completerwindow.cpp" line="288"/>
       <source>Insert a code snippet</source>
       <translation>插入代码片段</translation>
     </message>
@@ -955,12 +961,12 @@
       <location filename="../dialogs/configdialog.ui" line="172"/>
       <location filename="../dialogs/configdialog.ui" line="1024"/>
       <source>SQL Editor</source>
-      <translation type="unfinished">SQL Editor</translation>
+      <translation>SQL 编辑器</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="175"/>
       <source>sqlEditorPage</source>
-      <translation type="unfinished">sqlEditorPage</translation>
+      <translation>sqlEditorPage</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="207"/>
@@ -1438,22 +1444,22 @@
     <message>
       <location filename="../dialogs/configdialog.ui" line="1030"/>
       <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When multiple queries are present, executes only the query under the cursor.&lt;br/&gt;When disabled, all queries are executed.&lt;br/&gt;You can also execute selected queries or use shortcuts (%1 for single, %2 for all).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-      <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When multiple queries are present, executes only the query under the cursor.&lt;br/&gt;When disabled, all queries are executed.&lt;br/&gt;You can also execute selected queries or use shortcuts (%1 for single, %2 for all).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+      <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当存在多个查询时，仅执行光标下的查询。&lt;br/&gt;如果禁用此功能，则执行所有查询。&lt;br/&gt;您还可以执行选定的查询或使用快捷键（%1 执行单个查询，%2 执行所有查询）。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="1043"/>
       <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Highlights the query under the cursor - the same query that will be executed when using &lt;span style=&quot; font-style:italic;&quot;&gt;Execute query&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-      <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Highlights the query under the cursor - the same query that will be executed when using &lt;span style=&quot; font-style:italic;&quot;&gt;Execute query&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+      <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;突出显示光标下的查询 - 使用 &lt;span style=&quot; font-style:italic;&quot;&gt;执行查询&lt;/span&gt;时将执行的相同查询。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="1069"/>
       <source>Disable blinking text cursor</source>
-      <translation type="unfinished">Disable blinking text cursor</translation>
+      <translation>禁用闪烁的文本光标</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="1091"/>
       <source>Trigger assistant after typing a dot</source>
-      <translation type="unfinished">Trigger assistant after typing a dot</translation>
+      <translation>输入句点后触发助手</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="1104"/>
@@ -1463,7 +1469,7 @@
     <message>
       <location filename="../dialogs/configdialog.ui" line="1113"/>
       <source>Query history size:</source>
-      <translation type="unfinished">Query history size:</translation>
+      <translation>查询历史记录大小：</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="1396"/>
@@ -1544,23 +1550,23 @@
     <message>
       <location filename="../dialogs/configdialog.ui" line="2088"/>
       <source>Toolbars</source>
-      <translation type="unfinished">Toolbars</translation>
+      <translation>工具栏</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="2094"/>
       <location filename="../dialogs/configdialog.ui" line="2104"/>
       <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expressed in percentage of default size.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-      <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expressed in percentage of default size.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+      <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;以默认大小的百分比表示。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="2097"/>
       <source>Icon size</source>
-      <translation type="unfinished">Icon size</translation>
+      <translation>图标大小</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="2107"/>
       <source>General.ToolBarIconSize</source>
-      <translation type="unfinished">General.ToolBarIconSize</translation>
+      <translation>General.ToolBarIconSize</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="2222"/>
@@ -1595,7 +1601,7 @@
     <message>
       <location filename="../dialogs/configdialog.ui" line="2541"/>
       <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Tip:&lt;/span&gt; In addition to the settings available here, font sizes can also be adjusted dynamically in most interface elements by holding &lt;span style=&quot; font-weight:700;&quot;&gt;Ctrl&lt;/span&gt; and scrolling the &lt;span style=&quot; font-weight:700;&quot;&gt;mouse wheel&lt;/span&gt; over the element whose font size you want to change.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-      <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Tip:&lt;/span&gt; In addition to the settings available here, font sizes can also be adjusted dynamically in most interface elements by holding &lt;span style=&quot; font-weight:700;&quot;&gt;Ctrl&lt;/span&gt; and scrolling the &lt;span style=&quot; font-weight:700;&quot;&gt;mouse wheel&lt;/span&gt; over the element whose font size you want to change.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+      <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;提示：&lt;/span&gt; 除了此处提供的设置外，您还可以通过按住 &lt;span style=&quot; font-weight:700;&quot;&gt;Ctrl&lt;/span&gt; 并滚动 &lt;span style=&quot; font-weight:700;&quot;&gt;鼠标滚轮&lt;/span&gt; 在要更改字体大小的元素上，动态调整大多数界面元素的字体大小。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
       <location filename="../dialogs/configdialog.ui" line="2557"/>
@@ -3346,49 +3352,49 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>FormView</name>
     <message>
-      <location filename="../formview.cpp" line="275"/>
+      <location filename="../formview.cpp" line="284"/>
       <source>Commit row</source>
       <comment>form view</comment>
       <translation>提交行</translation>
     </message>
     <message>
-      <location filename="../formview.cpp" line="276"/>
+      <location filename="../formview.cpp" line="285"/>
       <source>Rollback row</source>
       <comment>form view</comment>
       <translation>回滚行</translation>
     </message>
     <message>
-      <location filename="../formview.cpp" line="277"/>
+      <location filename="../formview.cpp" line="286"/>
       <source>First row</source>
       <comment>form view</comment>
       <translation>首行</translation>
     </message>
     <message>
-      <location filename="../formview.cpp" line="278"/>
+      <location filename="../formview.cpp" line="287"/>
       <source>Previous row</source>
       <comment>form view</comment>
       <translation>上一行</translation>
     </message>
     <message>
-      <location filename="../formview.cpp" line="279"/>
+      <location filename="../formview.cpp" line="288"/>
       <source>Next row</source>
       <comment>form view</comment>
       <translation>下一行</translation>
     </message>
     <message>
-      <location filename="../formview.cpp" line="280"/>
+      <location filename="../formview.cpp" line="289"/>
       <source>Last row</source>
       <comment>form view</comment>
       <translation>末行</translation>
     </message>
     <message>
-      <location filename="../formview.cpp" line="281"/>
+      <location filename="../formview.cpp" line="290"/>
       <source>Insert new row</source>
       <comment>form view</comment>
       <translation>插入新行</translation>
     </message>
     <message>
-      <location filename="../formview.cpp" line="282"/>
+      <location filename="../formview.cpp" line="291"/>
       <source>Delete current row</source>
       <comment>form view</comment>
       <translation>删除当前行</translation>
@@ -4169,26 +4175,26 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
       <location filename="../mainwindow.cpp" line="1012"/>
       <source>Toolbar &amp;icons</source>
       <comment>menubar</comment>
-      <translation type="unfinished">Toolbar &amp;icons</translation>
+      <translation>工具栏图标(&amp;I)</translation>
     </message>
     <message>
       <location filename="../mainwindow.cpp" line="1024"/>
       <source>Size: %1%</source>
       <comment>toolbar icons</comment>
-      <translation type="unfinished">Size: %1%</translation>
+      <translation>大小：1%</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1117"/>
+      <location filename="../mainwindow.cpp" line="1126"/>
       <source>Database passed in command line parameters (%1) was already on the list under name: %2</source>
       <translation>命令行参数传递的数据库（%1）已在列表中，名为：%2</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1124"/>
+      <location filename="../mainwindow.cpp" line="1133"/>
       <source>Database passed in command line parameters (%1) has been temporarily added to the list under name: %2</source>
       <translation>命令行参数传递的数据库（%1）已临时添加到列表中，名为：%2</translation>
     </message>
     <message>
-      <location filename="../mainwindow.cpp" line="1129"/>
+      <location filename="../mainwindow.cpp" line="1138"/>
       <source>Could not add database %1 to list.</source>
       <translation>未能将数据 %1 添加到列表</translation>
     </message>
@@ -4214,48 +4220,123 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditor</name>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="63"/>
+      <location filename="../multieditor/multieditor.cpp" line="67"/>
       <source>Null value</source>
       <comment>multieditor</comment>
       <translation>Null 值</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="82"/>
+      <location filename="../multieditor/multieditor.cpp" line="77"/>
+      <source>Save this value to a file</source>
+      <translation>将此值保存到文件中</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="80"/>
+      <source>Load this value from a file</source>
+      <translation>从文件中加载此值</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="91"/>
       <source>Configure editors for this data type</source>
       <translation>为数据类型设置编辑器</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="95"/>
+      <location filename="../multieditor/multieditor.cpp" line="99"/>
       <source>Open another tab</source>
       <translation>打开另一个选项卡</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="304"/>
+      <location filename="../multieditor/multieditor.cpp" line="326"/>
       <source>Foreign Key</source>
       <translation>外键</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="351"/>
+      <location filename="../multieditor/multieditor.cpp" line="384"/>
+      <source>All files (*)</source>
+      <translation>所有文件 (*)</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="386"/>
+      <source>Text files (*.txt *.log *.csv *.tsv *.md *.json *.xml *.yaml *.yml)</source>
+      <translation>文本文件（*.txt *.log *.csv *.tsv *.md *.json *.xml *.yaml *.yml）</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="388"/>
+      <source>SQL files (*.sql)</source>
+      <translation>SQL 文件 (*.sql)</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="390"/>
+      <source>Binary data (*.bin *.dat *.raw)</source>
+      <translation>二进制数据（*.bin *.dat *.raw）</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="392"/>
+      <source>Images (*.jpeg *.jpg *.png *.bmp *.gif *.tiff *.jp2 *.svg *.tga *.icns *.webp *.wbmp *.mng)</source>
+      <translation>图像（*.jpeg *.jpg *.png *.bmp *.gif *.tiff *.jp2 *.svg *.tga *.icns *.webp *.wbmp *.mng）</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="394"/>
+      <source>Archives (*.zip *.7z *.rar *.tar *.gz *.bz2 *.xz)</source>
+      <translation>压缩文件（*.zip *.7z *.rar *.tar *.gz *.bz2 *.xz）</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="396"/>
+      <source>Documents (*.pdf *.rtf *.doc *.docx *.odt *.xls *.xlsx *.ods)</source>
+      <translation>文档（*.pdf *.rtf *.doc *.docx *.odt *.xls *.xlsx *.ods）</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="398"/>
+      <source>Executables (*.exe *.dll *.so *.dylib)</source>
+      <translation>可执行文件（*.exe *.dll *.so *.dylib）</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="422"/>
       <source>Data editor plugin &apos;%1&apos; not loaded, while it is defined for editing &apos;%2&apos; data type.</source>
       <translation>数据编辑器插件 &apos;%1&apos; 未加载，而它已被定义为编辑 &apos;%1&apos; 数据类型的编辑器。 {1&apos;?} {2&apos;?} {1&apos; or 2&apos;?}</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="445"/>
+      <location filename="../multieditor/multieditor.cpp" line="528"/>
       <source>Deleted</source>
       <comment>multieditor</comment>
       <translation>已删除</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditor.cpp" line="447"/>
+      <location filename="../multieditor/multieditor.cpp" line="530"/>
       <source>Read only</source>
       <comment>multieditor</comment>
       <translation>只读</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="636"/>
+      <source>Open</source>
+      <translation>打开</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="645"/>
+      <source>Could not open file %1 for reading.</source>
+      <translation>无法打开文件 %1 进行读取。</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="661"/>
+      <source>Save</source>
+      <translation>保存</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="670"/>
+      <source>Could not open file %1 for writting.</source>
+      <translation>无法打开文件 %1 进行写入。</translation>
+    </message>
+    <message>
+      <location filename="../multieditor/multieditor.cpp" line="720"/>
+      <source>Could not write data into the file %1</source>
+      <translation>无法将数据写入文件 %1</translation>
     </message>
   </context>
   <context>
     <name>MultiEditorBoolPlugin</name>
     <message>
-      <location filename="../multieditor/multieditorbool.cpp" line="226"/>
+      <location filename="../multieditor/multieditorbool.cpp" line="228"/>
       <source>Boolean</source>
       <translation>布尔</translation>
     </message>
@@ -4263,7 +4344,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditorDatePlugin</name>
     <message>
-      <location filename="../multieditor/multieditordate.cpp" line="88"/>
+      <location filename="../multieditor/multieditordate.cpp" line="90"/>
       <source>Date</source>
       <translation>日期</translation>
     </message>
@@ -4271,7 +4352,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditorDateTimePlugin</name>
     <message>
-      <location filename="../multieditor/multieditordatetime.cpp" line="276"/>
+      <location filename="../multieditor/multieditordatetime.cpp" line="277"/>
       <source>Date &amp; time</source>
       <translation>日期和时间</translation>
     </message>
@@ -4279,7 +4360,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditorHexPlugin</name>
     <message>
-      <location filename="../multieditor/multieditorhex.cpp" line="92"/>
+      <location filename="../multieditor/multieditorhex.cpp" line="103"/>
       <source>Hex</source>
       <translation>十六进制</translation>
     </message>
@@ -4287,7 +4368,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditorNumericPlugin</name>
     <message>
-      <location filename="../multieditor/multieditornumeric.cpp" line="111"/>
+      <location filename="../multieditor/multieditornumeric.cpp" line="113"/>
       <source>Number</source>
       <comment>numeric multi editor tab name</comment>
       <translation>数值</translation>
@@ -4296,37 +4377,37 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditorText</name>
     <message>
-      <location filename="../multieditor/multieditortext.cpp" line="111"/>
+      <location filename="../multieditor/multieditortext.cpp" line="112"/>
       <source>Tab changes focus</source>
       <translation>Tab 键更改焦点</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditortext.cpp" line="112"/>
+      <location filename="../multieditor/multieditortext.cpp" line="113"/>
       <source>Cut</source>
       <translation>剪切</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditortext.cpp" line="113"/>
+      <location filename="../multieditor/multieditortext.cpp" line="114"/>
       <source>Copy</source>
       <translation>复制</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditortext.cpp" line="114"/>
+      <location filename="../multieditor/multieditortext.cpp" line="115"/>
       <source>Paste</source>
       <translation>粘贴</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditortext.cpp" line="115"/>
+      <location filename="../multieditor/multieditortext.cpp" line="116"/>
       <source>Delete</source>
       <translation>删除</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditortext.cpp" line="116"/>
+      <location filename="../multieditor/multieditortext.cpp" line="117"/>
       <source>Undo</source>
       <translation>撤销</translation>
     </message>
     <message>
-      <location filename="../multieditor/multieditortext.cpp" line="117"/>
+      <location filename="../multieditor/multieditortext.cpp" line="118"/>
       <source>Redo</source>
       <translation>重做</translation>
     </message>
@@ -4334,7 +4415,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditorTextPlugin</name>
     <message>
-      <location filename="../multieditor/multieditortext.cpp" line="194"/>
+      <location filename="../multieditor/multieditortext.cpp" line="196"/>
       <source>Text</source>
       <translation>文本</translation>
     </message>
@@ -4342,7 +4423,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
   <context>
     <name>MultiEditorTimePlugin</name>
     <message>
-      <location filename="../multieditor/multieditortime.cpp" line="91"/>
+      <location filename="../multieditor/multieditortime.cpp" line="93"/>
       <source>Time</source>
       <translation>时间</translation>
     </message>
@@ -4460,7 +4541,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
     <message>
       <location filename="../common/passwordtogglehelper.cpp" line="11"/>
       <source>Show / hide password</source>
-      <translation type="unfinished">Show / hide password</translation>
+      <translation>显示/隐藏密码</translation>
     </message>
   </context>
   <context>
@@ -5350,7 +5431,7 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
     <message>
       <location filename="../dialogs/quitconfirmdialog.ui" line="20"/>
       <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:700;&quot;&gt;Are you sure you want to quit the application?&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Following items are pending:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-      <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:700;&quot;&gt;Are you sure you want to quit the application?&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Following items are pending:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+      <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:700;&quot;&gt;您确定要退出此应用吗？&lt;/span&gt;&lt;/p&gt;&lt;p&gt;以下项目处于待处理状态：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
   </context>
   <context>
@@ -5812,200 +5893,200 @@ Such deletion will be permanent. Are you sure you want to delete them?</source>
   <context>
     <name>SqlQueryView</name>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="55"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="57"/>
       <source>Go to referenced row in...</source>
       <translation>转到引用的行...</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="91"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="93"/>
       <source>Copy</source>
       <translation>复制</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="92"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="94"/>
       <source>Copy with headers</source>
       <translation>带表头复制</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="93"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="95"/>
       <source>Copy as...</source>
       <translation>复制为...</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="94"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="96"/>
       <source>Paste</source>
       <translation>粘贴</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="95"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="97"/>
       <source>Paste as...</source>
       <translation>粘贴为...</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="96"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="98"/>
       <source>Set NULL values</source>
       <translation>设为 NULL 值</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="97"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="99"/>
       <source>Erase values</source>
       <translation>擦除值</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="99"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="101"/>
       <source>Commit</source>
       <translation>提交</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="100"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="102"/>
       <source>Rollback</source>
       <translation>回滚</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="101"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="103"/>
       <source>Commit selected cells</source>
       <translation>提交选中单元格</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="102"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="104"/>
       <source>Rollback selected cells</source>
       <translation>回滚选中单元格</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="103"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="105"/>
       <source>Edit current cell inline</source>
       <translation>编辑当前单元格</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="108"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="110"/>
       <source>Define columns to sort by</source>
       <translation>定义列排序方式</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="109"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="111"/>
       <source>Remove custom sorting</source>
       <translation>移除自定义排序</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="110"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="112"/>
       <source>Insert row</source>
       <translation>插入行</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="111"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="113"/>
       <source>Insert multiple rows</source>
       <translation>插入多行</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="112"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="114"/>
       <source>Delete selected row</source>
       <translation>删除已选行</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="113"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="115"/>
       <source>Adjust height of rows</source>
       <translation>调整行高</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="117"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="119"/>
       <source>Increase font size</source>
       <comment>data view</comment>
       <translation>增大字号</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="118"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="120"/>
       <source>Decrease font size</source>
       <comment>data view</comment>
       <translation>减小字号</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="119"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="121"/>
       <source>Invert selection</source>
       <comment>data view</comment>
       <translation>反向选取</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="169"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="171"/>
       <source>Edit value in editor</source>
       <translation>在编辑器中编辑数值</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="169"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="171"/>
       <source>Show value in a viewer</source>
       <translation>在查看器中显示值</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="187"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="189"/>
       <source>Generate query for selected cells</source>
       <translation>为选中单元格生成查询</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="454"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="461"/>
       <source>No items selected to paste clipboard contents to.</source>
       <translation>没有选择用来粘贴剪贴板内容的项。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="460"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="467"/>
       <source>Cannot paste data. Details: %1</source>
       <translation>无法粘贴数据。详情：%1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="460"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="467"/>
       <source>Structure of at least one table used has changed since last data was loaded. Reload the data to proceed.</source>
       <translation>至少一个表的结构在上次的数据加载后已变更。重新加载数据以继续。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="530"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="537"/>
       <source>Cannot paste to a cell. Details: %1</source>
       <translation>无法粘贴到单元格。详情：%1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="530"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="537"/>
       <source>The row is marked for deletion.</source>
       <translation>该行已被标记为删除。</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="541"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="548"/>
       <source>Cannot paste to column %1. Details: %2</source>
       <translation>无法粘贴到列 %1。详情：%2</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="559"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="566"/>
       <source>Go to referenced row in table &apos;%1&apos;</source>
       <translation>转至表 &apos;%1&apos; 中的引用的行</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="571"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="578"/>
       <source>table &apos;%1&apos;</source>
       <translation>表“%1”</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="594"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="601"/>
       <source>Referenced row (%1)</source>
       <translation>引用的行（%1）</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="879"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="886"/>
       <source>Trim pasted text?</source>
       <translation>移除粘贴文本两端的空白？</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="880"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="887"/>
       <source>The pasted text contains leading or trailing white space. Trim it automatically?</source>
       <translation>粘贴的文本两端含有空白符号。自动移除？</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="888"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="895"/>
       <source>Paste &quot;NULL&quot; as null value?</source>
       <translation>将 &quot;NULL&quot; 粘贴为空值？</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="889"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="896"/>
       <source>The pasted text contains &quot;NULL&quot; literals. Do you want to consider them as NULL values?</source>
       <translation>粘贴的文本包含 &quot;NULL&quot; 字符。要将它们视为空值吗？</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="997"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="1003"/>
       <source>Edit value</source>
       <translation>编辑值</translation>
     </message>
@@ -6185,17 +6266,17 @@ Such deletion will be permanent. Are you sure you want to delete them?</source>
     <message>
       <location filename="../constraints/tableforeignkeypanel.ui" line="29"/>
       <source>Referenced table:</source>
-      <translation type="unfinished">Referenced table:</translation>
+      <translation>引用表：</translation>
     </message>
     <message>
       <location filename="../constraints/tableforeignkeypanel.ui" line="56"/>
       <source>Referencing column</source>
-      <translation type="unfinished">Referencing column</translation>
+      <translation>引用列</translation>
     </message>
     <message>
       <location filename="../constraints/tableforeignkeypanel.ui" line="68"/>
       <source>Referenced column</source>
-      <translation type="unfinished">Referenced column</translation>
+      <translation>引用列</translation>
     </message>
     <message>
       <location filename="../constraints/tableforeignkeypanel.ui" line="104"/>

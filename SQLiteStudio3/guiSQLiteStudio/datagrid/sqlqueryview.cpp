@@ -29,6 +29,8 @@
 #include <QCryptographicHash>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <services/pluginmanager.h>
+#include <multieditor/multieditorwidgetplugin.h>
 
 CFG_KEYS_DEFINE(SqlQueryView)
 
@@ -48,7 +50,7 @@ void SqlQueryView::init()
     itemDelegate = new SqlQueryItemDelegate();
     setItemDelegate(itemDelegate);
     setMouseTracking(true);
-    setEditTriggers(QAbstractItemView::AnyKeyPressed|QAbstractItemView::EditKeyPressed);
+    setReadOnly(false);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     contextMenu = new QMenu(this);
@@ -323,7 +325,8 @@ void SqlQueryView::itemActivated(const QModelIndex& index)
         return;
 
     item->skipInitialFocusSelection();
-    edit(getCurrentIndex());
+    if (!simpleBrowserMode)
+        edit(getCurrentIndex());
 }
 
 void SqlQueryView::generateSelect()
@@ -373,7 +376,8 @@ void SqlQueryView::editCurrent()
         if (item)
             item->skipInitialFocusSelection();
 
-        edit(idx);
+        if (!simpleBrowserMode)
+            edit(idx);
     }
 }
 
@@ -435,10 +439,15 @@ void SqlQueryView::invertSelection()
 
 bool SqlQueryView::editInEditorIfNecessary(SqlQueryItem* item)
 {
-    if (item->getColumn()->dataType.getType() == DataType::BLOB)
+    QList<MultiEditorWidgetPlugin*> plugins = PLUGINS->getLoadedPlugins<MultiEditorWidgetPlugin>();
+    for (MultiEditorWidgetPlugin* plugin : plugins)
     {
-        openValueEditor(item);
-        return false;
+        int prio = plugin->getPriority(item->getValue(), item->getColumn()->dataType);
+        if (prio <= 3)
+        {
+            openValueEditor(item);
+            return false;
+        }
     }
     return true;
 }
@@ -691,6 +700,11 @@ bool SqlQueryView::getSimpleBrowserMode() const
 
 void SqlQueryView::setSimpleBrowserMode(bool value)
 {
+    if (value)
+        setEditTriggers(QAbstractItemView::NoEditTriggers);
+    else
+        setEditTriggers(QAbstractItemView::AnyKeyPressed|QAbstractItemView::EditKeyPressed);
+
     simpleBrowserMode = value;
 }
 
@@ -702,6 +716,11 @@ void SqlQueryView::setIgnoreColumnWidthChanges(bool ignore)
 QMenu* SqlQueryView::getHeaderContextMenu() const
 {
     return headerContextMenu;
+}
+
+void SqlQueryView::setReadOnly(bool value)
+{
+    setSimpleBrowserMode(value);
 }
 
 void SqlQueryView::scrollContentsBy(int dx, int dy)
@@ -724,9 +743,9 @@ void SqlQueryView::keyPressEvent(QKeyEvent *e)
 
     QTableView::keyPressEvent(e);
 
-    if (shouldOpenEditor && state() != QAbstractItemView::EditingState)
+    if (shouldOpenEditor && state() != QAbstractItemView::EditingState && !simpleBrowserMode)
     {
-        edit(currentIndex());
+        QTableView::edit(currentIndex());
         QApplication::sendEvent(focusWidget(), e);
     }
 }
@@ -993,9 +1012,8 @@ void SqlQueryView::openValueEditor(SqlQueryItem* item)
     if (!column->getFkConstraints().isEmpty())
         editor.enableFk(getModel()->getDb(), column);
 
-    editor.setDataType(column->dataType);
     editor.setWindowTitle(tr("Edit value"));
-    editor.setValue(item->getValue());
+    editor.setValue(item->getValue(), column->dataType);
     editor.setReadOnly(!column->canEdit());
 
     if (editor.exec() == QDialog::Rejected)
