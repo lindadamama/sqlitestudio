@@ -35,6 +35,9 @@ qrc_*.cpp
 .qmake.stash
 .qmake.cache
 
+# Generated Makefiles
+Makefile
+
 # ---- Build outputs ----------------------------------------------------------
 # Common out-of-source build dirs
 build/
