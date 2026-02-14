@@ -2909,125 +2909,125 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
     </message>
     <message>
       <location filename="../windows/editorwindow.ui" line="80"/>
-      <location filename="../windows/editorwindow.cpp" line="357"/>
+      <location filename="../windows/editorwindow.cpp" line="365"/>
       <source>Results</source>
       <translation>Результаты</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="392"/>
+      <location filename="../windows/editorwindow.cpp" line="400"/>
       <source>Execute query</source>
       <translation>Выполнить запрос</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="393"/>
+      <location filename="../windows/editorwindow.cpp" line="401"/>
       <source>Explain query</source>
       <translation>План запроса</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="396"/>
+      <location filename="../windows/editorwindow.cpp" line="404"/>
       <source>Clear execution history</source>
       <comment>sql editor</comment>
       <translation>Очистить историю запросов</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="398"/>
+      <location filename="../windows/editorwindow.cpp" line="406"/>
       <source>Export results</source>
       <comment>sql editor</comment>
       <translation>Экспортировать результаты</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="400"/>
+      <location filename="../windows/editorwindow.cpp" line="408"/>
       <source>Create view from query</source>
       <comment>sql editor</comment>
       <translation>Создать представление из запроса</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="410"/>
+      <location filename="../windows/editorwindow.cpp" line="418"/>
       <source>Previous database</source>
       <translation>Предыдущая база данных</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="411"/>
+      <location filename="../windows/editorwindow.cpp" line="419"/>
       <source>Next database</source>
       <translation>Следующая база данных</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="414"/>
+      <location filename="../windows/editorwindow.cpp" line="422"/>
       <source>Show next tab</source>
       <comment>sql editor</comment>
       <translation>Открыть следующую вкладку</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="415"/>
+      <location filename="../windows/editorwindow.cpp" line="423"/>
       <source>Show previous tab</source>
       <comment>sql editor</comment>
       <translation>Открыть предыдущую вкладку</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="416"/>
+      <location filename="../windows/editorwindow.cpp" line="424"/>
       <source>Focus results below</source>
       <comment>sql editor</comment>
       <translation>Фокус на результатах внизу</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="417"/>
+      <location filename="../windows/editorwindow.cpp" line="425"/>
       <source>Focus SQL editor above</source>
       <comment>sql editor</comment>
       <translation>Фокус на редакторе SQL сверху</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="418"/>
+      <location filename="../windows/editorwindow.cpp" line="426"/>
       <source>Delete selected SQL history entries</source>
       <comment>sql editor</comment>
       <translation>Удалить выбранные записи из истории SQL-запросов</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="419"/>
+      <location filename="../windows/editorwindow.cpp" line="427"/>
       <source>Execute single query under cursor</source>
       <translation>Выполнить одиночный запрос под курсором</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="420"/>
+      <location filename="../windows/editorwindow.cpp" line="428"/>
       <source>Execute all queries in editor</source>
       <translation>Выполнить все запросы в редакторе</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="470"/>
+      <location filename="../windows/editorwindow.cpp" line="478"/>
       <source>Active database (%1/%2)</source>
       <translation>Текущая база данных (%1/%2)</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="586"/>
+      <location filename="../windows/editorwindow.cpp" line="594"/>
       <source>Query finished in %1 second(s). Rows affected: %2</source>
       <translation>Запрос выполнен за %1 секунд. Затронуто строк: %2</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="590"/>
+      <location filename="../windows/editorwindow.cpp" line="598"/>
       <source>Query finished in %1 second(s).</source>
       <translation>Запрос выполнен за %1 секунд.</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="704"/>
+      <location filename="../windows/editorwindow.cpp" line="712"/>
       <source>Clear execution history</source>
       <translation>Очистка истории запросов</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="704"/>
+      <location filename="../windows/editorwindow.cpp" line="712"/>
       <source>Are you sure you want to erase the entire SQL execution history? This cannot be undone.</source>
       <translation>Вы действительно хотите удалить всю историю выполнения SQL запросов? Операцию невозможно отменить.</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="729"/>
+      <location filename="../windows/editorwindow.cpp" line="737"/>
       <source>Cannot export, because no export plugin is loaded.</source>
       <translation>Невозможно произвести экспорт, т. к. не загружено ни одного модуля экспорта.</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="750"/>
+      <location filename="../windows/editorwindow.cpp" line="758"/>
       <source>No database selected in the SQL editor. Cannot create a view for unknown database.</source>
       <translation>В редакторе SQL не выбрана база данных. Невозможно создать представление в неизвестной базе данных.</translation>
     </message>
     <message>
-      <location filename="../windows/editorwindow.cpp" line="800"/>
+      <location filename="../windows/editorwindow.cpp" line="808"/>
       <source>Editor window &quot;%1&quot; has uncommitted data.</source>
       <translation>В окне редактора &quot;%1&quot; имеются неподтверждённые данные.</translation>
     </message>
@@ -4727,111 +4727,111 @@ Please enter new, unique name, or press &apos;%1&apos; to abort the operation:</
       <translation>Невозможно редактировать столбцы в результатах представления, если выполняемый запрос выбирает данные из любых многоуровневых представлений (т.е. представлений, в которых запрашиваются другие представления).</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="417"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="461"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="435"/>
       <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="479"/>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="515"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="497"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="533"/>
       <source>on conflict: %1</source>
       <comment>data view tooltip</comment>
       <translation>при конфликте: %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="443"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="461"/>
       <source>references table %1</source>
       <comment>data view tooltip</comment>
       <translation>ссылается на таблицу %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="445"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="463"/>
       <source>references table %1, column %2</source>
       <comment>data view tooltip</comment>
       <translation>ссылается на таблицу %1, столбец %2</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="512"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="530"/>
       <source>condition: %1</source>
       <comment>data view tooltip</comment>
       <translation>условие: %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="532"/>
+      <location filename="../datagrid/sqlquerymodelcolumn.cpp" line="550"/>
       <source>collation name: %1</source>
       <comment>data view tooltip</comment>
       <translation>имя сравнения: %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="21"/>
+      <location filename="../datagrid/sqlqueryview.h" line="25"/>
       <source>Data grid view</source>
       <translation>Табличный вид данных</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="22"/>
+      <location filename="../datagrid/sqlqueryview.h" line="26"/>
       <source>Edit current cell inline</source>
       <translation>Редактировать текущую ячейку</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="23"/>
+      <location filename="../datagrid/sqlqueryview.h" line="27"/>
       <source>Copy cell(s) contents to clipboard</source>
       <translation>Копировать содержимое ячеек в буфер обмена</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="24"/>
+      <location filename="../datagrid/sqlqueryview.h" line="28"/>
       <source>Copy cell(s) contents together with header to clipboard</source>
       <translation>Копировать имя столбца и содержимое ячеек в буфер обмена</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="26"/>
+      <location filename="../datagrid/sqlqueryview.h" line="30"/>
       <source>Paste cell(s) contents from clipboard</source>
       <translation>Вставить содержимое ячеек из буфера обмена</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="28"/>
+      <location filename="../datagrid/sqlqueryview.h" line="32"/>
       <source>Set empty value to selected cell(s)</source>
       <translation>Установить пустое значение для выбранных ячеек</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="29"/>
+      <location filename="../datagrid/sqlqueryview.h" line="33"/>
       <source>Set NULL value to selected cell(s)</source>
       <translation>Установить для выбранных ячеек значение NULL</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="30"/>
+      <location filename="../datagrid/sqlqueryview.h" line="34"/>
       <source>Commit changes to cell(s) contents</source>
       <translation>Подтвердить изменение содержимого ячеек</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="31"/>
+      <location filename="../datagrid/sqlqueryview.h" line="35"/>
       <source>Rollback changes to cell(s) contents</source>
       <translation>Откатить изменения содержимого ячеек</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="32"/>
+      <location filename="../datagrid/sqlqueryview.h" line="36"/>
       <source>Delete selected data row</source>
       <translation>Удалить выбранную строку данных</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="33"/>
+      <location filename="../datagrid/sqlqueryview.h" line="37"/>
       <source>Insert new data row</source>
       <translation>Вставить новую строку данных</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="34"/>
+      <location filename="../datagrid/sqlqueryview.h" line="38"/>
       <source>Open contents of selected cell in a separate editor</source>
       <translation>Открыть содержимое выбранной ячейки в отдельном редакторе</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="35"/>
+      <location filename="../datagrid/sqlqueryview.h" line="39"/>
       <source>Toggle the height adjustment of rows</source>
       <translation>Переключить регулировку высоты строк</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="36"/>
+      <location filename="../datagrid/sqlqueryview.h" line="40"/>
       <source>Increase font size</source>
       <comment>data view</comment>
       <translation>Увеличить размер шрифта</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.h" line="37"/>
+      <location filename="../datagrid/sqlqueryview.h" line="41"/>
       <source>Decrease font size</source>
       <comment>data view</comment>
       <translation>Уменьшить размер шрифта</translation>
@@ -5946,195 +5946,205 @@ Such deletion will be permanent. Are you sure you want to delete them?</source>
       <translation>Перейти к связанной строке в...</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="93"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="96"/>
       <source>Copy</source>
       <translation>Копировать</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="94"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="97"/>
       <source>Copy with headers</source>
       <translation>Копировать с именами столбцов</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="95"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="98"/>
       <source>Copy as...</source>
       <translation>Копировать как...</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="96"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="99"/>
       <source>Paste</source>
       <translation>Вставить</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="97"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="100"/>
       <source>Paste as...</source>
       <translation>Вставить как...</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="98"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="101"/>
       <source>Set NULL values</source>
       <translation>Установить значения на NULL</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="99"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="102"/>
       <source>Erase values</source>
       <translation>Стереть содержимое</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="101"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="104"/>
       <source>Commit</source>
       <translation>Подтвердить</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="102"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="105"/>
       <source>Rollback</source>
       <translation>Откатить</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="103"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="106"/>
       <source>Commit selected cells</source>
       <translation>Подтвердить выбранные ячейки</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="104"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="107"/>
       <source>Rollback selected cells</source>
       <translation>Откатить выбранные ячейки</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="105"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="108"/>
       <source>Edit current cell inline</source>
       <translation>Редактировать текущую ячейку</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="110"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="113"/>
       <source>Define columns to sort by</source>
       <translation>Определить столбцы для сортировки</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="111"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="114"/>
       <source>Remove custom sorting</source>
       <translation>Сбросить указанную сортировку</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="112"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="115"/>
       <source>Insert row</source>
       <translation>Вставить строку</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="113"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="116"/>
       <source>Insert multiple rows</source>
       <translation>Вставить несколько строк</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="114"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="117"/>
       <source>Delete selected row</source>
       <translation>Удалить выбранную строку</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="115"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="118"/>
       <source>Adjust height of rows</source>
       <translation>Подстроить высоту строк</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="119"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="122"/>
       <source>Increase font size</source>
       <comment>data view</comment>
       <translation>Увеличить размер шрифта</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="120"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="123"/>
       <source>Decrease font size</source>
       <comment>data view</comment>
       <translation>Уменьшить размер шрифта</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="121"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="124"/>
       <source>Invert selection</source>
       <comment>data view</comment>
       <translation>Обратить выделение</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="171"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="174"/>
       <source>Edit value in editor</source>
       <translation>Править содержимое в редакторе</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="171"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="174"/>
       <source>Show value in a viewer</source>
       <translation>Показать значение в просмотрщике</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="189"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="192"/>
       <source>Generate query for selected cells</source>
       <translation>Сгенерировать запрос для выбранных ячеек</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="501"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="527"/>
       <source>No items selected to paste clipboard contents to.</source>
       <translation>Не выбраны элементы для вставки в них содержимого буфера обмена.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="507"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="533"/>
       <source>Cannot paste data. Details: %1</source>
       <translation>Невозможно вставить данные. Подробности: %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="507"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="533"/>
       <source>Structure of at least one table used has changed since last data was loaded. Reload the data to proceed.</source>
       <translation>Структура по крайней мере одной используемой таблицы изменилась с момента последней загрузки данных. Перезагрузите данные, чтобы продолжить работу.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="577"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="603"/>
       <source>Cannot paste to a cell. Details: %1</source>
       <translation>Невозможно вставить в ячейку. Подробности: %1</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="577"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="603"/>
       <source>The row is marked for deletion.</source>
       <translation>Строка помечена для удаления.</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="588"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="614"/>
       <source>Cannot paste to column %1. Details: %2</source>
       <translation>Невозможно вставить в столбец %1. Подробности: %2</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="606"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="632"/>
       <source>Go to referenced row in table &apos;%1&apos;</source>
       <translation>Перейти к связанной строке в таблице &apos;%1&apos;</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="618"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="644"/>
       <source>table &apos;%1&apos;</source>
       <translation>таблица &apos;%1&apos;</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="641"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="667"/>
       <source>Referenced row (%1)</source>
       <translation>Связанная строка (%1)</translation>
     </message>
     <message>
+      <location filename="../datagrid/sqlqueryview.cpp" line="979"/>
+      <source>Column renderer</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
       <location filename="../datagrid/sqlqueryview.cpp" line="986"/>
+      <source>Default</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <location filename="../datagrid/sqlqueryview.cpp" line="1130"/>
       <source>Trim pasted text?</source>
       <translation>Обрезать вставленный текст?</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="987"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="1131"/>
       <source>The pasted text contains leading or trailing white space. Trim it automatically?</source>
       <translation>В начале либо конце вставленного текста находятся непечатаемые символы. Обрезать их автоматически?</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="995"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="1139"/>
       <source>Paste &quot;NULL&quot; as null value?</source>
       <translation>Вставить &quot;NULL&quot; в качестве значения NULL?</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="996"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="1140"/>
       <source>The pasted text contains &quot;NULL&quot; literals. Do you want to consider them as NULL values?</source>
       <translation>Вставленный текст содержит строки &quot;NULL&quot;. Вы хотите чтобы они были вставлены как значения NULL?</translation>
     </message>
     <message>
-      <location filename="../datagrid/sqlqueryview.cpp" line="1103"/>
+      <location filename="../datagrid/sqlqueryview.cpp" line="1247"/>
       <source>Edit value</source>
       <translation>Править содержимое</translation>
     </message>

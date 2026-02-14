@@ -18,6 +18,10 @@ class QPushButton;
 class QProgressBar;
 class QMenu;
 
+
+class Plugin;
+
+class PluginType;
 CFG_KEY_LIST(SqlQueryView, QObject::tr("Data grid view"),
     CFG_KEY_ENTRY(EDIT_CURRENT,      Qt::Key_F2,                              QObject::tr("Edit current cell inline"))
     CFG_KEY_ENTRY(COPY,              Qt::CTRL | Qt::Key_C,                    QObject::tr("Copy cell(s) contents to clipboard"))
@@ -95,6 +99,8 @@ class GUI_API_EXPORT SqlQueryView : public QTableView, public ExtActionContainer
         int getColumnCustomDelegateWidth(int colIdx);
         int getColumnCustomDelegateHeight(int colIdx);
         QSize getColumnCustomDelegateCellSize(int colIdx);
+        QVariant getCustomDelegatesForSession() const;
+        void restoreCustomDelegatesFromSession(const QVariant& sessionValue);
 
         static void staticInit();
 
@@ -142,8 +148,11 @@ class GUI_API_EXPORT SqlQueryView : public QTableView, public ExtActionContainer
         int beforeExecutionHorizontalPosition = -1;
         int beforeExecutionVerticalPosition = -1;
         QHash<int, CellRendererPlugin*> customColumnDelegates;
+        QHash<QString, CellRendererPlugin*> manualCustomDelegates;
 
     private slots:
+        void handlePluginLoaded(Plugin* plugin, PluginType* pluginType);
+        void handlePluginUnload(Plugin* plugin, PluginType* pluginType);
         void updateCommitRollbackActions(bool enabled);
         void customContextMenuRequested(const QPoint& pos);
         void headerContextMenuRequested(const QPoint& pos);
