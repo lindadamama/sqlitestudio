@@ -364,7 +364,7 @@ class API_EXPORT SqliteStatement : public QObject
         virtual TokenList getTableTokensInStatement();
         virtual TokenList getDatabaseTokensInStatement();
         virtual QList<FullObject> getFullObjectsInStatement();
-        virtual TokenList rebuildTokensFromContents() const;
+        virtual TokenList rebuildTokensFromContents(bool replaceStatementTokens) const;
         virtual void evaluatePostParsing();
 
         static TokenList extractPrintableTokens(const TokenList& tokens, bool skipMeaningless = true);
@@ -405,6 +405,7 @@ class API_EXPORT SqliteStatement : public QObject
     private:
         QList<SqliteStatement*> getContextStatements(SqliteStatement* caller, bool checkParent, bool checkChilds);
         void prepareDbNames();
+
         static bool isPrintableToken(const TokenPtr& token, bool skipMeaningless);
 };
 
