@@ -8,7 +8,7 @@
 #include <QPainter>
 #include <QDebug>
 
-DbTreeItemDelegate::DbTreeItemDelegate(QObject *parent) :
+DbTreeItemDelegate::DbTreeItemDelegate(QWidget* parent) :
     QStyledItemDelegate(parent)
 {
 }
@@ -40,7 +40,7 @@ void DbTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
 
     QStyledItemDelegate::paint(painter, opt, index);
 
-    if (!CFG_UI.General.ShowDbTreeLabels.get())
+    if (!CFG_UI.DbList.ShowDbTreeLabels.get())
         return;
 
     switch (item->getType())
@@ -70,30 +70,33 @@ void DbTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         case DbTreeItem::Type::VIEW:
         case DbTreeItem::Type::COLUMN:
         case DbTreeItem::Type::ITEM_PROTOTYPE:
-        case DbTreeItem::Type::SIGNATURE_OF_THIS:
             break;
     }
 }
 
 void DbTreeItemDelegate::paintDb(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index, DbTreeItem *item) const
 {
-    static const QString versionStringTemplate = QStringLiteral("(%1)");
-    QString versionString = versionStringTemplate.arg("?");
+    static const QString formatStringTemplate = QStringLiteral("(%1)");
+    QString formatString = formatStringTemplate.arg("?");
     Db* db = item->getDb();
     if (!db)
         return;
 
     if (db->isValid())
     {
-        QString t = db->getTypeLabel();
-        versionString = versionStringTemplate.arg(t);
+        QString reportedFormat = db->getTypeLabel();
+        int colonIdx = reportedFormat.indexOf(":");
+        if (colonIdx > -1)
+            reportedFormat = reportedFormat.mid(0, colonIdx);
+
+        formatString = formatStringTemplate.arg(reportedFormat);
     }
     else
     {
-        versionString = versionStringTemplate.arg(tr("error", "dbtree labels"));
+        formatString = formatStringTemplate.arg(tr("error", "dbtree labels"));
     }
 
-    paintLabel(painter, option, index, item, versionString);
+    paintLabel(painter, option, index, item, formatString);
 }
 
 void DbTreeItemDelegate::paintChildCount(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index, DbTreeItem *item) const
@@ -111,7 +114,7 @@ void DbTreeItemDelegate::paintTableLabel(QPainter* painter, const QStyleOptionVi
         return;
     }
 
-    if (!CFG_UI.General.ShowRegularTableLabels.get())
+    if (!CFG_UI.DbList.ShowRegularTableLabels.get())
         return;
 
     int columnsCount = item->child(0)->rowCount();
@@ -122,7 +125,7 @@ void DbTreeItemDelegate::paintTableLabel(QPainter* painter, const QStyleOptionVi
 
 void DbTreeItemDelegate::paintVirtualTableLabel(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index, DbTreeItem* item) const
 {
-    if (!CFG_UI.General.ShowVirtualTableLabels.get())
+    if (!CFG_UI.DbList.ShowVirtualTableLabels.get())
         return;
 
     paintLabel(painter, option, index, item, tr("(virtual)", "virtual table label"));
@@ -162,4 +165,21 @@ void DbTreeItemDelegate::paintLabel(QPainter *painter, const QStyleOptionViewIte
     // Paint
     painter->drawText(QPoint(x, y), label);
     painter->restore();
+}
+
+void DbTreeItemDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const
+{
+    QVariant oldValue = model->data(index, Qt::EditRole);
+    QStyledItemDelegate::setModelData(editor, model, index);
+    QVariant newValue = model->data(index, Qt::EditRole);
+    emit const_cast<DbTreeItemDelegate*>(this)->userEditCommitted(index, oldValue, newValue);
+}
+
+QWidget* DbTreeItemDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+    QWidget* editor = QStyledItemDelegate::createEditor(parent, option, index);
+    if (editor)
+        editor->setFont(CFG_UI.Fonts.DbTreeLabel.get());
+
+    return editor;
 }

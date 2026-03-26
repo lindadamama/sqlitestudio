@@ -35,9 +35,13 @@
 #include "style.h"
 #include "services/codeformatter.h"
 #include "windows/codesnippeteditor.h"
+#include "sqleditor.h"
 #include "uiutils.h"
 #include "datagrid/cellrendererplugin.h"
 #include "common/mouseshortcut.h"
+#include "windows/tableconstraintsmodel.h"
+#include "windows/tablestructuremodel.h"
+#include "common/widgetcover.h"
 #include <QMdiSubWindow>
 #include <QDebug>
 #include <QStyleFactory>
@@ -49,12 +53,19 @@
 #include <QApplication>
 #include <QToolTip>
 #include <QTimer>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QtSystemDetection>
+#else
+#include <qsystemdetection.h>
+#endif
 #include <QtGui>
 
 CFG_KEYS_DEFINE(MainWindow)
 MainWindow* MainWindow::instance = nullptr;
 bool MainWindow::safeModeEnabled = false;
+bool MainWindow::sessionRestoringFinished = false;
 int MainWindow::defaultToolbarIconSize = 24;
+QMimeDatabase MainWindow::mimeDb;
 
 MainWindow::MainWindow() :
     QMainWindow(),
@@ -106,6 +117,7 @@ void MainWindow::init()
     insertToolBar(ui->viewToolbar, ui->mainToolBar);
     insertToolBar(ui->mainToolBar, ui->structureToolbar);
     insertToolBar(ui->structureToolbar, ui->dbToolbar);
+    ui->viewToolbar->setVisible(false);
 
     ui->viewToolbar->setIconSize(QSize(24, 24));
     ui->mainToolBar->setIconSize(QSize(24, 24));
@@ -141,7 +153,7 @@ void MainWindow::init()
             notifyInfo(tr("Running in debug mode. Debug messages are printed to the standard output."));
     }
 
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
     // For some reason these two signal-slot connections are not made correctly if method-reference syntax is used
     // and it affects Windows builds only. Therefore they have to be the old-fashion SIGNAL() and SLOT().
     connect(UPDATES, SIGNAL(updateAvailable(QString,QString)), this, SLOT(updateAvailable(QString,QString)));
@@ -161,6 +173,10 @@ void MainWindow::init()
     fixFonts();
     fixToolbars();
     observeSessionChanges();
+
+    connect(STYLE, SIGNAL(paletteChanged()), this, SLOT(refreshSyntaxColors()));
+
+    initDropOverlay();
 
     SQLITESTUDIO->installCrashHandler([this]()
     {
@@ -284,13 +300,10 @@ void MainWindow::closeEvent(QCloseEvent* event)
 void MainWindow::createActions()
 {
     createAction(OPEN_SQL_EDITOR, ICONS.OPEN_SQL_EDITOR, tr("Open SQL &editor"), this, SLOT(openSqlEditorSlot()), ui->mainToolBar);
-    createAction(OPEN_DDL_HISTORY, ICONS.DDL_HISTORY, tr("Open DDL &history"), this, SLOT(openDdlHistorySlot()), ui->mainToolBar);
     createAction(OPEN_FUNCTION_EDITOR, ICONS.FUNCTIONS_EDITOR, tr("Open SQL &functions editor"), this, SLOT(openFunctionEditorSlot()), ui->mainToolBar);
     createAction(OPEN_SNIPPETS_EDITOR, ICONS.CODE_SNIPPETS, tr("Open code &snippets editor"), this, SLOT(openCodeSnippetsEditorSlot()), ui->mainToolBar);
     createAction(OPEN_COLLATION_EDITOR, ICONS.COLLATIONS_EDITOR, tr("Open &collations editor"), this, SLOT(openCollationEditorSlot()), ui->mainToolBar);
     createAction(OPEN_EXTENSION_MANAGER, ICONS.EXTENSION_EDITOR, tr("Open ex&tension manager"), this, SLOT(openExtensionManagerSlot()), ui->mainToolBar);
-    createAction(IMPORT, ICONS.IMPORT, tr("&Import"), this, SLOT(importAnything()), ui->mainToolBar);
-    createAction(EXPORT, ICONS.EXPORT, tr("E&xport"), this, SLOT(exportAnything()), ui->mainToolBar);
     ui->mainToolBar->addSeparator();
     createAction(OPEN_CONFIG, ICONS.CONFIGURE, tr("Open confi&guration dialog"), this, SLOT(openConfig()), ui->mainToolBar);
 
@@ -322,19 +335,22 @@ void MainWindow::createActions()
     createAction(SQLITE_DOCS, ICONS.SQLITE_DOCS, tr("SQLite &documentation"), this, SLOT(sqliteDocs()), this);
     createAction(BUG_REPORT_HISTORY, ICONS.BUG_LIST, tr("Bugs and feature &requests"), this, SLOT(reportHistory()), this);
     createAction(QUIT, ICONS.QUIT, tr("Quit"), this, SLOT(quit()), this);
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
     createAction(CHECK_FOR_UPDATES, ICONS.GET_UPDATE, tr("Check for &updates"), this, SLOT(checkForUpdates()), this);
 #endif
+
+    createAction(OPEN_DDL_HISTORY, ICONS.DDL_HISTORY, tr("Open DDL &history"), this, SLOT(openDdlHistorySlot()), this);
+    createAction(IMPORT, ICONS.IMPORT, tr("&Import"), this, SLOT(importAnything()), this);
+    createAction(EXPORT, ICONS.EXPORT, tr("E&xport"), this, SLOT(exportAnything()), this);
 
     actionMap[ABOUT]->setMenuRole(QAction::AboutRole);
     actionMap[OPEN_CONFIG]->setMenuRole(QAction::PreferencesRole);
 
-    ui->dbToolbar->addAction(dbTree->getAction(DbTree::CONNECT_TO_DB));
-    ui->dbToolbar->addAction(dbTree->getAction(DbTree::DISCONNECT_FROM_DB));
-    ui->dbToolbar->addSeparator();
-    ui->dbToolbar->addAction(dbTree->getAction(DbTree::ADD_DB));
-    ui->dbToolbar->addAction(dbTree->getAction(DbTree::EDIT_DB));
+    ui->dbToolbar->addAction(dbTree->getAction(DbTree::NEW_DB));
+    ui->dbToolbar->addAction(dbTree->getAction(DbTree::OPEN_FILE));
     ui->dbToolbar->addAction(dbTree->getAction(DbTree::REFRESH_SCHEMA));
+
+    attachActionInMenu(dbTree->getAction(DbTree::OPEN_FILE), dbTree->getAction(DbTree::ADD_DB), ui->dbToolbar);
 
     ui->structureToolbar->addAction(dbTree->getAction(DbTree::ADD_TABLE));
     ui->structureToolbar->addAction(dbTree->getAction(DbTree::ADD_VIEW));
@@ -352,6 +368,8 @@ void MainWindow::initMenuBar()
     dbMenu->addAction(dbTree->getAction(DbTree::CONNECT_TO_DB));
     dbMenu->addAction(dbTree->getAction(DbTree::DISCONNECT_FROM_DB));
     dbMenu->addSeparator();
+    dbMenu->addAction(dbTree->getAction(DbTree::NEW_DB));
+    dbMenu->addAction(dbTree->getAction(DbTree::OPEN_DB));
     dbMenu->addAction(dbTree->getAction(DbTree::ADD_DB));
     dbMenu->addAction(dbTree->getAction(DbTree::EDIT_DB));
     dbMenu->addAction(dbTree->getAction(DbTree::DELETE_DB));
@@ -390,10 +408,6 @@ void MainWindow::initMenuBar()
 
     // View menu
     viewMenu = createPopupMenu();
-    viewMenu->addSeparator();
-    tbStyleMenu = createToolbarStyleMenu();
-    viewMenu->addMenu(tbStyleMenu);
-    viewMenu->setTitle(tr("&View", "menubar"));
     menuBar()->addMenu(viewMenu);
 
     mdiMenu = new QMenu(viewMenu);
@@ -447,7 +461,7 @@ void MainWindow::initMenuBar()
     sqlitestudioMenu->addAction(actionMap[SQLITE_DOCS]);
     sqlitestudioMenu->addAction(actionMap[HOMEPAGE]);
     sqlitestudioMenu->addSeparator();
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
     if (UPDATES->isPlatformEligibleForUpdate())
     {
         sqlitestudioMenu->addAction(actionMap[CHECK_FOR_UPDATES]);
@@ -497,6 +511,8 @@ void MainWindow::saveSession(MdiWindow* currWindow)
 
 void MainWindow::restoreSession()
 {
+    auto cleanup = qScopeGuard([] { sessionRestoringFinished = true;});
+
     if (safeModeEnabled)
     {
         qInfo() << "Safe-Mode active. Skipping last saved session.";
@@ -508,6 +524,9 @@ void MainWindow::restoreSession()
     {
         THEME_TUNER->tuneCurrentTheme();
         restoreState(saveState()); // workaround for probable Qt bug (?), reported in #3421
+#ifdef Q_OS_WIN
+        setStyle("fusion");
+#endif
         return;
     }
 
@@ -517,7 +536,13 @@ void MainWindow::restoreSession()
         setStyle(styleName);
     }
     else
+    {
+#ifdef Q_OS_WIN
+        setStyle("fusion");
+#else
         THEME_TUNER->tuneCurrentTheme();
+#endif
+    }
 
     QString styleName = currentStyle();
     CFG_UI.General.Style.set(styleName);
@@ -526,7 +551,10 @@ void MainWindow::restoreSession()
         restoreGeometry(sessionValue["geometry"].toByteArray());
 
     if (sessionValue.contains("state"))
+    {
         restoreState(sessionValue["state"].toByteArray());
+        handlePostRestoreConfigUpdates();
+    }
     else
         restoreState(saveState()); // workaround for probable Qt bug (?), reported in #3421
 
@@ -620,6 +648,8 @@ bool MainWindow::setStyle(const QString& styleName)
 
     STYLE->setStyle(style, styleName);
     statusField->refreshColors();
+    CFG_UI.General.Style.set(styleName);
+
     return true;
 }
 
@@ -634,7 +664,7 @@ EditorWindow* MainWindow::openSqlEditor(Db* dbToSet, const QString& sql)
     if (!win->setCurrentDb(dbToSet))
     {
         qCritical() << "Created EditorWindow had not got requested database:" << dbToSet->getName();
-        win->close();
+        win->getMdiWindow()->close();
         return nullptr;
     }
 
@@ -644,11 +674,14 @@ EditorWindow* MainWindow::openSqlEditor(Db* dbToSet, const QString& sql)
 
 EditorWindow* MainWindow::openSqlEditorForFile(Db* dbToSet, const QString& fileName)
 {
+    if (!SqlEditor::confirmBigFileLoading(fileName))
+        return nullptr;
+
     EditorWindow* win = openSqlEditor();
-    if (!win->setCurrentDb(dbToSet))
+    if (dbToSet && dbToSet->isOpen() && !win->setCurrentDb(dbToSet))
     {
         qCritical() << "Created EditorWindow had not got requested database:" << dbToSet->getName();
-        win->close();
+        win->getMdiWindow()->close();
         return nullptr;
     }
 
@@ -662,6 +695,18 @@ void MainWindow::installToolbarSizeWheelHandler(QToolBar* toolbar)
         toolbarSizeWheelHandler = MouseShortcut::forWheel(Qt::ControlModifier, this, SLOT(toolbarSizeChangeRequested(int)), toolbar);
     else
         toolbar->installEventFilter(toolbarSizeWheelHandler);
+}
+
+QMenu* MainWindow::createPopupMenu()
+{
+    QMenu* m = QMainWindow::createPopupMenu();
+    m->addSeparator();
+    if (!tbStyleMenu)
+        tbStyleMenu = createToolbarStyleMenu(m);
+
+    m->addMenu(tbStyleMenu);
+    m->setTitle(tr("&View", "menubar"));
+    return m;
 }
 
 void MainWindow::saveSession(bool hide)
@@ -697,6 +742,38 @@ void MainWindow::toolbarSizeChangeRequested(int steps)
 
     int percInt = toolbarSizes[toolbarSizeActionList[idx]];
     CFG_UI.General.ToolBarIconSize.set(percInt);
+}
+
+void MainWindow::refreshSyntaxColors()
+{
+    QHashIterator<QString, CfgEntry*> it = CFG_UI.Colors.getEntries();
+    while (it.hasNext())
+    {
+        it.next();
+        if (it.value()->getDefaultValue().metaType() != QMetaType::fromType<QColor>())
+            continue;
+
+        CfgEntry* customEntry = CFG_UI.Colors.getEntryByName(it.key() + "Custom");
+        if (!customEntry)
+        {
+            qWarning() << "Color setting" << it.value()->getFullKey() << "has no associated"
+                       << (it.value()->getFullKey() + "Custom") << "setting";
+            continue;
+        }
+
+        if (customEntry->get().toBool())
+            continue; // customized by user
+
+        it.value()->reset();
+    }
+
+    QList<SyntaxHighlighterPlugin*> plugins = PLUGINS->getLoadedPlugins<SyntaxHighlighterPlugin>();
+    auto pluginIt = plugins.begin();
+    while (pluginIt != plugins.end())
+    {
+        (*pluginIt)->refreshFormats();
+        pluginIt++;
+    }
 }
 
 void MainWindow::updateToolbarStyle()
@@ -744,6 +821,7 @@ void MainWindow::refreshMdiWindows()
 
     for (const QString& name : actionNames)
         mdiMenu->addAction(nameToAction[name]);
+
     fixToolbarTooltips(ui->viewToolbar);
 
     updateWindowActions();
@@ -844,7 +922,7 @@ void MainWindow::closeSelectedWindow()
 
 void MainWindow::renameWindow()
 {
-    MdiWindow* win = ui->mdiArea->getActiveWindow();
+    MdiWindow* win = ui->mdiArea->getCurrentWindow();
     if (!win)
         return;
 
@@ -921,7 +999,7 @@ void MainWindow::donate()
 
 void MainWindow::statusFieldLinkClicked(const QString& link)
 {
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
     if (link == openUpdatesUrl && newVersionDialog)
     {
         newVersionDialog->exec();
@@ -945,7 +1023,7 @@ void MainWindow::updateMultipleSessionsSetting()
     Config::getSettings()->setValue(ALLOW_MULTIPLE_SESSIONS_SETTING, CFG_UI.General.AllowMultipleSessions.get());
 }
 
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
 void MainWindow::updateAvailable(const QString& version, const QString& url)
 {
     newVersionDialog = new NewVersionDialog(this);
@@ -1037,9 +1115,9 @@ void MainWindow::fixToolbars()
     fixToolbarTooltips(ui->dbToolbar);
 }
 
-QMenu* MainWindow::createToolbarStyleMenu()
+QMenu* MainWindow::createToolbarStyleMenu(QMenu* parentMenu)
 {
-    QMenu* menu = new QMenu(viewMenu);
+    QMenu* menu = new QMenu(parentMenu);
     menu->setTitle(tr("Toolbar &icons", "menubar"));
 
     QActionGroup* tbIconSizeGroup = new QActionGroup(menu);
@@ -1116,6 +1194,118 @@ void MainWindow::initToolbarSizeActionList()
         toolbarSizes[act] = percInt;
         toolbarSizesReversed[percInt] = act;
     }
+}
+
+void MainWindow::handlePostRestoreConfigUpdates()
+{
+    QVariantHash updates = CFG_CORE.General.PostRestoreConfigUpdates.get();
+    if (updates.contains("HideTheViewToolbar"))
+    {
+        ui->viewToolbar->setVisible(false);
+        updates.remove("HideTheViewToolbar");
+        CFG_CORE.General.PostRestoreConfigUpdates.set(updates);
+    }
+}
+
+void MainWindow::initDropOverlay()
+{
+    dropOverlay = new WidgetCover(this);
+    QGridLayout* dropLayout = dropOverlay->getContainerLayout();
+    dropLayout->setContentsMargins(0, 0, 0, 0);
+    QLabel* dropLabel = new QLabel(tr("Drop files to open them"), dropOverlay);
+    dropLabel->setStyleSheet("QLabel { font-size: 24px; color: white; font-weight: bold; }");
+    dropLabel->setAlignment(Qt::AlignCenter);
+    dropLayout->addWidget(dropLabel, 0, 0);
+
+    dropDetails = new QLabel("", dropOverlay);
+    dropDetails->setStyleSheet("QLabel {"
+                               "    color: white;"
+                               "    background-color: rgba(30, 30, 30, 192);"
+                               "    padding: 10px;"
+                               "    border-radius: 15px;"
+                               "}");
+    dropDetails->setAlignment(Qt::AlignCenter);
+    dropLayout->addWidget(dropDetails, 1, 0);
+}
+
+void MainWindow::handleExternalDragEnter(const QStringList& filePaths)
+{
+    // qDebug() << "enter" << filePaths;
+
+    static_qstring(detailsTpl, "<table cellpadding=\"5\">%1</table>");
+    static_qstring(rowTpl, "<tr><td align=\"right\"><code>%1</code></td><td width=\"20\"></td><td>%2</td></tr>");
+    QStringList rows;
+    for (const QString& filePath : filePaths)
+    {
+        DropFileContext ctx = fileToDropContext(filePath);
+        QString desc = dropDescriptionByFileType(ctx);
+        rows << rowTpl.arg(ctx.fileName, desc);
+    }
+
+    dropDetails->setText(detailsTpl.arg(rows.join("")));
+    if (!dropOverlay->isVisible())
+        dropOverlay->show();
+}
+
+void MainWindow::handleExternalDragLeave()
+{
+    // qDebug() << "leave";
+    if (dropOverlay->isVisible())
+        dropOverlay->hide();
+}
+
+void MainWindow::handleDroppedFile(const QString& filePath)
+{
+    DropFileType fileType = fileToFileType(filePath);
+    switch (fileType)
+    {
+        case MainWindow::DropFileType::SQLITE3:
+        case MainWindow::DropFileType::SQLITE3_POSSIBLE:
+        case MainWindow::DropFileType::SQLITE3_EMPTY:
+            DBTREE->openDb(filePath);
+            break;
+        case MainWindow::DropFileType::SQL:
+        case MainWindow::DropFileType::TEXT:
+            openSqlEditorForFile(nullptr, filePath);
+            break;
+        case MainWindow::DropFileType::CSV:
+        {
+            ImportDialog dialog(this);
+            dialog.setFilePath(filePath);
+            dialog.exec();
+            break;
+        }
+        case MainWindow::DropFileType::SQLITE2:
+            notifyError(tr("The dropped file appears to be a SQLite 2 database, which is not supported by this SQLiteStudio version. Last version supporting SQLite 2 was 3.2.1."));
+            break;
+        case MainWindow::DropFileType::OTHER:
+            notifyWarn(tr("The dropped file type is unsupported: %1 (%2)").arg(filePath, fileToDropContext(filePath).mimeValue));
+            break;
+    }
+}
+
+QString MainWindow::dropDescriptionByFileType(const DropFileContext& ctx)
+{
+    switch (ctx.type)
+    {
+        case MainWindow::DropFileType::SQLITE3:
+            return tr("SQLite 3 database - add to database list and open");
+        case MainWindow::DropFileType::SQLITE3_POSSIBLE:
+            return tr("It may be an encrypted SQLite 3 database. You can try to open it.");
+        case MainWindow::DropFileType::SQLITE3_EMPTY:
+            return tr("Empty file, but also empty SQLite 3 database - open as database");
+        case MainWindow::DropFileType::SQL:
+            return tr("SQL file - open in SQL Editor");
+        case MainWindow::DropFileType::TEXT:
+            return tr("Text file - open in SQL Editor");
+        case MainWindow::DropFileType::CSV:
+            return tr("CSV file - import using Import Dialog");
+        case MainWindow::DropFileType::SQLITE2:
+            return tr("SQLite 2 database - not supported anymore");
+        case MainWindow::DropFileType::OTHER:
+            return tr("Unsupported file type");
+    }
+    return QString();
 }
 
 bool MainWindow::confirmQuit(const QList<Committable*>& instances)
@@ -1221,19 +1411,134 @@ bool MainWindow::isSafeMode()
     return safeModeEnabled;
 }
 
+bool MainWindow::isSessionRestoringFinished()
+{
+    return sessionRestoringFinished;
+}
+
+bool MainWindow::isInternalDrop(const QMimeData* data)
+{
+    for (const QString& format : data->formats())
+    {
+        if (format.startsWith("application/x-sqlitestudio-"))
+            return true;
+    }
+    return false;
+}
+
+MainWindow::DropFileType MainWindow::fileToFileType(const QString& filePath)
+{
+    QMimeType mimeType = mimeDb.mimeTypeForFile(filePath);
+    return mimeToFileType(mimeType.name());
+}
+
+MainWindow::DropFileContext MainWindow::fileToDropContext(const QString& filePath)
+{
+    QMimeType mimeType = mimeDb.mimeTypeForFile(filePath);
+    QString mimeName = mimeType.name();
+    DropFileType fileType = mimeToFileType(mimeName);
+
+    return DropFileContext{
+        mimeName,
+        fileType,
+        QFileInfo(filePath).fileName(),
+        filePath,
+    };
+}
+
+MainWindow::DropFileType MainWindow::mimeToFileType(const QString& mimeValue)
+{
+    if (mimeValue == "application/vnd.sqlite3")
+        return DropFileType::SQLITE3;
+
+    if (mimeValue == "application/x-zerosize")
+        return DropFileType::SQLITE3_EMPTY;
+
+    if (mimeValue == "application/octet-stream")
+        return DropFileType::SQLITE3_POSSIBLE;
+
+    if (mimeValue == "application/sql")
+        return DropFileType::SQL;
+
+    if (mimeValue == "text/plain")
+        return DropFileType::TEXT;
+
+    if (mimeValue == "text/csv" || mimeValue == "text/tab-separated-values")
+        return DropFileType::CSV;
+
+    if (mimeValue == "application/x-sqlite2")
+        return DropFileType::SQLITE2;
+
+    return DropFileType::OTHER;
+}
+
 bool MainWindow::eventFilter(QObject* obj, QEvent* e)
 {
     Q_UNUSED(obj);
-    if (e->type() == QEvent::FileOpen)
-    {
-        QUrl url = dynamic_cast<QFileOpenEvent*>(e)->url();
-        if (!url.isLocalFile())
-            return false;
+    static QHash<QString, int> objCnt;
+    static int totalCnt = 0;
 
-        DbDialog dialog(DbDialog::ADD, this);
-        dialog.setPath(url.toLocalFile());
-        dialog.exec();
-        return true;
+    switch (e->type())
+    {
+        case QEvent::FileOpen:
+        {
+            QUrl url = dynamic_cast<QFileOpenEvent*>(e)->url();
+            if (!url.isLocalFile())
+                return false;
+
+            DbDialog dialog(DbDialog::ADD, this);
+            dialog.setPath(url.toLocalFile());
+            dialog.exec();
+            return true;
+        }
+        case QEvent::DragEnter:
+        {
+            auto* dragEv = static_cast<QDragEnterEvent*>(e);
+            if (dragEv->mimeData()->hasUrls() && !isInternalDrop(dragEv->mimeData()))
+            {
+                dragEv->acceptProposedAction();
+                if (totalCnt == 0)
+                    handleExternalDragEnter(dragEv->mimeData()->urls() | MAP(url, {return url.toLocalFile();}));
+
+                objCnt[obj->objectName()]++;
+                totalCnt++;
+                return true;
+            }
+            break;
+        }
+        case QEvent::Drop:
+        {
+            objCnt.clear();
+            totalCnt = 0;
+            handleExternalDragLeave();
+            auto* dropEv = static_cast<QDropEvent*>(e);
+            if (dropEv->mimeData()->hasUrls() && !isInternalDrop(dropEv->mimeData()))
+            {
+                for (const QUrl& url : dropEv->mimeData()->urls())
+                    handleDroppedFile(url.toLocalFile());
+
+                dropEv->acceptProposedAction();
+                return true;
+            }
+            break;
+        }
+        case QEvent::DragLeave:
+        {
+            if (objCnt.contains(obj->objectName()) && objCnt[obj->objectName()] > 0)
+            {
+                objCnt[obj->objectName()]--;
+                totalCnt--;
+            }
+
+            if (totalCnt <= 0)
+            {
+                objCnt.clear();
+                totalCnt = 0;
+                handleExternalDragLeave();
+            }
+        }
+        default:
+            break;
     }
     return false;
 }

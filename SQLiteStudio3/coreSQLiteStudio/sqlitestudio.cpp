@@ -113,7 +113,7 @@ void SQLiteStudio::setImmediateQuit(bool value)
     immediateQuit = value;
 }
 
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
 UpdateManager* SQLiteStudio::getUpdateManager() const
 {
     return updateManager;
@@ -329,6 +329,11 @@ void SQLiteStudio::init(const QStringList& cmdListArguments, bool guiAvailable)
     CompletionHelper::init();
 
     qRegisterMetaType<ScriptingPlugin::Context*>();
+    qRegisterMetaType<Table>();
+    qRegisterMetaType<DbAndTable>();
+    qRegisterMetaType<AliasedTable>();
+    qRegisterMetaType<Column>();
+    qRegisterMetaType<AliasedColumn>();
 
     NotifyManager::getInstance();
 
@@ -377,14 +382,13 @@ void SQLiteStudio::init(const QStringList& cmdListArguments, bool guiAvailable)
     exportManager = new ExportManager();
     importManager = new ImportManager();
     populateManager = new PopulateManager();
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
     updateManager = new UpdateManager();
 #endif
     extraLicenseManager = new ExtraLicenseManager();
     codeSnippetManager = new CodeSnippetManager(config);
 
     extraLicenseManager->addLicense("SQLiteStudio license (GPL v3)", ":/docs/licenses/sqlitestudio_license.txt");
-    extraLicenseManager->addLicense("Fugue icons", ":/docs/licenses/fugue_icons.txt");
     extraLicenseManager->addLicense("Qt, QHexEdit (LGPL v2.1)", ":/docs/licenses/lgpl.txt");
     extraLicenseManager->addLicense("diff_match (Apache License v2.0)", ":/docs/licenses/diff_match.txt");
     extraLicenseManager->addLicense("RSA library (GPL v3)", ":/docs/licenses/gpl.txt");
@@ -426,7 +430,7 @@ void SQLiteStudio::cleanUp()
 //            pluginManager->deinit();
 
 //        safe_delete(pluginManager); // PluginManager before DbManager, so Db objects are deleted while DbManager still exists
-//#ifdef PORTABLE_CONFIG
+//#ifdef HAS_UPDATEMANAGER
 //        safe_delete(updateManager);
 //#endif
 //        safe_delete(populateManager);

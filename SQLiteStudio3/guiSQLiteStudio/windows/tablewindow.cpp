@@ -33,6 +33,7 @@
 #include "dialogs/populatedialog.h"
 #include "common/dbcombobox.h"
 #include "tablemodifier.h"
+#include "datagrid/sqlqueryview.h"
 #include <QMenu>
 #include <QToolButton>
 #include <QLabel>
@@ -41,6 +42,11 @@
 #include <QPushButton>
 #include <QDebug>
 #include <QStyleFactory>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QtSystemDetection>
+#else
+#include <qsystemdetection.h>
+#endif
 
 // TODO extend QTableView for columns and constraints, so they show full-row-width drop indicator,
 // instead of single column drop indicator.
@@ -195,6 +201,9 @@ void TableWindow::init()
     connect(structureExecutor, SIGNAL(success(SqlQueryPtr)), this, SLOT(changesSuccessfullyCommitted()));
     connect(structureExecutor, SIGNAL(failure(int,QString)), this, SLOT(changesFailedToCommit(int,QString)));
 
+    connect(NOTIFY_MANAGER, SIGNAL(objectRenamed(Db*,QString,QString,QString)), this, SLOT(handlePossibleIdxOrTrgRename(Db*,QString,QString,QString)));
+    connect(NOTIFY_MANAGER, SIGNAL(columnRenamed(Db*,QString,QString,QString,QString)), this, SLOT(handlePossibleColumnRename(Db*,QString,QString,QString,QString)));
+
     THEME_TUNER->manageCompactLayout({
                                          ui->structureTab,
                                          ui->constraintsWidget,
@@ -238,20 +247,13 @@ void TableWindow::createStructureActions()
     createAction(MOVE_COLUMN_UP, ICONS.MOVE_UP, tr("Move column up", "table window"), this, SLOT(moveColumnUp()), ui->structureToolBar, ui->structureView);
     createAction(MOVE_COLUMN_DOWN, ICONS.MOVE_DOWN, tr("Move column down", "table window"), this, SLOT(moveColumnDown()), ui->structureToolBar, ui->structureView);
     separatorAfterAction[MOVE_COLUMN_DOWN] = ui->structureToolBar->addSeparator();
-    createAction(ADD_INDEX_STRUCT, ICONS.INDEX_ADD, tr("Create index", "table window"), this, SLOT(addIndex()), ui->structureToolBar, ui->structureView);
-    createAction(ADD_TRIGGER_STRUCT, ICONS.TRIGGER_ADD, tr("Create trigger", "table window"), this, SLOT(addTrigger()), ui->structureToolBar, ui->structureView);
-    separatorAfterAction[ADD_TRIGGER_STRUCT] = ui->structureToolBar->addSeparator();
-    ui->structureToolBar->addAction(actionMap[IMPORT]);
-    ui->structureToolBar->addAction(actionMap[EXPORT]);
-    ui->structureToolBar->addAction(actionMap[POPULATE]);
-    separatorAfterAction[POPULATE] = ui->structureToolBar->addSeparator();
     createAction(CREATE_SIMILAR, ICONS.TABLE_CREATE_SIMILAR, tr("Create similar table", "table window"), this, SLOT(createSimilarTable()), ui->structureToolBar);
     createAction(RESET_AUTOINCREMENT, ICONS.RESET_AUTOINCREMENT, tr("Reset autoincrement value", "table window"), this, SLOT(resetAutoincrement()), ui->structureToolBar);
 
     // Table constraints
     createAction(ADD_TABLE_CONSTRAINT, ICONS.TABLE_CONSTRAINT_ADD, tr("Add table constraint", "table window"), this, SLOT(addConstraint()), ui->tableConstraintsToolbar, ui->tableConstraintsView);
     createAction(EDIT_TABLE_CONSTRAINT, ICONS.TABLE_CONSTRAINT_EDIT, tr("Edit table constraint", "table window"), this, SLOT(editConstraint()), ui->tableConstraintsToolbar, ui->tableConstraintsView);
-    createAction(DEL_TABLE_CONSTRAINT, ICONS.TABLE_COLUMN_DELETE, tr("Delete table constraint", "table window"), this, SLOT(delConstraint()), ui->tableConstraintsToolbar, ui->tableConstraintsView);
+    createAction(DEL_TABLE_CONSTRAINT, ICONS.TABLE_CONSTRAINT_DELETE, tr("Delete table constraint", "table window"), this, SLOT(delConstraint()), ui->tableConstraintsToolbar, ui->tableConstraintsView);
     createAction(MOVE_CONSTRAINT_UP, ICONS.MOVE_UP, tr("Move table constraint up", "table window"), this, SLOT(moveConstraintUp()), ui->tableConstraintsToolbar, ui->tableConstraintsView);
     createAction(MOVE_CONSTRAINT_DOWN, ICONS.MOVE_DOWN, tr("Move table constraint down", "table window"), this, SLOT(moveConstraintDown()), ui->tableConstraintsToolbar, ui->tableConstraintsView);
     separatorAfterAction[MOVE_CONSTRAINT_DOWN] = ui->tableConstraintsToolbar->addSeparator();
@@ -519,12 +521,16 @@ void TableWindow::initDbAndTable()
         ui->structureView->setItemDelegateForColumn(colIdx, constraintColumnsDelegate);
 
     defineCurrentContextDb();
-    if (existingTable)
+
+    if (db)
     {
+        // Should always be true, but for sake of future possibility of re-allowing null db
         dataModel->setDb(db);
-        dataModel->setDatabaseAndTable(database, table);
         ui->dbCombo->setDisabled(true);
     }
+
+    if (existingTable)
+        dataModel->setDatabaseAndTable(database, table);
 
     ui->tableNameEdit->setText(table); // TODO no attached/temp db name support here
 
@@ -697,6 +703,7 @@ QVariant TableWindow::saveSession()
     QHash<QString,QVariant> sessionValue;
     sessionValue["table"] = table;
     sessionValue["db"] = db->getName();
+    sessionValue["dataView"] = ui->dataView->getSessionValue();
     return sessionValue;
 }
 
@@ -729,6 +736,12 @@ bool TableWindow::restoreSession(const QVariant& sessionValue)
     {
         notifyWarn(tr("Could not restore window '%1', because the table %2 doesn't exist in the database %3.").arg(value["title"].toString(), table, db->getName()));
         return false;
+    }
+
+    if (value.contains("dataView"))
+    {
+        QVariant dataViewSession = value["dataView"];
+        ui->dataView->restoreFromSession(dataViewSession);
     }
 
     initDbAndTable();
@@ -1138,7 +1151,7 @@ bool TableWindow::isModified() const
                  originalCreateTable->withOutRowId != createTable->withOutRowId ||
                  originalCreateTable->strict != createTable->strict)
             ) ||
-            !existingTable;
+            (!existingTable && !ui->tableNameEdit->text().isEmpty());
 }
 
 TokenList TableWindow::indexColumnTokens(SqliteCreateIndexPtr index)
@@ -1251,8 +1264,6 @@ void TableWindow::updateNewTableState()
     actionMap[CREATE_SIMILAR]->setEnabled(existingTable);
     actionMap[RESET_AUTOINCREMENT]->setEnabled(existingTable);
     actionMap[REFRESH_STRUCTURE]->setEnabled(existingTable);
-    actionMap[ADD_INDEX_STRUCT]->setEnabled(existingTable);
-    actionMap[ADD_TRIGGER_STRUCT]->setEnabled(existingTable);
 }
 
 void TableWindow::addConstraint()
@@ -1629,17 +1640,22 @@ void TableWindow::updateIndexes()
 
     QTableWidgetItem* item = nullptr;
     int row = 0;
-    for (SqliteCreateIndexPtr index : indexes)
+    for (SqliteCreateIndexPtr& index : indexes)
     {
         item = new QTableWidgetItem(index->index);
         item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
         ui->indexList->setItem(row, 0, item);
 
-        // TODO a delegate to make the checkbox in the center, or use setCellWidget()
-        item = new QTableWidgetItem();
-        item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
-        item->setCheckState(index->uniqueKw ? Qt::Checked : Qt::Unchecked);
-        ui->indexList->setItem(row, 1, item);
+        QCheckBox *check = new QCheckBox(ui->indexList);
+        check->setChecked(index->uniqueKw);
+        check->setAttribute(Qt::WA_TransparentForMouseEvents);
+        check->setFocusPolicy(Qt::NoFocus);
+        QWidget *container = new QWidget(ui->indexList);
+        QHBoxLayout *layout = new QHBoxLayout(container);
+        layout->addWidget(check);
+        layout->setAlignment(Qt::AlignCenter);
+        layout->setContentsMargins(0, 0, 0, 0);
+        ui->indexList->setCellWidget(row, 1, container);
 
         item = new QTableWidgetItem(indexColumnTokens(index).detokenize());
         item->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
@@ -1816,6 +1832,14 @@ Db* TableWindow::getAssociatedDb() const
     return db;
 }
 
+QPair<Db*, QString> TableWindow::getSoftDbObjectAssociation() const
+{
+    if (!existingTable)
+        return {db, QString()};
+
+    return {db, table};
+}
+
 bool TableWindow::isWindowClosingBlocked() const
 {
     return structureExecutor->isExecuting() || dataModel->isExecutionInProgress() ||
@@ -1845,4 +1869,37 @@ void TableWindow::dbChanged()
     dataModel->setDb(db);
 
     connect(db, SIGNAL(dbObjectDeleted(QString,QString,DbObjectType)), this, SLOT(checkIfTableDeleted(QString,QString,DbObjectType)));
+}
+
+void TableWindow::handlePossibleIdxOrTrgRename(Db* db, const QString& database, const QString& oldObject, const QString& newObject)
+{
+    Q_UNUSED(database);
+    if (db != this->db)
+        return;
+
+    for (int i = 0, total = ui->indexList->rowCount(); i < total; ++i)
+    {
+        if (ui->indexList->item(i, 0)->text().compare(oldObject, Qt::CaseInsensitive) == 0)
+        {
+            ui->indexList->item(i, 0)->setText(newObject);
+            return;
+        }
+    }
+
+    for (int i = 0, total = ui->triggerList->rowCount(); i < total; ++i)
+    {
+        if (ui->triggerList->item(i, 0)->text().compare(oldObject, Qt::CaseInsensitive) == 0)
+        {
+            ui->triggerList->item(i, 0)->setText(newObject);
+            return;
+        }
+    }
+}
+
+void TableWindow::handlePossibleColumnRename(Db* db, const QString& database, const QString& table, const QString& oldObject, const QString& newObject)
+{
+    if (db != this->db || table.compare(this->table, Qt::CaseInsensitive) != 0)
+        return;
+
+    refreshStructure();
 }

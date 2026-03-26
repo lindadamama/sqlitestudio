@@ -31,14 +31,24 @@ class GUI_API_EXPORT DbTreeView : public QTreeView
         DbTreeItem *getItemForAction(bool onlySelected = false) const;
         QPoint getLastDropPosition() const;
         QModelIndexList getSelectedIndexes() const;
+        DbTreeItemDelegate* getItemDelegate() const;
 
     protected:
         void dragEnterEvent(QDragEnterEvent* e);
         void dragMoveEvent(QDragMoveEvent *event);
         void mouseDoubleClickEvent(QMouseEvent* event);
-        void dropEvent(QDropEvent*e);
+        void mousePressEvent(QMouseEvent* event);
+        void dropEvent(QDropEvent* e);
+        void startDrag(Qt::DropActions supportedActions);
 
     private:
+        QPixmap createDragPixmap(const QModelIndexList &indexes);
+        bool handleMiddleClick(DbTreeItem* item);
+        bool handleDbMiddleClick(DbTreeItem* item);
+        bool handleTablesMiddleClick(DbTreeItem* item);
+        bool handleTableMiddleClick(DbTreeItem* item);
+        bool handleViewsMiddleClick(DbTreeItem* item);
+        bool handleViewMiddleClick(DbTreeItem* item);
         bool handleDoubleClick(DbTreeItem* item);
         bool handleDbDoubleClick(DbTreeItem* item);
         bool handleTableDoubleClick(DbTreeItem* item);
@@ -47,6 +57,21 @@ class GUI_API_EXPORT DbTreeView : public QTreeView
         bool handleViewDoubleClick(DbTreeItem* item);
         bool handleColumnDoubleClick(DbTreeItem* item);
         void expandToMakeVisible(DbTreeItem* item);
+
+        template <class T>
+        bool handleWindowClosingMiddleClick(DbTreeItem* item, std::function<bool(T*, DbTreeItem*)> closePredicate)
+        {
+            for (MdiWindow*& mdiWin : MDIAREA->getWindows())
+            {
+                T* mdiChild = dynamic_cast<T*>(mdiWin->getMdiChild());
+                if (!mdiChild)
+                    continue;
+
+                if (closePredicate(mdiChild, item))
+                    mdiWin->close();
+            }
+            return false;
+        }
 
         QMenu* contextMenu = nullptr;
         DbTree* dbTree = nullptr;

@@ -1,14 +1,11 @@
 env:
-    TARGET_ARCH: 'x86_64'
-    QT_VERSION: '6.8.3'
     TCL_VERSION: '8.6'
-    SQLITE_VERSION: '3510100'
+    SQLITE_VERSION: '3510200'
     PYTHON_VERSION: '3.13'
     PORTABLE_DIR: ${{ github.workspace }}/output/portable/SQLiteStudio
     INSTALLBUILDER_DIR: ../ib
-    INSTALLBUILDER_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-24.11.1-linux-x64-installer.run
-    LIBSSL_DIR_URL: http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/
-    LIBSSL_DEB: libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
+    ICU_VERSION: '73.2'
+    ICU_URL: 'https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz'
     BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 name: Linux release build
@@ -25,18 +22,57 @@ on:
             required: false
             type: boolean
             default: false
+          debug_ssh:
+            description: "Open SSH tunnel at the end"
+            type: boolean
+            default: false
+          debug_on_failure:
+            description: "Open SSH tunnel if job fails"
+            type: boolean
+            default: false
     schedule:
         - cron: '30 3 * * 1' # run at 3:30 AM UTC every Monday
 
 jobs:
     build:
-        runs-on: ubuntu-22.04
+        strategy:
+            matrix:
+                include:
+                    - OS: ubuntu-22.04
+                      TARGET_ARCH: 'x86_64'
+                      QT_VERSION: '6.8.3'
+                      QT_ARCH: 'linux_gcc_64'
+                      QT_HOST: 'linux'
+                      INSTALLBUILDER_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-26.2.0-linux-x64-installer.run
+                      LIBSSL_DIR_URL: http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/
+                      LIBSSL_DEB: libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
+                      PYTHON_ARCH: 'x64'
+                      SQLITE_ARCH: 'x64'
+                      OUTPUT_FILE_ARCH: 'x64'
+                    - OS: ubuntu-22.04-arm
+                      TARGET_ARCH: 'aarch64'
+                      QT_VERSION: '6.7.3' # ARM arch has to stick to Qt 6.7, because 6.8 binaries use newer ABI on ARM platform
+                      QT_ARCH: 'linux_gcc_arm64'
+                      QT_HOST: 'linux_arm64'
+                      INSTALLBUILDER_URL: https://releases.installbuilder.com/installbuilder/installbuilder-enterprise-26.2.0-linux-arm64-installer.run
+                      LIBSSL_DIR_URL: http://ports.ubuntu.com/pool/main/o/openssl/
+                      LIBSSL_DEB: libssl1.1_1.1.1f-1ubuntu2.24_arm64.deb
+                      PYTHON_ARCH: 'arm64'
+                      SQLITE_ARCH: 'arm'
+                      OUTPUT_FILE_ARCH: 'arm64'
+
+        runs-on: ${{ matrix.OS }}
 
         steps:
             - uses: actions/setup-python@v4
               with:
                 python-version: ${{ env.PYTHON_VERSION }}
-                architecture: 'x64'
+                architecture: ${{ matrix.PYTHON_ARCH }}
+
+            # CMake files in Qt 6.7 have bugged dependency on Cups headers, making them mandatory in the OS.
+            # It's easy and fast to install it.
+            - name: Workaround for Qt 6.7.x CUPS bug
+              run: sudo apt install libcups2-dev
 
             - name: Qt installation dir
               id: qt-installation-dir
@@ -46,8 +82,9 @@ jobs:
               uses: jurplel/install-qt-action@v4
               with:
                 cache: true
-                version: ${{ env.QT_VERSION }}
-                host: 'linux'
+                version: ${{ matrix.QT_VERSION }}
+                host: ${{ matrix.QT_HOST }}
+                arch: '${{ matrix.QT_ARCH }}'
                 dir: '${{ steps.qt-installation-dir.DIR }}'
                 setup-python: 'false'
                 extra: '--external 7z'
@@ -72,7 +109,7 @@ jobs:
             - name: Install the InstalBuilder
               shell: bash
               run: |
-                curl -L ${{ env.INSTALLBUILDER_URL }} --output ib.run
+                curl -L ${{ matrix.INSTALLBUILDER_URL }} --output ib.run
                 chmod +x ib.run
                 ./ib.run --mode unattended --prefix ${{ env.INSTALLBUILDER_DIR }}
                 ${{ env.INSTALLBUILDER_DIR }}/bin/builder --version
@@ -89,10 +126,10 @@ jobs:
               run: |
                 SQLITE_DOT_VERSION=$($GH_SCRIPTS/convert_int_ver.sh $SQLITE_VERSION)
                 echo "SQLITE_DOT_VERSION=$SQLITE_DOT_VERSION" >> $GITHUB_ENV
-                
+
                 cd ..
                 curl -L https://github.com/pawelsalawa/sqlite3-sqls/releases/download/v$SQLITE_DOT_VERSION/sqlite3-extensions-src-$SQLITE_VERSION.zip --output sqlite3-extensions-src-$SQLITE_VERSION.zip
-                
+
                 mkdir ext-src
                 unzip sqlite3-extensions-src-$SQLITE_VERSION.zip -d ext-src
 
@@ -111,10 +148,10 @@ jobs:
             - name: Install SQLite3
               run: |
                 cd ..
-                SQLITE3_ZIP=sqlite3-linux-x64-$SQLITE_VERSION.zip
+                SQLITE3_ZIP=sqlite3-linux-${{ matrix.SQLITE_ARCH }}-$SQLITE_VERSION.zip
                 curl -L https://github.com/pawelsalawa/sqlite3-sqls/releases/download/v$SQLITE_DOT_VERSION/$SQLITE3_ZIP --output $SQLITE3_ZIP
 
-                sudo rm -f /usr/lib/libsqlite* /usr/local/lib/libsqlite* /usr/include/sqlite* /usr/local/include/sqlite* /usr/lib/$TARGET_ARCH-linux-gnu/libsqlite*
+                sudo rm -f /usr/lib/libsqlite* /usr/local/lib/libsqlite* /usr/include/sqlite* /usr/local/include/sqlite* /usr/lib/${{ matrix.TARGET_ARCH }}-linux-gnu/libsqlite*
                 sudo unzip $SQLITE3_ZIP libsqlite3.so -d /usr/local/lib
                 sudo unzip $SQLITE3_ZIP sqlite3.h sqlite3ext.h -d /usr/local/include
                 sudo ln -s /usr/local/lib/libsqlite3.so /usr/local/lib/libsqlite3.so.0
@@ -122,15 +159,27 @@ jobs:
                 ls -l /usr/local/lib/libsqlite3*
                 ls -l /usr/local/include/sqlite*
 
+            - name: Get ICU headers
+              if: steps.cache-icu.outputs.cache-hit != 'true'
+              shell: bash
+              run: |
+                cd ..
+                curl -fsSL -o icu-src.tgz "${ICU_URL}"
+                tar xzf icu-src.tgz
+
+                mkdir icu-headers icu-headers/unicode
+                cp icu/source/common/*.h icu-headers/
+                cp icu/source/common/unicode/*.h icu/source/i18n/unicode/*.h icu-headers/unicode/
+                echo "ICU_HEADERS=$(pwd)/icu-headers" >> $GITHUB_ENV
 
             - name: Compile additional SQLite3 extensions
               shell: bash
               run: |
                 cd ..
                 mkdir ext
-                
+
                 cd ext-src
-                FLAGS="-ldl -Os -fpic -shared -Imisc -I/usr/local/include -L/usr/local/lib -lsqlite3"
+                FLAGS="-ldl -O2 -fpic -shared -Imisc -I/usr/local/include -L/usr/local/lib -lsqlite3"
                 set -x
                 for f in compress; do
                     gcc misc/$f.c $FLAGS -lz -o ../ext/$f.so
@@ -138,11 +187,11 @@ jobs:
                 for f in csv decimal eval ieee754 percentile rot13 series sqlar uint uuid zorder; do
                     gcc misc/$f.c $FLAGS -o ../ext/$f.so
                 done
-                #for f in icu; do
-                #    gcc icu/$f.c $FLAGS `pkg-config --libs --cflags icu-uc icu-io` -o ../ext/$f.so
-                #done
+                for f in icu; do
+                    gcc icu/$f.c -L$QT_ROOT_DIR/lib $FLAGS -I$ICU_HEADERS -licui18n -licuuc -licudata -o ../ext/$f.so
+                done
                 set +x
-                
+
                 ls -l ../ext/
 
             - name: Install Tcl
@@ -150,31 +199,37 @@ jobs:
 
             - name: Install other tools/dependencies
               run: |
-                sudo apt install libreadline-dev libncurses5-dev patchelf chrpath
+                sudo apt install libreadline-dev libncurses5-dev patchelf
                 echo "${{ github.workspace }}/../Qt/${{ env.QT_VERSION }}/gcc_64/bin" >> $GITHUB_PATH
 
             - name: Prepare output dir
-              run: mkdir output output/build output/build/Plugins
+              run: mkdir output output/build output/build-plugins
 
             - name: Compile SQLiteStudio3
               working-directory: output/build
               run: |
-                qmake \
-                    $([ ${{ inputs.use_ccache || false }} = false ] || echo "CONFIG+=ccache") \
-                    CONFIG+=portable \
-                    ../../SQLiteStudio3
-                make -j 4
+                cmake ../../SQLiteStudio3 -G Ninja \
+                    -DCMAKE_BUILD_TYPE=Release \
+                    -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}" \
+                    -DCMAKE_INSTALL_PREFIX=../SQLiteStudio \
+                    -DWITH_PORTABLE=1 \
+                    -DWITH_UPDATER=1 \
+                    -DBUILD_TESTING=0
+                cmake --build . --verbose
+                cmake --install . --verbose
 
             - name: Compile Plugins
-              working-directory: output/build/Plugins
+              working-directory: output/build-plugins
               run: |
-                qmake \
-                    $([ ${{ inputs.use_ccache || false }} = false ] || echo "CONFIG+=ccache") \
-                    CONFIG+=portable \
-                    "INCLUDEPATH+=$pythonLocation/include/python$PYTHON_VERSION" "LIBS += -L$pythonLocation/lib" \
-                    "PYTHON_VERSION=${{ env.PYTHON_VERSION }}" \
-                    ../../../Plugins
-                make -j 1
+                cmake ../../Plugins -G Ninja \
+                    -DCMAKE_BUILD_TYPE=Release \
+                    -DCMAKE_PREFIX_PATH="${{ env.QT_ROOT_DIR }}:${{ env.Python3_ROOT_DIR }}" \
+                    -DCMAKE_INSTALL_PREFIX=../SQLiteStudio \
+                    -DWITH_PORTABLE=1 \
+                    -DWITH_DYNAMIC_PYTHON=1 \
+                    -DWITH_ALL_PLUGINS=1
+                cmake --build . --verbose
+                cmake --install . --verbose
 
             - name: Copy SQLite extensions to output dir
               shell: bash
@@ -184,19 +239,19 @@ jobs:
             - name: Prepare portable dir
               working-directory: output
               run: |
-                mkdir portable
+                mkdir portable portable/lib
                 cp -R SQLiteStudio portable/
 
             - name: Copy SQLite3 to portable dir
               working-directory: ${{ env.PORTABLE_DIR }}
-              run: cp -P /usr/local/lib/libsqlite3.so* lib/
+              run: cp -P /usr/local/lib/libsqlite3.so lib/
 
             - name: Copy Qt's libcrypto and libssl to portable dir (#4577)
               run: |
-                wget ${{ env.LIBSSL_DIR_URL }}${{ env.LIBSSL_DEB }}
-                dpkg-deb -xv ${{ env.LIBSSL_DEB }} .
-                cp ./usr/lib/$TARGET_ARCH-linux-gnu/libssl.so.1.1 ${{ env.PORTABLE_DIR }}/lib/
-                cp ./usr/lib/$TARGET_ARCH-linux-gnu/libcrypto.so.1.1 ${{ env.PORTABLE_DIR }}/lib/
+                wget ${{ matrix.LIBSSL_DIR_URL }}${{ matrix.LIBSSL_DEB }}
+                dpkg-deb -xv ${{ matrix.LIBSSL_DEB }} .
+                cp ./usr/lib/${{ matrix.TARGET_ARCH }}-linux-gnu/libssl.so.1.1 ${{ env.PORTABLE_DIR }}/lib/
+                cp ./usr/lib/${{ matrix.TARGET_ARCH }}-linux-gnu/libcrypto.so.1.1 ${{ env.PORTABLE_DIR }}/lib/
 
             - name: Copy Qt to portable dir
               working-directory: ${{ env.PORTABLE_DIR }}
@@ -242,7 +297,7 @@ jobs:
               shell: bash
               working-directory: ${{ env.PORTABLE_DIR }}
               run: |
-                libdir=/usr/lib/$TARGET_ARCH-linux-gnu
+                libdir=/usr/lib/${{ matrix.TARGET_ARCH }}-linux-gnu
                 if ldd lib/libQt${QT_VERSION_MAJ}XcbQpa.so | grep -q libxcb-; then
                     # These are not installed by default on Xubuntu 22.04:
                     cp -P $libdir/libxcb-xkb.so* lib/
@@ -260,16 +315,13 @@ jobs:
               working-directory: ${{ env.PORTABLE_DIR }}
               run: |
                 set -x
-                chrpath -k -r \$ORIGIN/../lib   platforms/*.so imageformats/*.so iconengines/*.so printsupport/*.so platformthemes/*.so plugins/*.so wayland-*/*.so tls/*.so 2>&1 >/dev/null
-                chrpath -k -r \$ORIGIN          lib/libicu*.*.*
-                chrpath -k -r \$ORIGIN          lib/libcoreSQLiteStudio.so lib/libguiSQLiteStudio.so 2>&1 >/dev/null
-                chrpath -k -r \$ORIGIN/lib      sqlitestudio 2>&1 >/dev/null
-                chrpath -k -r \$ORIGIN/lib      sqlitestudiocli 2>&1 >/dev/null
-                chrpath -l platforms/*.so imageformats/*.so iconengines/*.so printsupport/*.so platformthemes/*.so plugins/*.so
-                chrpath -l lib/libicu*.*.*
-                chrpath -l lib/libcoreSQLiteStudio.so lib/libguiSQLiteStudio.so
-                chrpath -l sqlitestudio
-                chrpath -l sqlitestudiocli
+                patchelf --set-rpath '$ORIGIN/../lib'   platforms/*.so imageformats/*.so iconengines/*.so printsupport/*.so platformthemes/*.so plugins/*.so wayland-*/*.so tls/*.so extensions/*.so 2>&1 >/dev/null
+                patchelf --set-rpath '$ORIGIN'          lib/libicu*.*.*
+                patchelf --set-rpath '$ORIGIN'          lib/libcoreSQLiteStudio.so lib/libguiSQLiteStudio.so 2>&1 >/dev/null
+                patchelf --set-rpath '$ORIGIN/lib'      sqlitestudio 2>&1 >/dev/null
+                patchelf --set-rpath '$ORIGIN/lib'      sqlitestudiocli 2>&1 >/dev/null
+                # CMake may consider manually installed SQLite as "IMPORTED", therefore linking it with a full path. We need to fix it.
+                patchelf --replace-needed /usr/local/lib/libsqlite3.so libsqlite3.so lib/libcoreSQLiteStudio.so
 
             - name: Final preparations for packaging
               run: |
@@ -283,7 +335,6 @@ jobs:
                 cp `ldd sqlitestudiocli | grep readline | awk '{print $3}'` lib/
                 cp `ldd lib/libreadline* | grep tinfo | awk '{print $3}'` lib/
                 strip lib/*.so sqlitestudio sqlitestudiocli platforms/*.so imageformats/*.so iconengines/*.so printsupport/*.so platformthemes/*.so plugins/*.so tls/*.so
-                # These may have no initial rpath/runpath so chrpath does not work on them
                 patchelf --set-rpath '$ORIGIN' \
                   lib/libQt6Core.so.*.*.* \
                   lib/libreadline*
@@ -293,7 +344,7 @@ jobs:
               run: |
                 SQLITESTUDIO_VERSION=$(./sqlitestudiocli --version | cut -f 2 -d ' ')
                 echo "SQLITESTUDIO_VERSION=$SQLITESTUDIO_VERSION" >> $GITHUB_ENV
-                echo "PACKAGE_VERSION=${SQLITESTUDIO_VERSION}-linux-x64" >> $GITHUB_ENV
+                echo "PACKAGE_VERSION=${SQLITESTUDIO_VERSION}-linux-${{ matrix.OUTPUT_FILE_ARCH }}" >> $GITHUB_ENV
 
             - name: Assemble portable package
               shell: bash
@@ -333,3 +384,21 @@ jobs:
               with:
                 name: SQLiteStudio-${{ env.PACKAGE_VERSION }}-installer.run
                 path: SQLiteStudio-${{ env.PACKAGE_VERSION }}-installer.run
+
+            - name: Install Midnight Commander
+              if: >
+                ${{
+                    github.repository_owner == 'pawelsalawa'
+                    && (inputs.debug_ssh || (failure() && inputs.debug_on_failure))
+                }}
+              run: sudo apt install mc
+
+            - name: Setup debugging SSH
+              if: >
+                ${{
+                    github.repository_owner == 'pawelsalawa'
+                    && (inputs.debug_ssh || (failure() && inputs.debug_on_failure))
+                }}
+              uses: owenthereal/action-upterm@v1
+              with:
+                wait-timeout-minutes: 10

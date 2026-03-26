@@ -21,6 +21,8 @@
 #include <QSettings>
 #include <QtWidgets/QFileDialog>
 
+const int SQLITESTUDIO_CONFIG_VERSION = 13;
+
 static_qstring(DB_FILE_NAME, "settings3");
 static_qstring(CONFIG_DIR_SETTING, "SQLiteStudioConfigDir");
 qint64 ConfigImpl::sqlHistoryId = -1;
@@ -690,8 +692,8 @@ void ConfigImpl::initTables()
         db->exec("CREATE TABLE reports_history (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp INTEGER, feature_request BOOLEAN, title TEXT, url TEXT)");
 
     if (!tables.contains("script_functions"))
-        db->exec("CREATE TABLE script_functions (name TEXT, lang TEXT, code TEXT, \"initCode\" TEXT, \"finalCode\" TEXT, databases TEXT, arguments TEXT,"
-                 " \"type\" INTEGER, \"undefinedArgs\" BOOLEAN, \"allDatabases\" BOOLEAN, deterministic BOOLEAN)");
+        db->exec("CREATE TABLE script_functions (name TEXT, lang TEXT, code TEXT, initCode TEXT, finalCode TEXT, inverseCode TEXT, databases TEXT,"
+                 " arguments TEXT, [type] INTEGER, undefinedArgs BOOLEAN, allDatabases BOOLEAN, deterministic BOOLEAN)");
 }
 
 void ConfigImpl::initDbFile()
@@ -1194,9 +1196,9 @@ void ConfigImpl::updateConfigDb()
                 }
                 QString secondLast = parts[parts.size() - 2];
                 QString thirdLast = parts[parts.size() - 3];
-                if (thirdLast.contains("sqlitestudio", Qt::CaseInsensitive) && secondLast == "extensions")
+                if (thirdLast.contains("sqlitestudio", Qt::CaseInsensitive) && (secondLast == "extensions" || secondLast == "ext"))
                 {
-                    extHash["filePath"] = QString("%1/extensions/%2").arg(SqliteExtensionManager::APP_PATH_PREFIX, parts.last());
+                    extHash["filePath"] = QString("%1/%2/%3").arg(SqliteExtensionManager::APP_PATH_PREFIX, secondLast, parts.last());
                     qDebug() << "Migrating extension path from" << filePath << "to" << extHash["filePath"].toString();
                     newList << extHash;
                 }
@@ -1204,6 +1206,56 @@ void ConfigImpl::updateConfigDb()
                     newList << var;
             }
             CFG_CORE.Internal.Extensions.set(newList);
+            [[fallthrough]];
+        }
+        case 7:
+        {
+            // 7->8
+            db->exec("ALTER TABLE script_functions ADD COLUMN inverseCode TEXT");
+            [[fallthrough]];
+        }
+        case 8:
+        {
+            // 8->9
+            db->exec("UPDATE settings SET [group] = 'DbList' WHERE [group] = 'General' AND [key] IN ("
+                     "       'ExpandTables', 'ExpandViews', 'SortObjects', 'SortColumns', 'ShowSystemObjects',"
+                     "       'ShowDbTreeLabels', 'ShowRegularTableLabels', 'ShowVirtualTableLabels',"
+                     "       'NewDbNotPermanentByDefault', 'BypassDbDialogWhenDropped'"
+                     "       )");
+            [[fallthrough]];
+        }
+        case 9:
+        {
+            // 9->10
+            // #5562
+            QVariantHash updates = CFG_CORE.General.PostRestoreConfigUpdates.get();
+            updates["HideTheViewToolbar"] = true;
+            CFG_CORE.General.PostRestoreConfigUpdates.set(updates);
+            [[fallthrough]];
+        }
+        case 10:
+        {
+            // 10->11
+            db->exec("UPDATE settings SET [key] = 'BypassDbDialogWhenPossible' WHERE [group] = 'DbList' AND [key] = 'BypassDbDialogWhenDropped'");
+            [[fallthrough]];
+        }
+        case 11:
+        {
+            // 11->12
+            for (const CfgDbPtr& cfgDb : dbList())
+            {
+                if (cfgDb->options["plugin"] == "DbSqliteWx")
+                {
+                    cfgDb->options["plugin"] = "DbSqliteMc";
+                    updateDb(cfgDb->name, cfgDb->name, cfgDb->path, cfgDb->options);
+                }
+            }
+            [[fallthrough]];
+        }
+        case 12:
+        {
+            // 12->13
+            db->exec("DELETE FROM settings WHERE [group] like 'ShortcutsCategory%'");
         }
         // Add cases here for next versions,
         // without a "break" instruction,
@@ -1273,11 +1325,11 @@ void ConfigImpl::setScriptFunctions(const QList<QHash<QString, QVariant> >& newF
     for (const QHash<QString, QVariant>& fnHash : newFunctions)
     {
         db->exec("INSERT INTO script_functions"
-                 " (name, lang, code, \"initCode\", \"finalCode\", databases, arguments,"
-                 "  \"type\", \"undefinedArgs\", \"allDatabases\", deterministic)"
-                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                 {fnHash["name"].toString(), fnHash["lang"].toString(),
-                  fnHash["code"].toString(), fnHash["initCode"].toString(), fnHash["finalCode"].toString(),
+                 " (name, lang, code, initCode, finalCode, inverseCode, databases, arguments,"
+                 "  [type], undefinedArgs, allDatabases, deterministic)"
+                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                 {fnHash["name"].toString(), fnHash["lang"].toString(), fnHash["code"].toString(),
+                  fnHash["initCode"].toString(), fnHash["finalCode"].toString(), fnHash["inverseCode"].toString(),
                   QString::fromUtf8(QJsonDocument(QJsonArray::fromVariantList(fnHash["databases"].toList())).toJson(QJsonDocument::Compact)),
                   QString::fromUtf8(QJsonDocument(QJsonArray::fromVariantList(fnHash["arguments"].toList())).toJson(QJsonDocument::Compact)),
                   fnHash["type"], fnHash["undefinedArgs"], fnHash["allDatabases"], fnHash["deterministic"]});

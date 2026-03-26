@@ -14,6 +14,8 @@ class QTableWidgetItem;
 class CellRendererPlugin;
 
 class ComboNoWheelFilter;
+
+class QKeySequenceEdit;
 namespace Ui {
     class ConfigDialog;
 }
@@ -116,7 +118,7 @@ class GUI_API_EXPORT ConfigDialog : public QDialog
         QList<CfgCategory*> getShortcutsCfgCategories() const;
         void refreshColorsInSyntaxHighlighters();
         void colorChanged();
-        QList<QWidget*> prepareCodeSyntaxColorsForStyle();
+        QList<QWidget*> getUnmodifiedSyntaxSettingWidgets();
         void adjustSyntaxColorsForStyle(QList<QWidget*>& unmodifiedColors);
         void highlighterPluginLoaded(SyntaxHighlighterPlugin* plugin);
         void highlighterPluginUnloaded(SyntaxHighlighterPlugin* plugin);
@@ -124,8 +126,7 @@ class GUI_API_EXPORT ConfigDialog : public QDialog
         void dataTypeEditorPluginUnloaded(MultiEditorWidgetPlugin* plugin);
         void rememberLastUsedPage();
         void restoreLastUsedPage();
-
-        static QString lastUsedCategory;
+        void resetShortcut(CfgEntry* entry, QKeySequenceEdit* seqEdit);
 
         Ui::ConfigDialog *ui = nullptr;
         QStyle* previewStyle = nullptr;
@@ -181,8 +182,7 @@ class GUI_API_EXPORT ConfigDialog : public QDialog
         void configureFormatter(const QString& pluginTitle);
         void activeFormatterChanged();
         void detailsClicked(const QString& pluginName);
-        void failedToLoadPlugin(const QString& pluginName);
-        void loadUnloadPlugin(QTreeWidgetItem* item, int column);
+        void loadUnloadPlugin(const QString& pluginName, bool checked);
         void pluginAboutToUnload(Plugin* plugin, PluginType* type);
         void pluginLoaded(Plugin* plugin, PluginType* type, bool skipConfigLoading = false);
         void pluginUnloaded(const QString& pluginName, PluginType* type);
@@ -192,6 +192,7 @@ class GUI_API_EXPORT ConfigDialog : public QDialog
         void markRequiresSchemasRefresh();
         void notifyPluginsAboutModification(QWidget*, CfgEntry* key, const QVariant& value);
         void resetCodeSyntaxColors();
+        void resetShortcuts();
 
     public slots:
         void accept();

@@ -28,6 +28,7 @@
 #include "sqleditor.h"
 #include "style.h"
 #include "common/dialogsizehandler.h"
+#include "common/materialswitch.h"
 #include <QSignalMapper>
 #include <QLineEdit>
 #include <QSpinBox>
@@ -66,8 +67,6 @@ class ConfigDialogItemDelegate : public QItemDelegate
             return isCategory ? QSize(size.width(), size.height() * 1.7) : size;
         }
 };
-
-QString ConfigDialog::lastUsedCategory;
 
 ConfigDialog::ConfigDialog(QWidget *parent) :
     QDialog(parent),
@@ -157,8 +156,13 @@ QString ConfigDialog::getFilterString(QTreeWidget *widget)
     QList<QTreeWidgetItem*> items = widget->findItems("*", Qt::MatchWildcard|Qt::MatchRecursive);
     QStringList strList;
     for (QTreeWidgetItem* item : items)
+    {
+        if (!item)
+            continue;
+
         for (int i = 0; i < widget->columnCount(); i++)
             strList << item->text(i) + " " + item->toolTip(0);
+    }
 
     return strList.join(" ");
 }
@@ -168,7 +172,10 @@ QString ConfigDialog::getFilterString(QListWidget *widget)
     QList<QListWidgetItem*> items = widget->findItems("*", Qt::MatchWildcard|Qt::MatchRecursive);
     QStringList strList;
     for (QListWidgetItem* item : items)
-        strList << item->text() + " " + item->toolTip();
+    {
+        if (item)
+            strList << item->text() + " " + item->toolTip();
+    }
 
     return strList.join(" ");
 }
@@ -178,7 +185,10 @@ QString ConfigDialog::getFilterString(QTableWidget *widget)
     QList<QTableWidgetItem*> items = widget->findItems("*", Qt::MatchWildcard|Qt::MatchRecursive);
     QStringList strList;
     for (QTableWidgetItem* item : items)
-         strList << item->text() + " " + item->toolTip();
+    {
+        if (item)
+            strList << item->text() + " " + item->toolTip();
+    }
 
     return strList.join(" ");
 }
@@ -205,6 +215,13 @@ void ConfigDialog::init()
     ui->setupUi(this);
     setWindowIcon(ICONS.CONFIGURE);
     DialogSizeHandler::applyFor(this);
+
+    setStyleSheet(
+                "*[matched=\"true\"] {"
+                "   border: 2px solid red;"
+                "   border-radius: 5px;"
+                "}"
+                );
 
     ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(0));
 
@@ -235,14 +252,16 @@ void ConfigDialog::init()
     connect(ui->buttonBox->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply()));
     connect(ui->hideBuiltInPluginsCheck, SIGNAL(toggled(bool)), this, SLOT(updateBuiltInPluginsVisibility()));
     connect(ui->codeColorsResetBtn, SIGNAL(pressed()), this, SLOT(resetCodeSyntaxColors()));
+    connect(ui->shortcutsResetBtn, SIGNAL(pressed()), this, SLOT(resetShortcuts()));
 
     QList<CfgEntry*> entries;
-    entries << CFG_UI.General.SortObjects
-            << CFG_UI.General.SortColumns
-            << CFG_UI.General.ShowDbTreeLabels
-            << CFG_UI.General.ShowRegularTableLabels
-            << CFG_UI.General.ShowSystemObjects
-            << CFG_UI.General.ShowVirtualTableLabels;
+    entries << CFG_UI.DbList.SortObjects
+            << CFG_UI.DbList.SortColumns
+            << CFG_UI.DbList.ShowDbTreeLabels
+            << CFG_UI.DbList.ShowRegularTableLabels
+            << CFG_UI.DbList.ShowSystemObjects
+            << CFG_CORE.General.PreferMasterOverSchema
+            << CFG_UI.DbList.ShowVirtualTableLabels;
 
     for (CfgEntry*& cfg : entries)
         connect(cfg, SIGNAL(changed(QVariant)), this, SLOT(markRequiresSchemasRefresh()));
@@ -256,7 +275,7 @@ void ConfigDialog::init()
 
     ui->hideBuiltInPluginsCheck->setChecked(true);
 
-#ifndef PORTABLE_CONFIG
+#ifndef HAS_UPDATEMANAGER
     ui->updatesGroup->setVisible(false);
 #endif
 
@@ -284,18 +303,13 @@ void ConfigDialog::save()
 {
     if (MainWindow::getInstance()->currentStyle().compare(ui->activeStyleCombo->currentText(), Qt::CaseInsensitive) != 0)
     {
-        QList<QWidget*> unmodifiedColors = prepareCodeSyntaxColorsForStyle();
+        QList<QWidget*> unmodifiedColors = getUnmodifiedSyntaxSettingWidgets();
         bool wasDark = STYLE->isDark();
 
         MainWindow::getInstance()->setStyle(ui->activeStyleCombo->currentText());
 
         if (STYLE->isDark() != wasDark)
-        {
-            resettingColors = true; // to avoid mass events of color change on syntax page
             adjustSyntaxColorsForStyle(unmodifiedColors);
-            resettingColors = false;
-            colorChanged();
-        }
     }
 
     QString loadedPlugins = collectLoadedPlugins();
@@ -368,6 +382,20 @@ void ConfigDialog::applyFilter(const QString &filter)
 {
     QColor normalColor = ui->categoriesTree->palette().color(QPalette::Active, QPalette::WindowText);
     QColor disabledColor = ui->categoriesTree->palette().color(QPalette::Disabled, QPalette::WindowText);
+    QList<QWidget*> widgets = ui->stackedWidget->findChildren<QWidget*>();
+    for (QWidget* widget : widgets)
+        widget->setProperty("matched", false);
+
+    auto applyMatchStyle = qScopeGuard([widgets]
+    {
+        for (QWidget* widget : widgets)
+        {
+            widget->style()->unpolish(widget);
+            widget->style()->polish(widget);
+            widget->update();
+        }
+    });
+
     if (filter.isEmpty())
     {
         for (QTreeWidgetItem*& item : getAllCategoryItems())
@@ -376,12 +404,14 @@ void ConfigDialog::applyFilter(const QString &filter)
         return;
     }
 
-    QList<QWidget*> widgets = ui->stackedWidget->findChildren<QWidget*>();
     QList<QWidget*> matchedWidgets;
     for (QWidget* widget : widgets)
     {
         if (getFilterString(widget).contains(filter, Qt::CaseInsensitive))
+        {
             matchedWidgets << widget;
+            widget->setProperty("matched", true);
+        }
     }
 
     QHash<QWidget*, QTreeWidgetItem*> pageToCategoryItem = buildPageToCategoryItemMap();
@@ -418,17 +448,10 @@ void ConfigDialog::applyFilter(const QString &filter)
 
 QHash<QWidget*, QTreeWidgetItem*> ConfigDialog::buildPageToCategoryItemMap() const
 {
-    QHash<QString,QTreeWidgetItem*> pageNameToCategoryItem;
-    for (QTreeWidgetItem*& item : getAllCategoryItems())
-        pageNameToCategoryItem[item->statusTip(0)] = item;
-
-    QWidget* page = nullptr;
     QHash<QWidget*,QTreeWidgetItem*> pageToCategoryItem;
-    for (int i = 0; i < ui->stackedWidget->count(); i++)
-    {
-        page = ui->stackedWidget->widget(i);
-        pageToCategoryItem[page] = pageNameToCategoryItem[page->objectName()];
-    }
+    for (QTreeWidgetItem*& item : getAllCategoryItems())
+        pageToCategoryItem[nameToPage[item->statusTip(0)]] = item;
+
     return pageToCategoryItem;
 }
 
@@ -992,18 +1015,6 @@ void ConfigDialog::detailsClicked(const QString& pluginName)
     QMessageBox::information(this, tr("Plugin details"), pluginDetails);
 }
 
-void ConfigDialog::failedToLoadPlugin(const QString& pluginName)
-{
-    QTreeWidgetItem* theItem = pluginListItemToPluginNameMap.valueByRight(pluginName);
-    if (!theItem)
-    {
-        qWarning() << "Plugin" << pluginName << "failed to load, but it could not be found on the plugins list in ConfigDialog.";
-        return;
-    }
-
-    theItem->setCheckState(0, Qt::Unchecked);
-}
-
 void ConfigDialog::codeFormatterUnloaded()
 {
     refreshFormattersPage();
@@ -1014,18 +1025,13 @@ void ConfigDialog::codeFormatterLoaded()
     refreshFormattersPage();
 }
 
-void ConfigDialog::loadUnloadPlugin(QTreeWidgetItem* item, int column)
+void ConfigDialog::loadUnloadPlugin(const QString& pluginName, bool checked)
 {
-    if (column != 0)
-        return;
-
-    QString pluginName = pluginListItemToPluginNameMap.valueByLeft(item);
     if (PLUGINS->isBuiltIn(pluginName))
         return;
 
     bool wasLoaded = PLUGINS->isLoaded(pluginName);
-
-    if (wasLoaded == (item->checkState(0) == Qt::Checked))
+    if (wasLoaded == checked)
         return;
 
     if (wasLoaded)
@@ -1081,10 +1087,6 @@ void ConfigDialog::pluginLoaded(Plugin* plugin, PluginType* type, bool skipConfi
     if (type->isForPluginType<SyntaxHighlighterPlugin>())
         highlighterPluginLoaded(dynamic_cast<SyntaxHighlighterPlugin*>(plugin));
 
-    QTreeWidgetItem* listItem = pluginListItemToPluginNameMap.valueByRight(plugin->getName());
-    if (listItem && listItem->checkState(0) == Qt::Unchecked)
-        listItem->setCheckState(0, Qt::Checked);
-
     // Init page
     if (!initPluginPage(plugin, skipConfigLoading))
         return;
@@ -1107,9 +1109,7 @@ void ConfigDialog::pluginLoaded(Plugin* plugin, PluginType* type, bool skipConfi
 
 void ConfigDialog::pluginUnloaded(const QString& pluginName, PluginType* type)
 {
-    QTreeWidgetItem* item = pluginListItemToPluginNameMap.valueByRight(pluginName);
-    if (item && item->checkState(0) == Qt::Checked)
-        item->setCheckState(0, Qt::Unchecked);
+    Q_UNUSED(pluginName);
 
     // Update formatters page
     if (type->isForPluginType<CodeFormatterPlugin>())
@@ -1185,12 +1185,30 @@ void ConfigDialog::notifyPluginsAboutModification(QWidget*, CfgEntry* key, const
 
 void ConfigDialog::resetCodeSyntaxColors()
 {
-    resettingColors = true;
-    for (QWidget*& widget : configMapper->getAllConfigWidgets(ui->commonCodeColorsGroup))
-        configMapper->applyConfigDefaultValueToWidget(widget);
+    QList<QWidget*> allColors = configMapper->getAllConfigWidgets(ui->commonCodeColorsGroup);
+    adjustSyntaxColorsForStyle(allColors);
+}
 
-    resettingColors = false;
-    colorChanged();
+void ConfigDialog::resetShortcuts()
+{
+    QList<CfgCategory*> categories = getShortcutsCfgCategories();
+    QList<CfgEntry*> entries;
+    for (CfgCategory*& cat : categories)
+        entries += cat->getEntries().values();
+
+    for (CfgEntry*& entry : entries)
+    {
+        QKeySequenceEdit* seqEdit = qobject_cast<QKeySequenceEdit*>(configMapper->getBindWidgetForConfig(entry));
+        resetShortcut(entry, seqEdit);
+    }
+
+    this->markModified();
+}
+
+void ConfigDialog::resetShortcut(CfgEntry* entry, QKeySequenceEdit* seqEdit)
+{
+    entry->reset();
+    seqEdit->setKeySequence(QKeySequence::fromString(entry->get().toString()));
 }
 
 void ConfigDialog::colorChanged()
@@ -1203,10 +1221,14 @@ void ConfigDialog::colorChanged()
         codePreviewSqlEditor->colorsConfigChanged();
 }
 
-void ConfigDialog::adjustSyntaxColorsForStyle(QList<QWidget*>& unmodifiedColors)
+void ConfigDialog::adjustSyntaxColorsForStyle(QList<QWidget*>& colors)
 {
-    for (QWidget*& w : unmodifiedColors)
+    resettingColors = true; // to avoid mass events of color change on syntax page
+    for (QWidget*& w : colors)
         configMapper->applyConfigDefaultValueToWidget(w);
+
+    resettingColors = false;
+    colorChanged();
 }
 
 void ConfigDialog::highlighterPluginLoaded(SyntaxHighlighterPlugin* plugin)
@@ -1268,11 +1290,12 @@ void ConfigDialog::dataTypeEditorPluginUnloaded(MultiEditorWidgetPlugin* plugin)
 
 void ConfigDialog::rememberLastUsedPage()
 {
-    lastUsedCategory = ui->categoriesTree->currentItem()->statusTip(0);
+    CFG_UI.General.LastUsedConfigPage.set(ui->categoriesTree->currentItem()->statusTip(0));
 }
 
 void ConfigDialog::restoreLastUsedPage()
 {
+    QString lastUsedCategory = CFG_UI.General.LastUsedConfigPage.get();
     if (!lastUsedCategory.isEmpty())
     {
         QTreeWidgetItemIterator it(ui->categoriesTree);
@@ -1281,22 +1304,35 @@ void ConfigDialog::restoreLastUsedPage()
             QTreeWidgetItem* item = *it;
             if (item->statusTip(0) == lastUsedCategory)
             {
+                // Found
                 ui->categoriesTree->setCurrentItem(item);
-                break;
+                return;
             }
             ++it;
         }
+        // Not found? Reset saved value.
+        CFG_UI.General.LastUsedConfigPage.reset();
     }
 }
 
-QList<QWidget*> ConfigDialog::prepareCodeSyntaxColorsForStyle()
+QList<QWidget*> ConfigDialog::getUnmodifiedSyntaxSettingWidgets()
 {
     QList<QWidget*> unmodified;
     for (QWidget*& w : configMapper->getAllConfigWidgets(ui->commonCodeColorsGroup))
     {
-        CfgEntry* entry = configMapper->getConfigForWidget(w);
-        if (entry->getDefaultValue() == entry->get())
-            unmodified << w;
+        // Checkboxes themselves are not considered for refreshing as unmodified syntax setting.
+        // They are only enablers of other settings, so if they are disabled, their related settings are not applied
+        // and thus not considered modified even if their value is different from default.
+        if (qobject_cast<QCheckBox*>(w))
+            continue;
+
+        // This is Color button or Bold/Italic button - let's check if they are enabled.
+        // If not, they are not considered modified even if their value is different from default,
+        // because they are not applied until enabled.
+        if (w->isEnabled())
+            continue;
+
+        unmodified << w;
     }
     return unmodified;
 }
@@ -1347,13 +1383,10 @@ void ConfigDialog::updatePluginCategoriesVisibility(QTreeWidgetItem* categoryIte
 
 QString ConfigDialog::collectLoadedPlugins() const
 {
+    static_qstring(entryTpl, "%1=%2");
     QStringList loaded;
-    QHashIterator<QTreeWidgetItem*,QString> it = pluginListItemToPluginNameMap.iterator();
-    while (it.hasNext())
-    {
-        it.next();
-        loaded << (it.value() + "=" + ((it.key()->checkState(0) == Qt::Checked) ? "1" : "0"));
-    }
+    for (const QString& pluginName : PLUGINS->getAllPluginNames())
+        loaded << entryTpl.arg(pluginName, PLUGINS->isLoaded(pluginName) ? "1" : "0");
 
     return loaded.join(",");
 }
@@ -1593,86 +1626,111 @@ void ConfigDialog::initPluginsPage()
                                              "but modified list of plugins to load at startup is not saved until "
                                              "you commit the whole configuration dialog."));
 
-    QTreeWidgetItem* category = nullptr;
-    QTreeWidgetItem* item = nullptr;
-    QFont font;
-    QModelIndex categoryIndex;
-    QModelIndex itemIndex;
-    int itemRow;
-    int categoryRow;
-    bool builtIn;
-    QLabel* detailsLabel = nullptr;
-    QString title;
-    QSize itemSize;
-    QStringList pluginNames;
+    // Font
+    QTreeWidgetItem* item = new QTreeWidgetItem({""});
+    QFont font = item->font(0);
 
-    // Font and metrics
-    item = new QTreeWidgetItem({""});
-    font = item->font(0);
+    QFont categFont = font;
+    categFont.setItalic(false);
+    categFont.setBold(true);
+    categFont.setPointSizeF(font.pointSizeF() * 1.2);
 
-    QFontMetrics fm(font);
-    itemSize = QSize(-1, (fm.ascent() + fm.descent() + 4));
+    QFont noPluginsFont = font;
+    noPluginsFont.setItalic(true);
+    noPluginsFont.setBold(false);
 
     delete item;
 
     // Creating...
     ui->pluginsList->header()->setSectionsMovable(false);
     ui->pluginsList->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui->pluginsList->setStyleSheet(R"(
+        QTreeView::item {
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+    )");
 
     QBrush categoryBg = ui->pluginsList->palette().button();
     QBrush categoryFg = ui->pluginsList->palette().buttonText();
 
-    connect(ui->pluginsList, SIGNAL(itemChanged(QTreeWidgetItem*,int)), this, SLOT(loadUnloadPlugin(QTreeWidgetItem*,int)));
-    connect(PLUGINS, SIGNAL(failedToLoad(QString)), this, SLOT(failedToLoadPlugin(QString)));
-
-    categoryRow = 0;
+    int categoryRow = 0;
     QList<PluginType*> pluginTypes = PLUGINS->getPluginTypes();
     sSort(pluginTypes, PluginType::nameLessThan);
     for (PluginType*& pluginType : pluginTypes)
     {
-        category = new QTreeWidgetItem({pluginType->getTitle()});
-        font.setItalic(false);
-        font.setBold(true);
-        category->setFont(0, font);
+        QTreeWidgetItem* category = new QTreeWidgetItem({pluginType->getTitle()});
+        category->setFont(0, categFont);
         for (int i = 0; i < 2; i++)
         {
             category->setBackground(i, categoryBg);
             category->setForeground(i, categoryFg);
         }
-        category->setSizeHint(0, itemSize);
+        category->setFirstColumnSpanned(true);
         ui->pluginsList->addTopLevelItem(category);
 
-        categoryIndex = ui->pluginsList->model()->index(categoryRow, 0);
+        QModelIndex categoryIndex = ui->pluginsList->model()->index(categoryRow, 0);
         categoryRow++;
 
-        itemRow = 0;
-        pluginNames = pluginType->getAllPluginNames();
+        int itemRow = 0;
+        QStringList pluginNames = pluginType->getAllPluginNames();
         sSort(pluginNames);
         for (QString& pluginName : pluginNames)
         {
-            builtIn = PLUGINS->isBuiltIn(pluginName);
-            title = PLUGINS->getTitle(pluginName);
+            bool builtIn = PLUGINS->isBuiltIn(pluginName);
+            QString title = PLUGINS->getTitle(pluginName);
             if (builtIn)
                 title = tr("%1 (built-in)", "plugins manager in configuration dialog").arg(title);
 
-            item = new QTreeWidgetItem({title});
-            item->setCheckState(0, PLUGINS->isLoaded(pluginName) ? Qt::Checked : Qt::Unchecked);
-            item->setSizeHint(0, itemSize);
+            item = new QTreeWidgetItem({""});
+            item->setData(0, Qt::UserRole, pluginName);
+            category->addChild(item);
+            QWidget* itemWidget = new QWidget();
+            itemWidget->setLayout(new QHBoxLayout(itemWidget));
+            ui->pluginsList->setItemWidget(item, 0, itemWidget);
             if (builtIn)
                 item->setDisabled(true);
 
-            category->addChild(item);
+            // Toggle
+            MaterialSwitch* sw = new MaterialSwitch(title, ui->pluginsList);
+            sw->setChecked(PLUGINS->isLoaded(pluginName));
+            connect(sw, &QAbstractButton::clicked, this, [this, pluginName](bool checked)
+            {
+                loadUnloadPlugin(pluginName, checked);
+            });
+            connect(PLUGINS, &PluginManager::failedToLoad, this, [sw, pluginName](const QString& failedName)
+            {
+                if (failedName == pluginName)
+                    sw->setChecked(false);
+            });
+            connect(PLUGINS, &PluginManager::loaded, this, [sw, pluginName](Plugin* plugin, PluginType*)
+            {
+                if (plugin->getName() == pluginName)
+                    sw->setChecked(true);
+            });
+            connect(PLUGINS, &PluginManager::unloaded, this, [sw, pluginName](const QString& unloadedName, PluginType*)
+            {
+                if (unloadedName == pluginName)
+                    sw->setChecked(false);
+            });
 
-            pluginListItemToPluginNameMap.insert(item, pluginName);
+            itemWidget->layout()->addWidget(sw);
+            if (builtIn)
+                sw->setDisabled(true);
 
             // Details button
-            detailsLabel = new QLabel(QString("<a href='%1'>%2</a> ").arg(pluginName, tr("Details")), ui->pluginsList);
+            QWidget* detailsWidget = new QWidget();
+            detailsWidget->setLayout(new QHBoxLayout(detailsWidget));
+
+            QLabel* detailsLabel = new QLabel(QString("<a href='%1'>%2</a> ").arg(pluginName, tr("Details")), ui->pluginsList);
             detailsLabel->setAlignment(Qt::AlignRight);
-            itemIndex = ui->pluginsList->model()->index(itemRow, 1, categoryIndex);
-            ui->pluginsList->setIndexWidget(itemIndex, detailsLabel);
+            QModelIndex itemIndex2 = ui->pluginsList->model()->index(itemRow, 1, categoryIndex);
+            detailsWidget->layout()->addWidget(detailsLabel);
+            ui->pluginsList->setIndexWidget(itemIndex2, detailsWidget);
 
             connect(detailsLabel, SIGNAL(linkActivated(QString)), this, SLOT(detailsClicked(QString)));
 
+            pluginListItemToPluginNameMap.insert(item, pluginName);
             itemRow++;
         }
 
@@ -1680,11 +1738,7 @@ void ConfigDialog::initPluginsPage()
         {
             item = new QTreeWidgetItem({tr("No plugins in this category.")});
             item->setDisabled(true);
-            item->setSizeHint(0, itemSize);
-
-            font.setItalic(true);
-            font.setBold(false);
-            item->setFont(0, font);
+            item->setFont(0, noPluginsFont);
 
             category->addChild(item);
         }
@@ -1859,8 +1913,6 @@ void ConfigDialog::initShortcuts(CfgCategory *cfgCategory)
     // Font and metrics
     QTreeWidgetItem item({""});
     QFont font = item.font(0);
-//    QFontMetrics fm(font);
-//    QSize itemSize = QSize(-1, -1);
 
     // Creating...
     QBrush categoryBg = ui->shortcutsTable->palette().button();
@@ -1870,13 +1922,13 @@ void ConfigDialog::initShortcuts(CfgCategory *cfgCategory)
     font.setItalic(false);
     font.setBold(true);
     category->setFont(0, font);
+    category->setTextAlignment(0, Qt::AlignHCenter| Qt::AlignVCenter);
     for (int i = 0; i < 4; i++)
     {
         category->setData(i, Qt::UserRole, true);
         category->setBackground(i, categoryBg);
         category->setForeground(i, categoryFg);
     }
-//    category->setSizeHint(0, itemSize);
     category->setFlags(category->flags() ^ Qt::ItemIsSelectable);
     ui->shortcutsTable->addTopLevelItem(category);
 
@@ -1920,8 +1972,7 @@ void ConfigDialog::initShortcuts(CfgCategory *cfgCategory)
         defaultButton->setToolTip(tr("Restore original hotkey for this action"));
         connect(defaultButton, &QToolButton::clicked, this, [this, sequenceEdit, cfgEntry]()
         {
-            cfgEntry->reset();
-            sequenceEdit->setKeySequence(QKeySequence::fromString(cfgEntry->get().toString()));
+            resetShortcut(cfgEntry, sequenceEdit);
             this->markModified();
         });
         itemIndex = ui->shortcutsTable->model()->index(itemRow, 3, categoryIndex);

@@ -24,19 +24,19 @@ class Plugin;
 class PluginType;
 CFG_KEY_LIST(SqlQueryView, QObject::tr("Data grid view"),
     CFG_KEY_ENTRY(EDIT_CURRENT,      Qt::Key_F2,                              QObject::tr("Edit current cell inline"))
-    CFG_KEY_ENTRY(COPY,              Qt::CTRL | Qt::Key_C,                    QObject::tr("Copy cell(s) contents to clipboard"))
+    CFG_KEY_ENTRY(COPY,              QKeySequence::Copy,                      QObject::tr("Copy cell(s) contents to clipboard"))
     CFG_KEY_ENTRY(COPY_WITH_HEADER,  Qt::CTRL | Qt::SHIFT | Qt::Key_C,        QObject::tr("Copy cell(s) contents together with header to clipboard"))
 //    CFG_KEY_ENTRY(COPY_AS,           Qt::CTRL | Qt::ALT | Qt::Key_C,        QObject::tr(""))
-    CFG_KEY_ENTRY(PASTE,             Qt::CTRL | Qt::Key_V,                    QObject::tr("Paste cell(s) contents from clipboard"))
+    CFG_KEY_ENTRY(PASTE,             QKeySequence::Paste,                     QObject::tr("Paste cell(s) contents from clipboard"))
 //    CFG_KEY_ENTRY(PASTE_AS,          Qt::CTRL | Qt::ALT | Qt::Key_V,        QObject::tr(""))
     CFG_KEY_ENTRY(ERASE,             Qt::ALT | Qt::Key_Backspace,             QObject::tr("Set empty value to selected cell(s)"))
     CFG_KEY_ENTRY(SET_NULL,          Qt::Key_Backspace,                       QObject::tr("Set NULL value to selected cell(s)"))
-    CFG_KEY_ENTRY(COMMIT,            Qt::CTRL | Qt::Key_Return,               QObject::tr("Commit changes to cell(s) contents"))
+    CFG_KEY_ENTRY(COMMIT,            QKeySequence::Save,                      QObject::tr("Commit changes to cell(s) contents"))
     CFG_KEY_ENTRY(ROLLBACK,          Qt::ALT | Qt::SHIFT | Qt::Key_Backspace, QObject::tr("Rollback changes to cell(s) contents"))
     CFG_KEY_ENTRY(DELETE_ROW,        Qt::Key_Delete,                          QObject::tr("Delete selected data row"))
     CFG_KEY_ENTRY(INSERT_ROW,        Qt::Key_Insert,                          QObject::tr("Insert new data row"))
-    CFG_KEY_ENTRY(OPEN_VALUE_EDITOR, Qt::ALT | Qt::Key_Return,                QObject::tr("Open contents of selected cell in a separate editor"))
-    CFG_KEY_ENTRY(ADJUST_ROWS_SIZE,  Qt::ALT | Qt::ALT | Qt::Key_H,           QObject::tr("Toggle the height adjustment of rows"))
+    CFG_KEY_ENTRY(OPEN_VALUE_EDITOR, Qt::Key_F4,                              QObject::tr("Open contents of selected cell in a separate editor"))
+    CFG_KEY_ENTRY(ADJUST_ROWS_SIZE,  Qt::ALT | Qt::Key_Z,                     QObject::tr("Toggle the height adjustment of rows"))
     CFG_KEY_ENTRY(INCR_FONT_SIZE,    Qt::CTRL | Qt::Key_Plus,                 QObject::tr("Increase font size", "data view"))
     CFG_KEY_ENTRY(DECR_FONT_SIZE,    Qt::CTRL | Qt::Key_Minus,                QObject::tr("Decrease font size", "data view"))
 )
@@ -90,6 +90,7 @@ class GUI_API_EXPORT SqlQueryView : public QTableView, public ExtActionContainer
         SqlQueryItem *itemAt(const QPoint& pos);
         QToolBar* getToolBar(int toolbar) const;
         void addAdditionalAction(QAction* action);
+        void addHeaderAdditionalAction(QAction* action);
         QModelIndex getCurrentIndex() const;
         bool getSimpleBrowserMode() const;
         void setSimpleBrowserMode(bool value);
@@ -114,7 +115,16 @@ class GUI_API_EXPORT SqlQueryView : public QTableView, public ExtActionContainer
             public:
                 explicit Header(SqlQueryView* parent);
 
-                QSize sectionSizeFromContents(int section) const;
+                QSize sectionSizeFromContents(int section) const override;
+                void mousePressEvent(QMouseEvent *e) override;
+                void mouseDoubleClickEvent(QMouseEvent *e) override;
+
+            private:
+                void handleSectionResize(int logicalIndex, int oldSize, int newSize);
+
+                bool dblClickResizing = false;
+                bool ignoreResizing = false;
+                QHash<int, int> lastSectionSizes;
         };
 
         void init();
@@ -131,6 +141,7 @@ class GUI_API_EXPORT SqlQueryView : public QTableView, public ExtActionContainer
         void goToReferencedRow(const QString& table, const QString& column, const QVariant& value);
         void copy(bool withHeaders);
         void changeFontSize(int factor);
+        void headerMiddleClicked(int colIdx);
 
         constexpr static const char* mimeDataId = "application/x-sqlitestudio-data-view-data";
         constexpr static const int minHeaderWidth = 15;
@@ -143,6 +154,7 @@ class GUI_API_EXPORT SqlQueryView : public QTableView, public ExtActionContainer
         QPushButton* cancelButton = nullptr;
         QProgressBar* busyBar = nullptr;
         QList<QAction*> additionalActions;
+        QList<QAction*> headerAdditionalActions;
         bool simpleBrowserMode = false;
         bool ignoreColumnWidthChanges = false;
         int beforeExecutionHorizontalPosition = -1;
@@ -199,6 +211,8 @@ class GUI_API_EXPORT SqlQueryView : public QTableView, public ExtActionContainer
         void requestForMultipleRowInsert();
         void requestForRowDelete();
         void scrolledBy(int dx, int dy);
+        void headerMiddleButtonClicked(int section);
+        void newFontMetricsApplied();
 };
 
 GUI_API_EXPORT size_t qHash(SqlQueryView::Action action);

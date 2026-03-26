@@ -260,5 +260,19 @@
         <file>img/eye_closed.svg</file>
         <file>img/eye_open.svg</file>
         <file>img/config_data_renderers.svg</file>
+        <file>img/link.svg</file>
+        <file>img/unlink.svg</file>
+        <file>img/database_new.svg</file>
+        <file>img/database_open.svg</file>
+        <file>img/database_rename.svg</file>
+        <file>img/rename_column.svg</file>
+        <file>img/rename_index.svg</file>
+        <file>img/rename_table.svg</file>
+        <file>img/rename_trigger.svg</file>
+        <file>img/rename_view.svg</file>
+        <file>img/data_delete.svg</file>
+        <file>img/data_insert.svg</file>
+        <file>img/data_select.svg</file>
+        <file>img/data_update.svg</file>
     </qresource>
 </RCC>

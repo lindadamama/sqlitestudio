@@ -78,8 +78,6 @@ class GUI_API_EXPORT TableWindow : public MdiChild
             ADD_TABLE_CHECK,
             MOVE_CONSTRAINT_UP,
             MOVE_CONSTRAINT_DOWN,
-            ADD_INDEX_STRUCT,
-            ADD_TRIGGER_STRUCT,
             EXPORT,
             IMPORT,
             POPULATE,
@@ -128,6 +126,7 @@ class GUI_API_EXPORT TableWindow : public MdiChild
         QString getQuitUncommittedConfirmMessage() const;
         void useCurrentTableAsBaseForNew();
         Db* getAssociatedDb() const;
+        QPair<Db*, QString> getSoftDbObjectAssociation() const;
         bool isWindowClosingBlocked() const;
 
     protected:
@@ -257,6 +256,8 @@ class GUI_API_EXPORT TableWindow : public MdiChild
         void updateTabsOrder();
         void updateFont();
         void dbChanged();
+        void handlePossibleIdxOrTrgRename(Db* db, const QString& database, const QString& oldObject, const QString& newObject);
+        void handlePossibleColumnRename(Db* db, const QString& database, const QString& table, const QString& oldObject, const QString& newObject);
 
     public slots:
         void refreshStructure();

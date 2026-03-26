@@ -267,7 +267,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="databaseListPage">
           <layout class="QVBoxLayout" name="verticalLayout_36">
@@ -277,7 +277,30 @@
               <string>Database list</string>
              </property>
              <layout class="QGridLayout" name="gridLayout">
-              <item row="4" column="0">
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="expandTablesCheck">
+                <property name="text">
+                 <string>Expand tables when connected to a database</string>
+                </property>
+                <property name="cfg" stdset="0">
+                 <string notr="true">DbList.ExpandTables</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0">
+               <widget class="QCheckBox" name="prefMasterOverSchemaCheck">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, the database schema is accessed using the &lt;span style=&quot; font-family:'Courier New';&quot;&gt;sqlite_schema&lt;/span&gt; table name.&lt;br/&gt;Older SQLite versions used the &lt;span style=&quot; font-family:'Courier New';&quot;&gt;sqlite_master&lt;/span&gt; name, which is still supported as an alias.&lt;br/&gt;You can switch here to use the legacy name instead.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Prefer sqlite_master over sqlite_schema table name</string>
+                </property>
+                <property name="cfg" stdset="0">
+                 <string>General.PreferMasterOverSchema</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
                <widget class="QCheckBox" name="sortColumns">
                 <property name="toolTip">
                  <string>If switched off, then columns will be sorted in the order they are typed in CREATE TABLE statement.</string>
@@ -286,21 +309,37 @@
                  <string>Sort table columns alphabetically</string>
                 </property>
                 <property name="cfg" stdset="0">
-                 <string notr="true">General.SortColumns</string>
+                 <string notr="true">DbList.SortColumns</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QCheckBox" name="expandTablesCheck">
+              <item row="3" column="0">
+               <widget class="QCheckBox" name="expandColsIdxTrigCheck">
+                <property name="toolTip">
+                 <string>Expanding a table or view also expands the Columns, Indexes and Triggers nodes to show their contents.</string>
+                </property>
                 <property name="text">
-                 <string>Expand tables node when connected to a database</string>
+                 <string>Expand columns, indexes and triggers together with the table</string>
                 </property>
                 <property name="cfg" stdset="0">
-                 <string notr="true">General.ExpandTables</string>
+                 <string>DbList.ExpandSubNodes</string>
                 </property>
                </widget>
               </item>
-              <item row="6" column="0">
+              <item row="4" column="0">
+               <widget class="QCheckBox" name="sortObjects">
+                <property name="toolTip">
+                 <string>If this option is switched off, then objects will be sorted in order they appear in sqlite_master table (which is in order they were created)</string>
+                </property>
+                <property name="text">
+                 <string>Sort objects (tables, indexes, triggers and views) alphabetically</string>
+                </property>
+                <property name="cfg" stdset="0">
+                 <string notr="true">DbList.SortObjects</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="0">
                <widget class="QGroupBox" name="addLabelsGroup">
                 <property name="toolTip">
                  <string>&lt;p&gt;Additional labels are those displayed next to the names on the databases list (they are blue, unless configured otherwise). Enabling this option will result in labels for databases, invalid databases and aggregated nodes (column group, index group, trigger group). For more labels see options below.&lt;p&gt;</string>
@@ -315,7 +354,7 @@
                  <bool>false</bool>
                 </property>
                 <property name="cfg" stdset="0">
-                 <string notr="true">General.ShowDbTreeLabels</string>
+                 <string notr="true">DbList.ShowDbTreeLabels</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_20">
                  <item>
@@ -327,7 +366,7 @@
                     <string>Display labels for regular tables</string>
                    </property>
                    <property name="cfg" stdset="0">
-                    <string notr="true">General.ShowRegularTableLabels</string>
+                    <string notr="true">DbList.ShowRegularTableLabels</string>
                    </property>
                   </widget>
                  </item>
@@ -340,43 +379,33 @@
                     <string>Display labels for virtual tables</string>
                    </property>
                    <property name="cfg" stdset="0">
-                    <string notr="true">General.ShowVirtualTableLabels</string>
+                    <string notr="true">DbList.ShowVirtualTableLabels</string>
                    </property>
                   </widget>
                  </item>
                 </layout>
                </widget>
               </item>
-              <item row="2" column="0">
-               <widget class="QCheckBox" name="expandViewsCheck">
-                <property name="text">
-                 <string>Expand views node when connected to a database</string>
-                </property>
-                <property name="cfg" stdset="0">
-                 <string notr="true">General.ExpandViews</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QCheckBox" name="sortObjects">
+              <item row="6" column="0">
+               <widget class="QCheckBox" name="dispSystemTablesCheck">
                 <property name="toolTip">
-                 <string>If this option is switched off, then objects will be sorted in order they appear in sqlite_master table (which is in order they were created)</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, system tables and indexes are hidden from the list.&lt;br/&gt;Enable this option to display internal SQLite objects, such as &lt;span style=&quot; font-family:'Courier New';&quot;&gt;sqlite_schema&lt;/span&gt; and auto-generated indexes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
-                <property name="text">
-                 <string>Sort objects (tables, indexes, triggers and views) alphabetically</string>
-                </property>
-                <property name="cfg" stdset="0">
-                 <string notr="true">General.SortObjects</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QCheckBox" name="dispSysTableCheck">
                 <property name="text">
                  <string>Display system tables and indexes on the list</string>
                 </property>
                 <property name="cfg" stdset="0">
-                 <string notr="true">General.ShowSystemObjects</string>
+                 <string>DbList.ShowSystemObjects</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QCheckBox" name="expandViewsCheck">
+                <property name="text">
+                 <string>Expand views when connected to a database</string>
+                </property>
+                <property name="cfg" stdset="0">
+                 <string notr="true">DbList.ExpandViews</string>
                 </property>
                </widget>
               </item>
@@ -398,20 +427,20 @@
                  <string>Do not mark database to be &quot;permanent&quot; by default</string>
                 </property>
                 <property name="cfg" stdset="0">
-                 <string notr="true">General.NewDbNotPermanentByDefault</string>
+                 <string notr="true">DbList.NewDbNotPermanentByDefault</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QCheckBox" name="bypassDbDialogCheck">
                 <property name="toolTip">
-                 <string>&lt;p&gt;When this option is enabled, then files dropped from file manager onto database list will be automatically added to the list, bypassing standard database dialog. If for various reasons automatic process fails, then standard dialog will be presented to the user.&lt;/p&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When enabled, database files will be added without showing the standard database dialog. If opening the database with default options fails (e.g. encrypted database or different driver required), the dialog will be shown so the options can be adjusted. When disabled, the dialog will always be shown.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>Try to bypass dialog completly when dropping database file onto the list</string>
+                 <string>Skip the dialog when possible</string>
                 </property>
                 <property name="cfg" stdset="0">
-                 <string notr="true">General.BypassDbDialogWhenDropped</string>
+                 <string notr="true">DbList.BypassDbDialogWhenPossible</string>
                 </property>
                </widget>
               </item>
@@ -445,8 +474,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>456</width>
-                <height>754</height>
+                <width>432</width>
+                <height>731</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_34">
@@ -1292,7 +1321,7 @@
              <property name="title">
               <string>Code syntax colors</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout_3">
+             <layout class="QGridLayout" name="gridLayout_3" rowminimumheight="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnminimumwidth="0,0,30,30">
               <item row="0" column="0">
                <widget class="QCheckBox" name="regularFgCheck">
                 <property name="text">
@@ -1305,6 +1334,12 @@
               </item>
               <item row="0" column="1">
                <widget class="ColorButton" name="regularFgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1317,15 +1352,23 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxForeground</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxForegroundCustom</string>
-                </property>
                </widget>
               </item>
               <item row="0" column="2">
                <widget class="BoolToolButton" name="regularBoldBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>B</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1333,24 +1376,30 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxForegroundBold</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxForegroundCustom</string>
-                </property>
                </widget>
               </item>
               <item row="0" column="3">
                <widget class="BoolToolButton" name="regularItalicBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <italic>true</italic>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>I</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxForegroundItalic</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxForegroundCustom</string>
                 </property>
                </widget>
               </item>
@@ -1366,6 +1415,12 @@
               </item>
               <item row="1" column="1">
                <widget class="ColorButton" name="stringFgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1378,15 +1433,23 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxStringFg</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxStringFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="1" column="2">
                <widget class="BoolToolButton" name="stringFgBoldBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>B</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1394,24 +1457,30 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxStringFgBold</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxStringFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="1" column="3">
                <widget class="BoolToolButton" name="stringFgItalicBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <italic>true</italic>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>I</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxStringFgItalic</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxStringFgCustom</string>
                 </property>
                </widget>
               </item>
@@ -1427,6 +1496,12 @@
               </item>
               <item row="3" column="1">
                <widget class="ColorButton" name="keywordFgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1439,15 +1514,23 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxKeywordFg</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxKeywordFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="3" column="2">
                <widget class="BoolToolButton" name="keywordFgBoldBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>B</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1455,24 +1538,30 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxKeywordFgBold</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxKeywordFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="3" column="3">
                <widget class="BoolToolButton" name="keywordFgItalicBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <italic>true</italic>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>I</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxKeywordFgItalic</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxKeywordFgCustom</string>
                 </property>
                </widget>
               </item>
@@ -1488,6 +1577,12 @@
               </item>
               <item row="5" column="1">
                <widget class="ColorButton" name="numberFgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1500,15 +1595,23 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxNumberFg</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxNumberFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="5" column="2">
                <widget class="BoolToolButton" name="numberFgBoldBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>B</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1516,24 +1619,30 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxNumberFgBold</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxNumberFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="5" column="3">
                <widget class="BoolToolButton" name="numberFgItalicBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <italic>true</italic>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>I</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxNumberFgItalic</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxNumberFgCustom</string>
                 </property>
                </widget>
               </item>
@@ -1549,6 +1658,12 @@
               </item>
               <item row="7" column="1">
                <widget class="ColorButton" name="commentFgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1561,15 +1676,23 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxCommentFg</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxCommentFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="7" column="2">
                <widget class="BoolToolButton" name="commentFgBoldBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>B</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1577,24 +1700,30 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxCommentFgBold</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxCommentFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="7" column="3">
                <widget class="BoolToolButton" name="commentFgItalicBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <italic>true</italic>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>I</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxCommentFgItalic</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxCommentFgCustom</string>
                 </property>
                </widget>
               </item>
@@ -1610,6 +1739,12 @@
               </item>
               <item row="9" column="1">
                <widget class="ColorButton" name="validObjectsFgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1622,15 +1757,23 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxValidObject</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxValidObjectCustom</string>
-                </property>
                </widget>
               </item>
               <item row="9" column="2">
                <widget class="BoolToolButton" name="validObjectsFgBoldBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>B</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1638,24 +1781,30 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxValidObjectBold</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxValidObjectCustom</string>
-                </property>
                </widget>
               </item>
               <item row="9" column="3">
                <widget class="BoolToolButton" name="validObjectsFgItalicBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <italic>true</italic>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>I</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxValidObjectItalic</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxValidObjectCustom</string>
                 </property>
                </widget>
               </item>
@@ -1671,6 +1820,12 @@
               </item>
               <item row="11" column="1">
                <widget class="ColorButton" name="blobFgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1683,15 +1838,23 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxBlobFg</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxBlobFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="11" column="2">
                <widget class="BoolToolButton" name="blobFgBoldBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>B</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1699,24 +1862,30 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxBlobFgBold</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxBlobFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="11" column="3">
                <widget class="BoolToolButton" name="blobFgItalicBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <italic>true</italic>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>I</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxBlobFgItalic</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxBlobFgCustom</string>
                 </property>
                </widget>
               </item>
@@ -1732,6 +1901,12 @@
               </item>
               <item row="13" column="1">
                <widget class="ColorButton" name="bindParamFgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1744,15 +1919,23 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxBindParamFg</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxBindParamFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="13" column="2">
                <widget class="BoolToolButton" name="bindParamFgBoldBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>B</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1760,24 +1943,30 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxBindParamFgBold</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxBindParamFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="13" column="3">
                <widget class="BoolToolButton" name="bindParamFgItalicBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <italic>true</italic>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>I</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxBindParamFgItalic</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxBindParamFgCustom</string>
                 </property>
                </widget>
               </item>
@@ -1793,6 +1982,18 @@
               </item>
               <item row="15" column="1">
                <widget class="ColorButton" name="currLineBgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1804,9 +2005,6 @@
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxCurrentLineBg</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxCurrentLineBgCustom</string>
                 </property>
                </widget>
               </item>
@@ -1822,6 +2020,18 @@
               </item>
               <item row="17" column="1">
                <widget class="ColorButton" name="currQueryBgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1837,9 +2047,6 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxCurrentQueryBg</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxCurrentQueryBgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="19" column="0">
@@ -1854,6 +2061,18 @@
               </item>
               <item row="19" column="1">
                <widget class="ColorButton" name="matchedParBgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1865,9 +2084,6 @@
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxParenthesisBg</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxParenthesisBgCustom</string>
                 </property>
                </widget>
               </item>
@@ -1883,21 +2099,35 @@
               </item>
               <item row="21" column="1">
                <widget class="ColorButton" name="matchedParFgBtn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="text">
                  <string notr="true"/>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxParenthesisFg</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxParenthesisFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="21" column="2">
                <widget class="BoolToolButton" name="matchedParFgBoldBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>B</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1905,24 +2135,30 @@
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxParenthesisFgBold</string>
                 </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxParenthesisFgCustom</string>
-                </property>
                </widget>
               </item>
               <item row="21" column="3">
                <widget class="BoolToolButton" name="matchedParFgItalicBtn">
-                <property name="icon">
-                 <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <italic>true</italic>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>I</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
                 </property>
                 <property name="cfg" stdset="0">
                  <string notr="true">Colors.SyntaxParenthesisFgItalic</string>
-                </property>
-                <property name="boolDependency" stdset="0">
-                 <string notr="true">Colors.SyntaxParenthesisFgCustom</string>
                 </property>
                </widget>
               </item>
@@ -1948,9 +2184,6 @@
                <number>0</number>
               </property>
               <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
                <number>0</number>
               </property>
               <item alignment="Qt::AlignmentFlag::AlignRight">
@@ -1996,6 +2229,9 @@
              </property>
              <property name="showDropIndicator" stdset="0">
               <bool>false</bool>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
              </property>
              <property name="selectionMode">
               <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
@@ -2043,6 +2279,31 @@
              </column>
             </widget>
            </item>
+           <item>
+            <widget class="QWidget" name="shortuctsBottom" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <item alignment="Qt::AlignmentFlag::AlignRight">
+               <widget class="QPushButton" name="shortcutsResetBtn">
+                <property name="text">
+                 <string>Reset to defaults</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="lookAndFeelPage">
@@ -2069,8 +2330,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>389</width>
-                <height>363</height>
+                <width>366</width>
+                <height>353</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_31">
@@ -2525,7 +2786,7 @@ p, li { white-space: pre-wrap; }
 hr { height: 1px; border-width: 0; }
 li.unchecked::marker { content: &quot;\2610&quot;; }
 li.checked::marker { content: &quot;\2612&quot;; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot;&gt;Abcdefgh&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                       </widget>
@@ -2616,8 +2877,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>235</width>
-                <height>493</height>
+                <width>224</width>
+                <height>481</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_9">

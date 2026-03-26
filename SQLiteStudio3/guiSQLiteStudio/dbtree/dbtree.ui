@@ -25,7 +25,7 @@
      <number>0</number>
     </property>
     <property name="verticalSpacing">
-     <number>0</number>
+     <number>3</number>
     </property>
     <item row="1" column="0">
      <widget class="DbTreeView" name="treeView">
@@ -45,34 +45,12 @@
        <enum>QAbstractItemView::DragDropMode::InternalMove</enum>
       </property>
       <property name="defaultDropAction">
-       <enum>Qt::DropAction::CopyAction</enum>
+       <enum>Qt::DropAction::MoveAction</enum>
       </property>
      </widget>
     </item>
     <item row="0" column="0">
-     <widget class="QWidget" name="top" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLineEdit" name="nameFilter">
-         <property name="placeholderText">
-          <string>Filter by name</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+     <widget class="QToolBar" name="toolbar"/>
     </item>
    </layout>
   </widget>
@@ -85,7 +63,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>nameFilter</tabstop>
   <tabstop>treeView</tabstop>
  </tabstops>
  <resources/>

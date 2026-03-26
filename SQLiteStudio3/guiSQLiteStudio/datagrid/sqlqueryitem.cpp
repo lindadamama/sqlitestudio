@@ -4,6 +4,7 @@
 #include "iconmanager.h"
 #include "uiconfig.h"
 #include "sqlqueryview.h"
+#include "style.h"
 #include <QDate>
 #include <QDebug>
 #include <QApplication>
@@ -96,16 +97,6 @@ bool SqlQueryItem::isNewRow() const
 void SqlQueryItem::setNewRow(bool isNew)
 {
     QStandardItem::setData(QVariant(isNew), DataRole::NEW_ROW);
-}
-
-bool SqlQueryItem::isJustInsertedWithOutRowId() const
-{
-    return QStandardItem::data(DataRole::JUST_INSERTED_WITHOUT_ROWID).toBool();
-}
-
-void SqlQueryItem::setJustInsertedWithOutRowId(bool justInsertedWithOutRowId)
-{
-    QStandardItem::setData(QVariant(justInsertedWithOutRowId), DataRole::JUST_INSERTED_WITHOUT_ROWID);
 }
 
 bool SqlQueryItem::isDeletedRow() const
@@ -368,7 +359,7 @@ QVariant SqlQueryItem::data(int role) const
         {
             QVariant value = getValue();
             if (isNull(value))
-                return QApplication::style()->standardPalette().dark();
+                return Cfg::getSyntaxCommentFormat().foreground().color();
 
             break;
         }

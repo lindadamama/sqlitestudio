@@ -1,6 +1,6 @@
 env:
     PYTHON_VERSION: '3.9'
-    QT_VERSION: '5.15.2'
+    QT_VERSION: '6.8.3'
     TCL_VERSION: '8.6'
 
 name: Update messages
@@ -16,25 +16,18 @@ jobs:
         runs-on: ubuntu-22.04
 
         steps:
-            - uses: actions/setup-python@v4
-              with:
-                python-version: ${{ env.PYTHON_VERSION }}
-                architecture: 'x64'
-              
             - name: Qt installation dir
               id: qt-installation-dir
               run: echo "DIR=$(readlink -f ${{ github.workspace }}/..)" >> $GITHUB_OUTPUT
               
             - name: Install Qt
-              uses: jurplel/install-qt-action@v3
+              uses: jurplel/install-qt-action@v4
               with:
                 cache: true
                 version: ${{ env.QT_VERSION }}
                 host: 'linux'
                 dir: '${{ steps.qt-installation-dir.DIR }}'
-                aqtversion: '==3.0.*'
                 py7zrversion: '==0.20.*'
-                setup-python: 'false'
                 extra: '--external 7z'
 
             - name: Clone repo
@@ -42,15 +35,29 @@ jobs:
               with:
                 ref: ${{ env.GITHUB_REF }}
 
-            - name: Install Tcl
-              run: sudo apt-get install -qq libtcl$TCL_VERSION tcl$TCL_VERSION-dev
+            - name: Update translations
+              run: |
+                set -euo pipefail
+                echo "Using lupdate: $(which lupdate) ($(lupdate -version))"
 
-            - name: Install xmllint
-              run: sudo apt install libxml2-utils
+                dirs=()
 
-            - name: Executing lang update
-              working-directory: SQLiteStudio3
-              run: tclsh lang.tcl update
+                for p in coreSQLiteStudio guiSQLiteStudio sqlitestudio sqlitestudiocli
+                do
+                    dirs+=("SQLiteStudio3/$p")
+                done
+
+                for d in Plugins/*
+                do
+                    [ -d "$d" ] || continue
+                    dirs+=("$d")
+                done
+
+                for d in "${dirs[@]}"
+                do
+                    [ -d "$d"/translations ] || continue
+                    lupdate "$d" -ts "$d"/translations/*.ts
+                done
 
             - name: Listing Git status
               run: |

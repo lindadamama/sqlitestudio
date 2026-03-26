@@ -9,6 +9,12 @@
 #include <QMainWindow>
 #include <QHash>
 #include <QQueue>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QtSystemDetection>
+#else
+#include <qsystemdetection.h>
+#endif
+#include <QMimeDatabase>
 
 class QUiLoader;
 class DbTree;
@@ -45,21 +51,22 @@ class CodeSnippetEditor;
 
 class MouseShortcut;
 CFG_KEY_LIST(MainWindow, QObject::tr("Main window"),
-    CFG_KEY_ENTRY(OPEN_SQL_EDITOR,        Qt::ALT | Qt::Key_E,              QObject::tr("Open SQL editor"))
+    CFG_KEY_ENTRY(OPEN_SQL_EDITOR,        Qt::CTRL | Qt::Key_T,             QObject::tr("Open SQL editor"))
+    CFG_KEY_ENTRY(RESTORE_WINDOW,         Qt::CTRL | Qt::SHIFT | Qt::Key_T, QObject::tr("Restore recently closed window"))
     CFG_KEY_ENTRY(OPEN_DDL_HISTORY,       Qt::CTRL | Qt::Key_H,             QObject::tr("Open DDL history window"))
-    CFG_KEY_ENTRY(OPEN_SNIPPETS_EDITOR,   Qt::CTRL | Qt::SHIFT | Qt::Key_P, QObject::tr("Open snippets editor window"))
-    CFG_KEY_ENTRY(OPEN_FUNCTION_EDITOR,   Qt::CTRL | Qt::SHIFT | Qt::Key_F, QObject::tr("Open function editor window"))
-    CFG_KEY_ENTRY(OPEN_COLLATION_EDITOR,  Qt::CTRL | Qt::SHIFT | Qt::Key_L, QObject::tr("Open collation editor window"))
-    CFG_KEY_ENTRY(OPEN_EXTENSION_MANAGER, Qt::CTRL | Qt::SHIFT | Qt::Key_E, QObject::tr("Open extension manager window"))
+    CFG_KEY_ENTRY(OPEN_FUNCTION_EDITOR,   Qt::ALT | Qt::Key_1,              QObject::tr("Open function editor window"))
+    CFG_KEY_ENTRY(OPEN_SNIPPETS_EDITOR,   Qt::ALT | Qt::Key_2,              QObject::tr("Open snippets editor window"))
+    CFG_KEY_ENTRY(OPEN_COLLATION_EDITOR,  Qt::ALT | Qt::Key_3,              QObject::tr("Open collation editor window"))
+    CFG_KEY_ENTRY(OPEN_EXTENSION_MANAGER, Qt::ALT | Qt::Key_4,              QObject::tr("Open extension manager window"))
     CFG_KEY_ENTRY(PREV_TASK,              PREV_TASK_KEY_SEQ,                QObject::tr("Previous window"))
     CFG_KEY_ENTRY(NEXT_TASK,              NEXT_TASK_KEY_SEQ,                QObject::tr("Next window"))
     CFG_KEY_ENTRY(HIDE_STATUS_FIELD,      Qt::Key_Escape,                   QObject::tr("Hide status area"))
     CFG_KEY_ENTRY(USER_MANUAL,            Qt::Key_F1,                       QObject::tr("Open user manual"))
-    CFG_KEY_ENTRY(OPEN_CONFIG,            Qt::Key_F10,                      QObject::tr("Open configuration dialog"))
+    CFG_KEY_ENTRY(OPEN_CONFIG,            Qt::CTRL | Qt::Key_Comma,         QObject::tr("Open configuration dialog"))
     CFG_KEY_ENTRY(OPEN_DEBUG_CONSOLE,     Qt::Key_F12,                      QObject::tr("Open Debug Console"))
     CFG_KEY_ENTRY(OPEN_CSS_CONSOLE,       Qt::Key_F11,                      QObject::tr("Open CSS Console"))
     CFG_KEY_ENTRY(ABOUT,                  Qt::SHIFT | Qt::Key_F1,           QObject::tr("Open the About dialog"))
-    CFG_KEY_ENTRY(QUIT,                   Qt::CTRL | Qt::Key_Q,             QObject::tr("Quit the application"))
+    CFG_KEY_ENTRY(QUIT,                   QKeySequence::Quit,               QObject::tr("Quit the application"))
 )
 
 class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
@@ -78,6 +85,7 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
             TOOLBAR_ICON_SIZE_100,
             TOOLBAR_ICON_SIZE_125,
             TOOLBAR_ICON_SIZE_150,
+            TOOLBAR_ICON_SIZE_175,
             TOOLBAR_ICON_SIZE_200,
             TOOLBAR_ICON_SIZE_250,
             TOOLBAR_ICON_SIZE_300,
@@ -112,7 +120,9 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
             DONATE,
             BUG_REPORT_HISTORY,
             CHECK_FOR_UPDATES,
-            QUIT
+            QUIT,
+            NEW_DB,
+            OPEN_FILE
         };
         Q_ENUM(Action)
 
@@ -124,9 +134,34 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
             TOOLBAR_VIEW
         };
 
+        enum class DropFileType
+        {
+            SQLITE3,
+            SQLITE3_POSSIBLE,
+            SQLITE3_EMPTY,
+            SQL,
+            TEXT,
+            CSV,
+            SQLITE2,
+            OTHER
+        };
+
+        struct DropFileContext
+        {
+            QString mimeValue;
+            DropFileType type;
+            QString fileName;
+            QString fullPath;
+        };
+
         static MainWindow* getInstance();
         static void setSafeMode(bool enabled);
         static bool isSafeMode();
+        static bool isSessionRestoringFinished();
+        static bool isInternalDrop(const QMimeData *data);
+        static DropFileType mimeToFileType(const QString& mimeValue);
+        static DropFileType fileToFileType(const QString& filePath);
+        static DropFileContext fileToDropContext(const QString& filePath);
 
         MdiArea* getMdiArea() const;
         DbTree* getDbTree() const;
@@ -150,6 +185,7 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
         EditorWindow* openSqlEditor(Db* dbToSet, const QString& sql);
         EditorWindow* openSqlEditorForFile(Db* dbToSet, const QString& fileName);
         void installToolbarSizeWheelHandler(QToolBar* toolbar);
+        QMenu* createPopupMenu();
 
         template <class T, typename... Args>
         T* openMdiWindow(Args&&... args);
@@ -190,16 +226,23 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
         SqliteExtensionEditor* openExtensionManager();
         void fixFonts();
         void fixToolbars();
-        QMenu* createToolbarStyleMenu();
+        QMenu* createToolbarStyleMenu(QMenu* parentMenu);
         void applyToolbarStyle(QToolBar* tb);
         void applyToolbarStyle(QList<QToolBar*> tbList);
         void updateToolbarStyleActionState();
         void initToolbarSizeActionList();
+        void handlePostRestoreConfigUpdates();
+        void initDropOverlay();
+        void handleExternalDragEnter(const QStringList& filePaths);
+        void handleExternalDragLeave();
+        void handleDroppedFile(const QString& filePath);
+        QString dropDescriptionByFileType(const DropFileContext& ctx);
 
         static bool confirmQuit(const QList<Committable*>& instances);
 
         static MainWindow* instance;
         static bool safeModeEnabled;
+        static bool sessionRestoringFinished;
         static constexpr int closedWindowsStackSize = 20;
         static_char* openUpdatesUrl = "open_updates://";
         static constexpr int saveSessionDelayMs = 500;
@@ -217,10 +260,13 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
         QMenu* tbStyleMenu = nullptr;
         QMenu* toolsMenu = nullptr;
         QMenu* sqlitestudioMenu = nullptr;
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
         QPointer<NewVersionDialog> newVersionDialog;
 #endif
-        WidgetCover* widgetCover = nullptr;
+        WidgetCover* dropOverlay = nullptr;
+        QLabel* dropDetails = nullptr;
+        static QMimeDatabase mimeDb;
+
         QTimer* saveSessionTimer = nullptr;
 
         QList<Action> toolbarSizeActionList;
@@ -269,7 +315,7 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
         void reportBug();
         void requestFeature();
         void aboutSqlitestudio();
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
         void updateAvailable(const QString& version, const QString& url);
         void noUpdatesAvailable(bool enforced);
         void checkForUpdates();
@@ -281,6 +327,7 @@ class GUI_API_EXPORT MainWindow : public QMainWindow, public ExtActionContainer
         void saveSession();
         void scheduleSessionSave();
         void toolbarSizeChangeRequested(int steps);
+        void refreshSyntaxColors();
 
     signals:
         void sessionValueChanged();

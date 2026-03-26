@@ -7,6 +7,11 @@
 #include <QMenu>
 #include <QDebug>
 #include <QEvent>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QtSystemDetection>
+#else
+#include <qsystemdetection.h>
+#endif
 
 ExtActionContainer::ClassNameToToolBarAndAction ExtActionContainer::extraActions;
 QList<ExtActionContainer*> ExtActionContainer::instances;
@@ -28,6 +33,7 @@ ExtActionContainer::~ExtActionContainer()
 
 void ExtActionContainer::initActions()
 {
+    keySeqFilter.installedIn = dynamic_cast<QObject*>(this);
     createActions();
     setupDefShortcuts();
     refreshShortcuts();
@@ -102,6 +108,11 @@ void ExtActionContainer::setShortcutContext(const QList<qint32> actions, Qt::Sho
         actionMap[act]->setShortcutContext(context);
 }
 
+void ExtActionContainer::inheritShortcut(int fromAction, QSet<int> toActions)
+{
+    inheritShortcutFromTo[fromAction] = toActions;
+}
+
 void ExtActionContainer::attachActionInMenu(int parentAction, int childAction, QToolBar* toolbar)
 {
     attachActionInMenu(parentAction, actionMap[childAction], toolbar);
@@ -159,13 +170,24 @@ void ExtActionContainer::refreshShortcut(int action)
 {
     static_qstring(tooltipTpl, "%1 (%2)");
 
+    QSet<int> toActions = inheritShortcutFromTo[action];
+
     actionMap[action]->removeEventFilter(&keySeqFilter);
+    for (int toAction : toActions)
+        actionMap[toAction]->removeEventFilter(&keySeqFilter);
 
     QKeySequence seq(shortcuts[action]->get());
     QString txt = seq.toString(QKeySequence::NativeText);
     actionMap[action]->setShortcut(seq);
-    actionMap[action]->setToolTip(tooltipTpl.arg(actionMap[action]->text(), txt));
+    actionMap[action]->setToolTip(tooltipTpl.arg(actionMap[action]->iconText(), txt));
     actionMap[action]->installEventFilter(&keySeqFilter);
+
+    for (int toAction : toActions)
+    {
+        actionMap[toAction]->setShortcut(seq);
+        actionMap[toAction]->setToolTip(tooltipTpl.arg(actionMap[toAction]->iconText(), txt));
+        actionMap[toAction]->installEventFilter(&keySeqFilter);
+    }
 }
 
 QAction* ExtActionContainer::getAction(int action)
@@ -188,7 +210,7 @@ void ExtActionContainer::refreshShortcutTranslations()
     }
 }
 
-void ExtActionContainer::handleActionInsert(int toolbar, ActionDetails* details)
+void ExtActionContainer::handleActionInsert(int toolbarIdx, ActionDetails* details)
 {
     if (details->position > -1 && !actionMap.contains(details->position))
     {
@@ -197,63 +219,97 @@ void ExtActionContainer::handleActionInsert(int toolbar, ActionDetails* details)
         return;
     }
 
-    QToolBar* toolBar = getToolBar(toolbar);
-    if (!toolBar)
+    QToolBar* toolBar = getToolBar(toolbarIdx);
+    if (toolbarIdx > -1 && !toolBar)
     {
-        qWarning() << "Tried to insert action" << details->action->text() << ", but toolbar was incorrect: " << toolbar
+        qWarning() << "Tried to insert action" << details->action->text() << ", but toolbar was incorrect: " << toolbarIdx
                    << "or there is no toolbar in action container:" << metaObject()->className();
         return;
     }
 
-    QAction* beforeQAction = actionMap[details->position];
-    if (details->after)
+    QWidget* thisObj = dynamic_cast<QWidget*>(this);
+    if (toolbarIdx == -1 && !thisObj)
     {
-        QList<QAction*> acts = toolBar->actions();
-        int idx = acts.indexOf(beforeQAction);
-        idx++;
-        if (idx > 0 && idx < acts.size())
-            beforeQAction = acts[idx];
-        else
-            beforeQAction = nullptr;
+        qWarning() << "Tried to insert action" << details->action->text() << ", but toolbar=-1 "
+                      "and this is not QObject:" << metaObject()->className();
+        return;
     }
 
     QAction* action = details->action->create();
-    toolBar->insertAction(beforeQAction, action);
-
-    ToolbarAndProto toolbarAndProto(toolbar, details);
+    ToolbarAndProto toolbarAndProto(toolbarIdx, details);
     extraActionToToolbarAndProto[action] = toolbarAndProto;
     toolbarAndProtoToAction[toolbarAndProto] = action;
 
-    QObject::connect(action, &QAction::triggered, [this, details, toolbar]()
+    if (toolbarIdx > -1)
     {
-        details->action->emitTriggered(this, toolbar);
+        QAction* beforeQAction = actionMap[details->position];
+        if (details->after)
+        {
+            QList<QAction*> acts = toolBar->actions();
+            int idx = acts.indexOf(beforeQAction);
+            idx++;
+            if (idx > 0 && idx < acts.size())
+                beforeQAction = acts[idx];
+            else
+                beforeQAction = nullptr;
+        }
+        toolBar->insertAction(beforeQAction, action);
+    }
+    else
+        thisObj->addAction(action);
+
+    QObject::connect(action, &QAction::triggered, [this, details, toolbarIdx]()
+    {
+        details->action->emitTriggered(this, toolbarIdx);
     });
 
-    details->action->emitInsertedTo(this, toolbar, action);
+    details->action->emitInsertedTo(this, toolbarIdx, action);
 }
 
-void ExtActionContainer::handleActionRemoval(int toolbar, ActionDetails* details)
+void ExtActionContainer::handleActionRemoval(int toolbarIdx, ActionDetails* details)
 {
-    QToolBar* toolBar = getToolBar(toolbar);
-    if (!toolBar)
+    QToolBar* toolBar = getToolBar(toolbarIdx);
+    if (toolbarIdx > -1 && !toolBar)
     {
-        qWarning() << "Tried to remove action" << details->action->text() << ", but toolbar was incorrect: " << toolbar << "or there is no toolbar in action container:"
+        qWarning() << "Tried to remove action" << details->action->text() << ", but toolbar was incorrect: " << toolbarIdx << "or there is no toolbar in action container:"
                    << metaObject()->className();
         return;
     }
 
+    QWidget* thisObj = dynamic_cast<QWidget*>(this);
+    if (toolbarIdx == -1 && !thisObj)
+    {
+        qWarning() << "Tried to remove action" << details->action->text() << ", but toolbar=-1 "
+                      "and this is not QObject:" << metaObject()->className();
+        return;
+    }
 
-    ToolbarAndProto toolbarAndProto(toolbar, details);
+    ToolbarAndProto toolbarAndProto(toolbarIdx, details);
     QAction* action = toolbarAndProtoToAction[toolbarAndProto];
 
-    details->action->emitAboutToRemoveFrom(this, toolbar, action);
+    details->action->emitAboutToRemoveFrom(this, toolbarIdx, action);
 
-    toolBar->removeAction(action);
+    if (toolbarIdx > -1)
+        toolBar->removeAction(action);
+    else
+        thisObj->removeAction(action);
+
     extraActionToToolbarAndProto.remove(action);
     toolbarAndProtoToAction.remove(toolbarAndProto);
 
-    details->action->emitRemovedFrom(this, toolbar, action);
+    details->action->emitRemovedFrom(this, toolbarIdx, action);
     delete action;
+}
+
+QList<QAction*> ExtActionContainer::getNonToolbarExtraActions() const
+{
+    QList<QAction*> actions;
+    for (ToolbarAndProto toolbarAndProto : toolbarAndProtoToAction.keys())
+    {
+        if (toolbarAndProto.first == -1)
+            actions << toolbarAndProtoToAction[toolbarAndProto];
+    }
+    return actions;
 }
 
 void ExtActionContainer::handleExtraActions()
@@ -303,5 +359,11 @@ bool ExtActionContainer::KeySequenceFilter::eventFilter(QObject* watched, QEvent
         qobject_cast<QAction*>(watched)->activate(QAction::Trigger);
         return true;
     }
+#ifdef Q_OS_MAC
+    // On Mac calling QObject::event(e) from here causes crash if the event comes from the
+    // macOS native menubar. Still it should be fine to just return false.
+    return false;
+#else
     return QObject::event(e);
+#endif
 }

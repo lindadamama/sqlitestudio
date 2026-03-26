@@ -76,6 +76,12 @@ QWidget* SqlQueryItemDelegate::createEditor(QWidget* parent, const QStyleOptionV
         return nullptr;
     }
 
+    if (item->getRowId().isEmpty() && !item->isNewRow())
+    {
+        notifyWarn(tr("Cannot edit this cell. Details: %1").arg(tr("ROWID is not available for this cell.")));
+        return nullptr;
+    }
+
     bool skipInitSelection = item->shoulSkipInitialFocusSelection();
     if (!item->getColumn()->getFkConstraints().isEmpty())
         return getFkEditor(item, skipInitSelection, parent, model);
@@ -212,7 +218,7 @@ void SqlQueryItemDelegate::setModelDataForLineEdit(QLineEdit* editor, QAbstractI
 void SqlQueryItemDelegate::setEditorDataForLineEdit(QLineEdit* le, const QModelIndex& index) const
 {
     QVariant value = index.data(Qt::EditRole);
-    if (value.userType() == QVariant::Double)
+    if (value.userType() == QMetaType::Double)
     {
         le->setText(doubleToString(value, !CFG_UI.General.UseSciFormatForDoubles.get()));
         return;

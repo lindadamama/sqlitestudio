@@ -25,10 +25,10 @@ class SqlEditor;
 class DbComboBox;
 
 CFG_KEY_LIST(EditorWindow, QObject::tr("SQL editor window"),
-     CFG_KEY_ENTRY(EXEC_QUERY,                Qt::Key_F9,                 QObject::tr("Execute query"))
-     CFG_KEY_ENTRY(EXEC_ONE_QUERY,            Qt::CTRL | Qt::Key_F9,      QObject::tr("Execute single query under cursor"))
-     CFG_KEY_ENTRY(EXEC_ALL_QUERIES,          Qt::SHIFT | Qt::Key_F9,     QObject::tr("Execute all queries in editor"))
-     CFG_KEY_ENTRY(EXPLAIN_QUERY,             Qt::Key_F8,                 QObject::tr("Execute \"%1\" query").arg("EXPLAIN"))
+     CFG_KEY_ENTRY(EXEC_QUERY,                Qt::Key_F5,                 QObject::tr("Execute query"))
+     CFG_KEY_ENTRY(EXEC_ONE_QUERY,            Qt::CTRL | Qt::Key_F5,      QObject::tr("Execute single query under cursor"))
+     CFG_KEY_ENTRY(EXEC_ALL_QUERIES,          Qt::SHIFT | Qt::Key_F5,     QObject::tr("Execute all queries in editor"))
+     CFG_KEY_ENTRY(EXPLAIN_QUERY,             Qt::Key_F6,                 QObject::tr("Execute EXPLAIN query"))
      CFG_KEY_ENTRY(PREV_DB,                   Qt::CTRL | Qt::Key_Up,      QObject::tr("Switch current working database to previous on the list"))
      CFG_KEY_ENTRY(NEXT_DB,                   Qt::CTRL | Qt::Key_Down,    QObject::tr("Switch current working database to next on the list"))
      CFG_KEY_ENTRY(SHOW_NEXT_TAB,             Qt::ALT | Qt::Key_Right,    QObject::tr("Go to next editor tab"))
@@ -93,10 +93,12 @@ class GUI_API_EXPORT EditorWindow : public MdiChild
         ~EditorWindow();
 
         static void staticInit();
-        static void insertAction(ExtActionPrototype* action, ToolBar toolbar = TOOLBAR_MAIN);
+        static void insertAction(ExtActionPrototype* action, ToolBar toolbar);
+        static void insertAction(ExtActionPrototype* action);
         static void insertActionBefore(ExtActionPrototype* action, Action beforeAction, ToolBar toolbar = TOOLBAR_MAIN);
         static void insertActionAfter(ExtActionPrototype* action, Action afterAction, ToolBar toolbar = TOOLBAR_MAIN);
-        static void removeAction(ExtActionPrototype* action, ToolBar toolbar = TOOLBAR_MAIN);
+        static void removeAction(ExtActionPrototype* action, ToolBar toolbar);
+        static void removeAction(ExtActionPrototype* action);
 
         QSize sizeHint() const;
         QAction* getAction(Action action);
@@ -110,6 +112,7 @@ class GUI_API_EXPORT EditorWindow : public MdiChild
         bool isUncommitted() const;
         QString getQuitUncommittedConfirmMessage() const;
         Db* getCurrentDb();
+        QPair<Db*, QString> getSoftDbObjectAssociation() const;
 
     protected:
         void changeEvent(QEvent *e);
@@ -168,12 +171,12 @@ class GUI_API_EXPORT EditorWindow : public MdiChild
         void deleteSelectedSqlHistory();
         void clearHistory();
         void sqlHistoryContextMenuRequested(const QPoint &pos);
-        void exportResults();
         void createViewFromQuery();
         void updateState();
         void checkTextChangedForSession();
         void queryHighlightingConfigChanged(const QVariant& enabled);
         void renameForFile(const QString fileName);
+        void exportResults();
 
     public slots:
         void openFile(const QString& fileName);

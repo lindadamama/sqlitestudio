@@ -22,6 +22,11 @@
 #include <QSizePolicy>
 #include <QScrollBar>
 #include <QToolButton>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QtSystemDetection>
+#else
+#include <qsystemdetection.h>
+#endif
 
 CFG_KEYS_DEFINE(DataView)
 DataView::TabsPosition DataView::tabsPosition;
@@ -77,10 +82,14 @@ void DataView::initSlots()
     connect(model, SIGNAL(loadingEnded(bool)), gridView, SLOT(executionEnded()));
     connect(model, SIGNAL(totalRowsAndPagesAvailable()), this, SLOT(totalRowsAndPagesAvailable()));
     connect(gridView->horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(columnsHeaderDoubleClicked(int)));
+    connect(gridView, SIGNAL(headerMiddleButtonClicked(int)), this, SLOT(columnsHeaderMiddleClicked(int)));
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
     connect(model, SIGNAL(itemEditionEnded(SqlQueryItem*)), this, SLOT(adjustColumnWidth(SqlQueryItem*)));
     connect(gridView, SIGNAL(scrolledBy(int, int)), this, SLOT(syncFilterScrollPosition()));
     connect(gridView->horizontalHeader(), SIGNAL(sectionResized(int, int, int)), this, SLOT(resizeFilter(int, int, int)));
+    connect(gridView, SIGNAL(newFontMetricsApplied()), this, SLOT(resizeFilters()));
+    connect(&(DATAVIEW_KEYS.SHOW_GRID_VIEW), SIGNAL(changed(QVariant)), this, SLOT(updateTabHotKeys()));
+    connect(&(DATAVIEW_KEYS.SHOW_FORM_VIEW), SIGNAL(changed(QVariant)), this, SLOT(updateTabHotKeys()));
 }
 
 void DataView::initFormView()
@@ -142,6 +151,8 @@ void DataView::createContents()
     gridView->setCornerButtonEnabled(true);
     gridView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     gridWidget->layout()->addWidget(gridView);
+
+    updateTabHotKeys();
 }
 
 void DataView::createFilterPanel()
@@ -202,6 +213,7 @@ void DataView::createActions()
     bool rowDeleting = model->features().testFlag(SqlQueryModel::DELETE_ROW);
 
     // Grid actions
+    createAction(FIND_IN_DATA, ICONS.SEARCH, tr("Find in data", "data view"), this, SLOT(findInData()), gridView);
     createAction(REFRESH_DATA, ICONS.RELOAD, tr("Refresh table data", "data view"), this, SLOT(refreshData()), gridToolBar, gridView);
     gridToolBar->addSeparator();
     if (rowInserting)
@@ -240,7 +252,6 @@ void DataView::createActions()
     connect(gridView, SIGNAL(requestForRowInsert()), this, SLOT(insertRow()));
     connect(gridView, SIGNAL(requestForMultipleRowInsert()), this, SLOT(insertMultipleRows()));
     connect(gridView, SIGNAL(requestForRowDelete()), this, SLOT(deleteRow()));
-
 
     // Form view actions
     if (rowInserting)
@@ -294,6 +305,10 @@ void DataView::resizeColumnsInitiallyToContents()
 {
     SqlQueryModel *model = gridView->getModel();
     int cols = model->columnCount();
+    QList<int> priorWidths;
+    for (int i = 0; i < cols ; i++)
+        priorWidths << gridView->columnWidth(i);
+
     gridView->setIgnoreColumnWidthChanges(true);
     gridView->resizeColumnsToContents();
     int wd;
@@ -310,13 +325,13 @@ void DataView::resizeColumnsInitiallyToContents()
         }
 
         int delegateWd = gridView->getColumnCustomDelegateWidth(i);
-        wd = qMax(wd, delegateWd);
-
         int headerMinSize = qMax(gridView->horizontalHeader()->sizeHintForColumn(i), 60);
-        if (wd > CFG_UI.General.MaxInitialColumnWith.get())
-            gridView->setColumnWidth(i, CFG_UI.General.MaxInitialColumnWith.get());
-        else if (wd < headerMinSize)
-            gridView->setColumnWidth(i, headerMinSize);
+
+        wd = qMax(wd, delegateWd);
+        wd = qMax(wd, headerMinSize);
+        wd = qMax(wd, priorWidths[i]);
+        wd = qMin(wd, CFG_UI.General.MaxInitialColumnWith.get());
+        gridView->setColumnWidth(i, wd);
     }
     gridView->setIgnoreColumnWidthChanges(false);
 }
@@ -526,6 +541,37 @@ void DataView::setActionIcon(QAction *action, const QIcon &icon, QToolBar *toolb
     Q_UNUSED(toolbar);
 }
 
+QVariant DataView::getSessionValue() const
+{
+    QHash<QString, QVariant> sessionValue;
+    sessionValue["customDelegates"] = gridView->getCustomDelegatesForSession();
+    sessionValue["desiredColumnWidths"] = QVariant::fromValue(getModel()->getDesiredColumnWidths());
+    sessionValue["adjustRowSize"] = gridView->getAction(SqlQueryView::ADJUST_ROWS_SIZE)->isChecked();
+    return sessionValue;
+}
+
+void DataView::restoreFromSession(const QVariant& sessionValue)
+{
+    QHash<QString, QVariant> value = sessionValue.toHash();
+    if (value.size() == 0)
+        return;
+
+    if (value.contains("customDelegates"))
+    {
+        QVariant gridViewDelegates = value["customDelegates"];
+        gridView->restoreCustomDelegatesFromSession(gridViewDelegates);
+    }
+
+    if (value.contains("desiredColumnWidths"))
+    {
+        auto widths = value["desiredColumnWidths"].value<SqlQueryModel::DesiredColumnWidths>();
+        model->setDesiredColumnWidths(widths);
+    }
+
+    if (value["adjustRowSize"].toBool())
+        gridView->getAction(SqlQueryView::ADJUST_ROWS_SIZE)->setChecked(true);
+}
+
 void DataView::filterModeSelected()
 {
     QAction* modeAction = dynamic_cast<QAction*>(sender());
@@ -573,14 +619,34 @@ void DataView::adjustColumnWidth(SqlQueryItem* item)
     if (!CFG_UI.General.EnlargeColumnForValue.get())
         return;
 
+    int wd = gridView->columnWidth(col);
     gridView->resizeColumnToContents(col);
-    if (gridView->columnWidth(col) > CFG_UI.General.MaxInitialColumnWith.get())
-        gridView->setColumnWidth(col, CFG_UI.General.MaxInitialColumnWith.get());
+
+    wd = qMax(wd, gridView->columnWidth(col));
+    wd = qMin(wd, CFG_UI.General.MaxInitialColumnWith.get());
+    gridView->setColumnWidth(col, wd);
 }
 
 void DataView::syncFilterScrollPosition()
 {
     perColumnFilterArea->horizontalScrollBar()->setValue(gridView->horizontalScrollBar()->value());
+}
+
+void DataView::resizeFilters()
+{
+    if (!model->features().testFlag(SqlQueryModel::FILTERING))
+        return;
+
+    if (filterInputs.isEmpty())
+        return;
+
+    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+    filterLeftSpacer->setFixedSize(gridView->verticalHeader()->width() + 1, 1);
+    for (int section = 0; section < filterInputs.size(); section++)
+    {
+        int newSize = gridView->columnWidth(section);
+        filterInputs[section]->setFixedWidth(newSize);
+    }
 }
 
 void DataView::resizeFilter(int section, int oldSize, int newSize)
@@ -605,6 +671,10 @@ void DataView::resizeFilter(int section, int oldSize, int newSize)
 void DataView::togglePerColumnFiltering()
 {
     bool enable = actionMap[FILTER_PER_COLUMN]->isChecked();
+    CFG_UI.General.ShowPerColumnFilters.set(enable);
+
+    if (enable && !filterEdit->text().isEmpty())
+        filterEdit->clear();
 
     filterEdit->setEnabled(!enable);
     if (actionMap[FILTER_SQL]->isChecked())
@@ -615,6 +685,29 @@ void DataView::togglePerColumnFiltering()
 
     recreateFilterInputs();
     applyFilter();
+}
+
+void DataView::findInData()
+{
+    if (!model->features().testFlag(SqlQueryModel::FILTERING))
+        return;
+
+    if (actionMap[FILTER_PER_COLUMN]->isChecked())
+    {
+        int colIdx = gridView->currentIndex().column();
+        if (colIdx >= 0 && colIdx < filterInputs.size())
+            filterInputs[colIdx]->setFocus();
+    }
+    else
+    {
+        filterEdit->setFocus();
+    }
+}
+
+void DataView::updateTabHotKeys()
+{
+    tabBar()->setTabToolTip(0, QKeySequence(DATAVIEW_KEYS.SHOW_GRID_VIEW.get()).toString(QKeySequence::NativeText));
+    tabBar()->setTabToolTip(1, QKeySequence(DATAVIEW_KEYS.SHOW_FORM_VIEW.get()).toString(QKeySequence::NativeText));
 }
 
 void DataView::updateCommitRollbackActions(bool enabled)
@@ -1007,6 +1100,7 @@ void DataView::recreateFilterInputs()
             edit->setText(lastColumnFilterValues[i]);
 
         connect(edit, SIGNAL(editingFinished()), this, SLOT(applyFilter()));
+        connect(edit, SIGNAL(valueErased()), this, SLOT(applyFilter()));
         perColumnWidget->layout()->addWidget(edit);
         filterInputs << edit;
     }
@@ -1067,8 +1161,14 @@ void DataView::createFilteringActions()
 
     setActionIcon(actionMap[FILTER], actionMap[FILTER_STRING]->icon(), gridToolBar);
 
-    gridView->getHeaderContextMenu()->addSeparator();
-    gridView->getHeaderContextMenu()->addAction(actionMap[FILTER_PER_COLUMN]);
+    gridView->addHeaderAdditionalAction(actionMap[FILTER_PER_COLUMN]);
+
+    // Restore per-column setting
+    if (CFG_UI.General.ShowPerColumnFilters.get())
+    {
+        actionMap[FILTER_PER_COLUMN]->setChecked(true);
+        togglePerColumnFiltering();
+    }
 }
 
 bool DataView::getNavigationState() const
@@ -1079,6 +1179,12 @@ bool DataView::getNavigationState() const
 void DataView::columnsHeaderDoubleClicked(int columnIdx)
 {
     model->changeSorting(columnIdx);
+}
+
+void DataView::columnsHeaderMiddleClicked(int columnIdx)
+{
+    Q_UNUSED(columnIdx);
+    resetSorting();
 }
 
 void DataView::tabChanged(int newIndex)

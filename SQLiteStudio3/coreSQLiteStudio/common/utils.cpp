@@ -1,5 +1,4 @@
 #include "common/utils.h"
-#include "QtGui/qwindowdefs.h"
 #include "common/global.h"
 #include "dbobjecttype.h"
 #include "rsa/RSA.h"
@@ -25,6 +24,11 @@
 #include <QDataStream>
 #include <QRandomGenerator>
 #include <QThreadPool>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QtSystemDetection>
+#else
+#include <qsystemdetection.h>
+#endif
 
 #ifdef Q_OS_LINUX
 #include <sys/utsname.h>
@@ -851,7 +855,6 @@ QStringList concat(const QList<QStringList>& list)
 
     return result;
 }
-
 
 QString doubleToString(const QVariant& val, bool enforceDecimal)
 {

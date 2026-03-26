@@ -8,32 +8,67 @@
 - ADDED: #3886 Added image rendering for image data in the Grid View (plugin-based, so more renderers can be added in future).
 - ADDED: #4027 Added data editor plugin for JSON - with syntax validation and highlighting for editing table data. Contributed by @calumk!
 - ADDED: #5445 Added AUTOINCR option directly to column dialog, reducing clicks needed to create the INTEGER PRIMARY KEY AUTOINCREMENT column.
+- ADDED: #3930 Added support for defining user-defined Aggregate Window Functions in the Functions Editor.
 - ADDED: #4269 Double-clicking on a cell that clearly contains a value to be edited in the Value Editor dialog will immediately open it in the editor dialog.
 - ADDED: #4271 Value Editor dialog (and Form View editor) allow now loading/saving value from/into a file by dedicated buttons.
+- ADDED: #5165 Database List can be now synced/linked with active MDI window using the toggle button on top of the database list.
+- ADDED: #5212 Objects on Database List (databases, tables, columns, indexes, triggers, views) can be now renamed quickly inline.
+- ADDED: #5212 Dragging table/view/columns from Database List to SQL Editor will now generate SELECT/UPDATE/INSERT depending on the keyboard modifier during the drop.
 - ADDED: #4662 ScriptingPython plugin now allow selecting Python installed in your system and it's compatible with all recent (and not so recent) Python versions. Big thanks to @tuffnatty for this!
 - ADDED: #4117 Syntax highlighting now supports bold/italic settings.
 - ADDED: #3365 Added Tcl syntax highlighter plugin.
 - ADDED: #5449 User can now change size of icons on toolbars.
 - ADDED: #5493 Password input (for example in database dialog for encrypted files) has now icon to show/hide the password.
+- ADDED: #4677 Search function for Form View text fields (with Ctrl+f/Cmd+f hotkey).
+- ADDED: #4598 Ctrl+f/Cmd+f hotkey in Grid View now moves focus to filter input.
+- ADDED: #5212 F2 hotkey in SQL editor opens database object being currently at the cursor position (if any).
 - ADDED: #5468 Updates checking option for CLI app (--cu or --check-updates).
 - ADDED: #5150 Added the Disable Blinkinig Cursor (for SQL Editor) option in the configuration dialog.
 - ADDED: #4232 Application will warn in status field if the open database was recently edited by a higher version of SQLite and that it may potentially cause some issues.
+- ADDED: #5552 Support for new syntax variants of ALTER TABLE.
+- ADDED: #5383 Double-click on column separator in data view now supports resizing all selected columns at once.
+- ADDED: #5566 Added Columns node to Views in Database List.
+- ADDED: #5284 Column widths and Row Height Adjusting in Grid View is now stored in the session and restored upon next application strt.
+- ADDED: #5578 Much better suppport for dropping various files (databases, SQL files, ...) onto the application Window.
+- ADDED: #5570 In Configuration dialog the Reset To Defaults button was added for hotkeys page.
+- ADDED: #3934 Windows executables in the official release are now signed thanks to the SignPath.io.
 - CHANGE: #4553 Application has moved to Qt 6 (dropping Qt 5 support). This solves several technical issues (for example accented characters on MacOS, better UI scaling for high DPI displays, better dark theme support and more).
 - CHANGE: #5102 All raster icons are replaced with vector icons (SVG). This makes them scalable and work well with high DPI displays.
 - CHANGE: #4271 Value Editor (and Form View) got small visual lifting to be more convenient to use (bigger column labels, etc).
 - CHANGE: #4862 SQL Editor is now tied to a file whenever loads or saves to that file and that tie is restored upon next application session. It also renames editor window to that file name.
 - CHANGE: #4762 Colors configuration for syntax highlighting now allows defining also bold/italic attributes.
+- CHANGE: #5541 Plugins Page in Configuration Dialog uses now a material-design-like toggle for loading/unloading plugins + each plugin has more vertical padding and is clickable as a whole row, not just a small box.
+- CHANGE: #5212 Configuration Dialog filter marks matched widgets with red outline.
+- CHANGE: #5561 Database actions on main toolbar simplified, partially moved to Database List panel.
+- CHANGE: #5060 Application connects to the database that was just added to the list.
+- CHANGE: #5374 Ctrl+O (Cmd+O on macOS) now always asks for a file to open and if it's a database, it's added to the list. If it's SQL file, the SQL editor opens for it.
+- CHANGE: #5374 Ctrl+N (Cmd+N on macOS) now always asks for a file to create and adds the new database to the list.
+- CHANGE: #5477 WxSQLite plugin was renamed to its proper name, the SQLite3MC (SQLite 3 Multiple Ciphers).
 - CHANGE: #5456 Table Modifier optimization, so at most only single copying data can happen, instead of two. Also views/triggers support got improved for cases with subselects.
 - CHANGE: #5496 Code Assistant improved to suggest appropriate JOIN conditions when asked at the ON keyword of joining tables. Currently supports only plain table data sources (not subselects).
 - CHANGE: #5509 Foreign Key editor in Form View and dedicated editor dialog now shows preview of currently selected value of foreign table.
-- CHANGE: Config Dialog now remembers (until application restart) last used page and restores it when its open next time.
+- CHANGE: #5562 Several toolbars cleaned up, simplified.
+- CHANGE: #5212 Database list now expands columns, indexes and triggers whenever the table is expanded.
+- CHANGE: #5212 Middle-click on an open database closes it. Middle-click on tables/views (in Database List) closes respective Table and View windows.
+- CHANGE: #5164 Added option to prefer sqlite_master table name over sqlite_schema on the Database List.
 - CHANGE: #5497 Boundled SQLite extensions now use path relative to the running application.
+- CHANGE: #5212 Table Window and View Window does not ask for closing confirmation when they were open for creation of new object and not yet modified.
+- CHANGE: #5212 New Table and New View actions are now disabled if selected item in the Database List does not have open database, as it may be misleading to start designing new table/view and miss the fact that it's still not aimed towards the database.
+- CHANGE: #4849 The setting to show per-column filters in Grid View is now remembered.
+- CHANGE: #5269 Default hotkey for Configuration Dialog changed to Ctrl+, on all platforms.
+- CHANGE: #5212 Config Dialog now remembers the last used page and restores it when its open next time.
+- CHANGE: #5477 SQLCipher for SQLite3MultipleCiphers plugin now provides small initial pragmas configuration proposal.
+- CHANGE: #4475 Using RETURNING clause for INSERTing data to optimize the operation.
 - CHANGE: #4688 Added metadata to Windows executables.
 - CHANGE: Windows x86 (32-bit) binaries will no longer by provided in official builds.
 - BUGFIX: #3079 Enterprise Formatter now handles comments much better than before.
+- BUGFIX: #4986 Unique indexes are allowed for expressions, as they should be.
+- BUGFIX: #5498 Empty/null cells resulting from LEFT JOINs are not editable anymore.
 - BUGFIX: #3995 Fixed blank MDI window buttons when using 150% interface scaling under Windows.
 - BUGFIX: #3146 Fixed accent characters support under MacOS.
+- BUGFIX: #5212 Grid columns do not shrink when unwanted while refreshing data, or entering new values to cells.
 - BUGFIX: Improved Code Assistant suggestions when SQL editor contains more than one query.
+- BUGFIX: #5089 User-defined functions now follow database renaming in case the function was explicitly registered for the database.
 
 ### 3.4.21
 - ADDED: #5466 Support foreign keys with implicit columns (proper values in FK combobox columns).

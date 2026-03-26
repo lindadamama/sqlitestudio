@@ -20,6 +20,7 @@
 #include "services/codeformatter.h"
 #include "themetuner.h"
 #include "datagrid/sqlviewmodel.h"
+#include "datagrid/sqlqueryview.h"
 #include <QPushButton>
 #include <QProgressBar>
 #include <QDebug>
@@ -96,6 +97,7 @@ QVariant ViewWindow::saveSession()
     QHash<QString,QVariant> sessionValue;
     sessionValue["view"] = view;
     sessionValue["db"] = db->getName();
+    sessionValue["dataView"] = ui->dataView->getSessionValue();
     return sessionValue;
 }
 
@@ -134,6 +136,12 @@ bool ViewWindow::restoreSession(const QVariant& sessionValue)
     {
         notifyWarn(tr("Could not restore window '%1', because the view %2 doesn't exist in the database %3.").arg(value["title"].toString(), view, db->getName()));
         return false;
+    }
+
+    if (value.contains("dataView"))
+    {
+        QVariant dataViewSession = value["dataView"];
+        ui->dataView->restoreFromSession(dataViewSession);
     }
 
     initView();
@@ -401,6 +409,14 @@ QString ViewWindow::getQuitUncommittedConfirmMessage() const
 Db* ViewWindow::getAssociatedDb() const
 {
     return db;
+}
+
+QPair<Db*, QString> ViewWindow::getSoftDbObjectAssociation() const
+{
+    if (!existingView)
+        return {db, QString()};
+
+    return {db, view};
 }
 
 bool ViewWindow::isWindowClosingBlocked() const
@@ -1006,7 +1022,8 @@ void ViewWindow::updateDdlTab()
 bool ViewWindow::isModified() const
 {
     // Quick checks first
-    bool modified = !existingView || (originalCreateView && originalCreateView->view != ui->nameEdit->text()) ||
+    bool modified = (!existingView && !ui->nameEdit->text().isEmpty()) ||
+            (originalCreateView && originalCreateView->view != ui->nameEdit->text()) ||
             ui->queryEdit->toPlainText() != originalQuery;
 
     if (modified)

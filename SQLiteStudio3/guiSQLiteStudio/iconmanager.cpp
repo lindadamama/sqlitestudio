@@ -10,6 +10,7 @@
 #include <QMovie>
 #include <QDebug>
 #include <QPainter>
+#include <QStandardPaths>
 
 IconManager* IconManager::instance = nullptr;
 
@@ -34,7 +35,12 @@ void IconManager::init()
 {
     Icon::init();
 
-    iconDirs += qApp->applicationDirPath() + "/img";
+    iconDirs += QDir::cleanPath(qApp->applicationDirPath() + "/img");
+
+    // AppDataLocation, but APPNAME should be a fixed value
+    for (const QString& path : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
+        iconDirs += QDir::cleanPath(path + "/sqlitestudio/img");
+
     iconDirs += ":/icons";
 
     QString envDirs = SQLITESTUDIO->getEnv("SQLITESTUDIO_ICONS");
@@ -109,7 +115,7 @@ void IconManager::loadRecurently(QString dirPath, const QString& prefix, bool mo
     QStringList extensions = movie ? movieFileExtensions : iconFileExtensions;
     QDir dir(dirPath);
     QFileInfoList entryList = dir.entryInfoList(extensions, QDir::AllDirs|QDir::Files|QDir::NoDotAndDotDot|QDir::Readable);
-    std::ranges::sort(entryList, [](const QFileInfo &e1, const QFileInfo &e2)
+    sSort(entryList, [](const QFileInfo &e1, const QFileInfo &e2)
     {
         return e1.baseName() < e2.baseName();
     });

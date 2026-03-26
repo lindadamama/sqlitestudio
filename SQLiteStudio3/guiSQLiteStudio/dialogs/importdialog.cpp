@@ -18,6 +18,11 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QKeyEvent>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QtSystemDetection>
+#else
+#include <qsystemdetection.h>
+#endif
 
 static const QString IMPORT_DIALOG_CFG_GROUP = "ImportDialog";
 static const QString IMPORT_DIALOG_CFG_CODEC = "codec";
@@ -54,6 +59,11 @@ void ImportDialog::setDb(Db* db)
         return;
 
     ui->dbNameCombo->setCurrentText(db->getName());
+}
+
+void ImportDialog::setFilePath(const QString& path)
+{
+    ui->inputFileEdit->setText(path);
 }
 
 bool ImportDialog::isPluginConfigValid() const

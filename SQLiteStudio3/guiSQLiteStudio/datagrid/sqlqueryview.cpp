@@ -29,6 +29,7 @@
 #include <QCryptographicHash>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <QScopedValueRollback>
 #include <services/pluginmanager.h>
 #include <multieditor/multieditorwidgetplugin.h>
 
@@ -111,7 +112,7 @@ void SqlQueryView::createActions()
     createAction(GENERATE_UPDATE, "UPDATE", this, SLOT(generateUpdate()), this);
     createAction(GENERATE_DELETE, "DELETE", this, SLOT(generateDelete()), this);
     createAction(SORT_DIALOG, ICONS.SORT_COLUMNS, tr("Define columns to sort by"), this, SLOT(openSortDialog()), this);
-    createAction(RESET_SORTING, ICONS.SORT_RESET, tr("Remove custom sorting"), this, SLOT(resetSorting()), this);
+    createAction(RESET_SORTING, ICONS.SORT_RESET, tr("Remove custom sorting (Middle click)"), this, SLOT(resetSorting()), this);
     createAction(INSERT_ROW, ICONS.INSERT_ROW, tr("Insert row"), this, SIGNAL(requestForRowInsert()), this);
     createAction(INSERT_MULTIPLE_ROWS, ICONS.INSERT_ROWS, tr("Insert multiple rows"), this, SIGNAL(requestForMultipleRowInsert()), this);
     createAction(DELETE_ROW, ICONS.DELETE_ROW, tr("Delete selected row"), this, SIGNAL(requestForRowDelete()), this);
@@ -303,6 +304,11 @@ QToolBar* SqlQueryView::getToolBar(int toolbar) const
 void SqlQueryView::addAdditionalAction(QAction* action)
 {
     additionalActions << action;
+}
+
+void SqlQueryView::addHeaderAdditionalAction(QAction *action)
+{
+    headerAdditionalActions << action;
 }
 
 QModelIndex SqlQueryView::getCurrentIndex() const
@@ -757,6 +763,11 @@ void SqlQueryView::changeFontSize(int factor)
     CFG_UI.Fonts.DataView.set(f);
 }
 
+void SqlQueryView::headerMiddleClicked(int colIdx)
+{
+    emit headerMiddleButtonClicked(colIdx);
+}
+
 void SqlQueryView::handlePluginLoaded(Plugin* plugin, PluginType* pluginType)
 {
     Q_UNUSED(pluginType)
@@ -933,7 +944,8 @@ void SqlQueryView::keyPressEvent(QKeyEvent *e)
     if (shouldOpenEditor && state() != QAbstractItemView::EditingState && !simpleBrowserMode)
     {
         QTableView::edit(currentIndex());
-        QApplication::sendEvent(focusWidget(), e);
+        if (state() == QAbstractItemView::EditingState)
+            QApplication::sendEvent(focusWidget(), e);
     }
 }
 
@@ -970,6 +982,13 @@ void SqlQueryView::headerContextMenuRequested(const QPoint& pos)
     headerContextMenu->clear();
     headerContextMenu->addAction(actionMap[SORT_DIALOG]);
     headerContextMenu->addAction(actionMap[RESET_SORTING]);
+
+    if (headerAdditionalActions.size() > 0)
+    {
+        headerContextMenu->addSeparator();
+        for (QAction*& action : headerAdditionalActions)
+            headerContextMenu->addAction(action);
+    }
 
     int logicalIdx = horizontalHeader()->logicalIndexAt(pos);
     QList<CellRendererPlugin*> rendererPlugins = PLUGINS->getLoadedPlugins<CellRendererPlugin>();
@@ -1045,8 +1064,15 @@ void SqlQueryView::updateFont()
     QFont f = CFG_UI.Fonts.DataView.get();
     QFontMetrics fm(f);
     verticalHeader()->setDefaultSectionSize(fm.height() + 4);
+
+    int minWd = fm.horizontalAdvance("99999");
+    verticalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    verticalHeader()->setMinimumWidth(minWd);
+
     if (getModel())
         getModel()->repaintAllItems();
+
+    emit newFontMetricsApplied();
 }
 
 void SqlQueryView::executionStarted()
@@ -1268,6 +1294,7 @@ size_t qHash(SqlQueryView::Action action)
 SqlQueryView::Header::Header(SqlQueryView* parent) :
     QHeaderView(Qt::Horizontal, parent)
 {
+    connect(this, &QHeaderView::sectionResized, this, &SqlQueryView::Header::handleSectionResize);
 }
 
 QSize SqlQueryView::Header::sectionSizeFromContents(int section) const
@@ -1280,4 +1307,62 @@ QSize SqlQueryView::Header::sectionSizeFromContents(int section) const
     int wd = minHeaderWidth;
     wd = qMin((wd + wd * 20 / colCount), originalSize.width());
     return QSize(wd, originalSize.height());
+}
+
+void SqlQueryView::Header::mousePressEvent(QMouseEvent *e)
+{
+    if (e->button() == Qt::MiddleButton)
+    {
+        int section = logicalIndexAt(e->pos());
+        if (section >= 0)
+        {
+            qobject_cast<SqlQueryView*>(parentWidget())->headerMiddleClicked(section);
+            e->accept();
+            return;
+        }
+    }
+
+    if (e->button() == Qt::LeftButton)
+    {
+        lastSectionSizes.clear();
+        int sectionCount = count();
+        for (int i = 0; i < sectionCount; i++)
+            lastSectionSizes[i] = sectionSize(i);
+    }
+
+    QHeaderView::mousePressEvent(e);
+}
+
+void SqlQueryView::Header::mouseDoubleClickEvent(QMouseEvent* e)
+{
+    dblClickResizing = true;
+    QHeaderView::mouseDoubleClickEvent(e);
+    dblClickResizing = false;
+}
+
+void SqlQueryView::Header::handleSectionResize(int logicalIndex, int oldSize, int newSize)
+{
+    Q_UNUSED(oldSize);
+    Q_UNUSED(newSize);
+
+    if (ignoreResizing)
+        return;
+
+    QScopedValueRollback scopedIgnore(ignoreResizing, true);
+
+    SqlQueryView* view = qobject_cast<SqlQueryView*>(parentWidget());
+    QList<int> cols = view->selectionModel()->selectedColumns() | MAP(idx, {return idx.column();});
+    if (cols.size() <= 1 || !cols.contains(logicalIndex))
+        return;
+
+    if (dblClickResizing)
+    {
+        for (int col : cols)
+        {
+            if (col == logicalIndex)
+                continue;
+
+            view->resizeColumnToContents(col);
+        }
+    }
 }

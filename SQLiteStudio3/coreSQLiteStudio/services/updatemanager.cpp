@@ -1,4 +1,4 @@
-#ifdef PORTABLE_CONFIG
+#ifdef HAS_UPDATEMANAGER
 
 #include "updatemanager.h"
 #include "services/notifymanager.h"
@@ -32,6 +32,9 @@ void UpdateManager::checkForUpdates(bool enforce)
 {
     if (!CFG_CORE.General.CheckUpdatesOnStartup.get() && !enforce)
         return;
+
+    qDebug() << "Available SSL backends:" << QSslSocket::availableBackends();
+    qDebug() << "Active SSL backend:" << QSslSocket::activeBackend();
 
     static_qstring(url, "https://sqlitestudio.pl/rest/updates");
     QNetworkRequest request(url);
@@ -94,4 +97,4 @@ void UpdateManager::handleUpdatingError(const QString& errorMessage)
     NOTIFY_MANAGER->warn(tr("Could not check for updates (%1).").arg(errorMessage));
 }
 
-#endif // PORTABLE_CONFIG
+#endif // HAS_UPDATEMANAGER

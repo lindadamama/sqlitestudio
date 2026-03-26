@@ -101,14 +101,27 @@ void DbDialog::showEvent(QShowEvent *e)
     if (db)
     {
         disableTypeAutodetection = true;
-        int idx = ui->typeCombo->findText(db->getTypeLabel());
-        ui->typeCombo->setCurrentIndex(idx);
+        QString pluginName = db->getConnectionOptions().value("plugin", QVariant()).toString();
+        if (!pluginName.isEmpty())
+        {
+            for (int i = 0, total = ui->typeCombo->count(); i < total; i++)
+            {
+                DbPlugin* plugin = static_cast<DbPlugin*>(ui->typeCombo->itemData(i).value<void*>());
+                if (plugin->getName() == pluginName)
+                {
+                    ui->typeCombo->setCurrentIndex(i);
+                    break;
+                }
+            }
+        }
 
         setPath(db->getPath());
         ui->nameEdit->setText(db->getName());
+        ui->nameLabel->setText(db->getName());
         disableTypeAutodetection = false;
     }
-    else if (ui->typeCombo->count() > 0)
+
+    if (ui->typeCombo->currentIndex() == -1 || !db && ui->typeCombo->count() > 0)
     {
         int idx = ui->typeCombo->findText("SQLite 3", Qt::MatchFixedString); // we should have SQLite 3 plugin
         if (idx > -1)
@@ -134,16 +147,20 @@ void DbDialog::init()
 {
     ui->setupUi(this);
     connIconTooltip = new ImmediateTooltip(ui->testConnIcon);
+    ui->nameEdit->setVisible(false);
+    setNameLabelText("");
+    updateNameLink();
 
-    for (DbPlugin* dbPlugin : PLUGINS->getLoadedPlugins<DbPlugin>())
-        dbPlugins[dbPlugin->getLabel()] = dbPlugin;
-
-    QStringList typeLabels;
-    typeLabels += dbPlugins.keys();
-    typeLabels.sort(Qt::CaseInsensitive);
-    ui->typeCombo->addItems(typeLabels);
+    QList<DbPlugin*> plugins = PLUGINS->getLoadedPlugins<DbPlugin>();
+    sSort(plugins, [](DbPlugin* p1, DbPlugin* p2)
+    {
+        return p1->getName().toLower() < p2->getName().toLower();
+    });
+    for (DbPlugin* dbPlugin : plugins)
+        ui->typeCombo->addItem(dbPlugin->getLabel(), QVariant::fromValue<void*>(static_cast<void*>(dbPlugin)));
 
     ui->testConnIcon->setVisible(false);
+    initialBrowseTooltip = ui->browseOpenButton->toolTip();
 
     connect(ui->existingDatabaseRadio, SIGNAL(clicked()), this, SLOT(updateCreateMode()));
     connect(ui->createDatabaseRadio, SIGNAL(clicked()), this, SLOT(updateCreateMode()));
@@ -152,10 +169,11 @@ void DbDialog::init()
     connect(ui->browseOpenButton, SIGNAL(clicked()), this, SLOT(browseClicked()));
     connect(ui->testConnButton, SIGNAL(clicked()), this, SLOT(testConnectionClicked()));
     connect(ui->typeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(dbTypeChanged(int)));
+    connect(ui->nameChangeLink, SIGNAL(linkActivated(QString)), this, SLOT(toggleNameEdit()));
 
     layout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    if (mode == Mode::ADD && CFG_UI.General.NewDbNotPermanentByDefault.get())
+    if (mode == Mode::ADD && CFG_UI.DbList.NewDbNotPermanentByDefault.get())
         ui->permamentCheckBox->setChecked(false);
 
     validate();
@@ -174,8 +192,11 @@ void DbDialog::updateOptions()
 
     customBrowseHandler = nullptr;
     ui->pathGroup->setTitle(tr("File"));
-    ui->existingDatabaseRadio->setChecked(true);
-    ui->createDatabaseRadio->setChecked(false);
+    ui->existingDatabaseRadio->setVisible(true);
+    ui->existingDatabaseRadio->setChecked(!createMode);
+    ui->createDatabaseRadio->setVisible(true);
+    ui->createDatabaseRadio->setChecked(createMode);
+    ui->browseOpenButton->setToolTip(initialBrowseTooltip);
     updateCreateMode();
 
     optionWidgets.clear();
@@ -186,9 +207,9 @@ void DbDialog::updateOptions()
     lastWidgetInTabOrder = ui->permamentCheckBox;
 
     // Retrieve new list
-    if (ui->typeCombo->currentIndex() > -1)
+    DbPlugin* plugin = getCurrentPlugin();
+    if (plugin)
     {
-        DbPlugin* plugin = dbPlugins[ui->typeCombo->currentText()];
         QList<DbPluginOption> optList = plugin->getOptionsList();
         if (optList.size() > 0)
         {
@@ -214,6 +235,7 @@ void DbDialog::addOption(const DbPluginOption& option, int& row)
         row--;
         ui->pathGroup->setTitle(option.label);
         ui->existingDatabaseRadio->setChecked(true);
+        ui->existingDatabaseRadio->setVisible(false);
         ui->createDatabaseRadio->setChecked(false);
         ui->createDatabaseRadio->setVisible(false);
         updateCreateMode();
@@ -491,19 +513,17 @@ QHash<QString, QVariant> DbDialog::collectOptions()
     for (const QString& key : optionKeyToWidget.keys())
         options[key] = getValueFrom(optionKeyToType[key], optionKeyToWidget[key]);
 
-    DbPlugin* plugin = nullptr;
-    if (dbPlugins.count() > 0)
-    {
-        plugin = dbPlugins[ui->typeCombo->currentText()];
+    DbPlugin* plugin = getCurrentPlugin();
+    if (plugin)
         options[DB_PLUGIN] = plugin->getName();
-    }
 
     return options;
 }
 
 bool DbDialog::testDatabase(QString& errorMsg)
 {
-    if (ui->typeCombo->currentIndex() < 0)
+    DbPlugin* plugin = getCurrentPlugin();
+    if (!plugin)
     {
         errorMsg = tr("Database type not selected.");
         return false;
@@ -521,7 +541,6 @@ bool DbDialog::testDatabase(QString& errorMsg)
         url.setScheme("file");
 
     QHash<QString, QVariant> options = collectOptions();
-    DbPlugin* plugin = dbPlugins[ui->typeCombo->currentText()];
     Db* testDb = plugin->getInstance("", path, options, &errorMsg);
 
     bool res = false;
@@ -543,7 +562,7 @@ bool DbDialog::validate()
 {
     // Name
     bool nameState = true;
-    if (ui->nameEdit->text().isEmpty())
+    if (ui->nameEdit->text().isEmpty() && nameManuallyEdited)
     {
         nameState = false;
         setValidState(ui->nameEdit, false, tr("Enter an unique database name."));
@@ -626,9 +645,59 @@ void DbDialog::updateState()
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(validate());
 }
 
+void DbDialog::updateNameLink()
+{
+    static_qstring(tpl, R"(
+        <html><head/><body>
+            <p><a href="change"><span style="text-decoration: underline; color:#27bf73;">%1</span></a></p>
+        </body></html>
+    )");
+    ui->nameChangeLink->setText(tpl.arg(
+                                    ui->nameEdit->isVisible() ?
+                                    tr("Automatic", "database name") :
+                                    tr("Change", "database name")
+                                ));
+}
+
+void DbDialog::setNameLabelText(const QString& value)
+{
+    QFont fnt = ui->nameLabel->font();
+    if (value.isEmpty())
+    {
+        ui->nameLabel->setText(tr("(empty)"));
+        ui->nameLabel->setEnabled(false);
+        fnt.setItalic(true);
+    }
+    else
+    {
+        ui->nameLabel->setText(value);
+        ui->nameLabel->setEnabled(true);
+        fnt.setItalic(false);
+    }
+    ui->nameLabel->setFont(fnt);
+}
+
+DbPlugin* DbDialog::getCurrentPlugin() const
+{
+    if (ui->typeCombo->currentIndex() == -1)
+        return nullptr;
+
+    return static_cast<DbPlugin*>(ui->typeCombo->currentData().value<void*>());
+}
+
 void DbDialog::setDoAutoTest(bool value)
 {
     doAutoTest = value;
+}
+
+void DbDialog::setCreateMode(bool createDbMode)
+{
+    if (createDbMode)
+        ui->createDatabaseRadio->setChecked(true);
+    else
+        ui->existingDatabaseRadio->setChecked(true);
+
+    updateCreateMode();
 }
 
 void DbDialog::propertyChanged()
@@ -645,18 +714,22 @@ void DbDialog::typeChanged(int index)
 
 void DbDialog::valueForNameGenerationChanged()
 {
-    updateState();
     if (nameManuallyEdited)
+    {
+        updateState();
         return;
+    }
 
     QString generatedName;
-    DbPlugin* plugin = dbPlugins.count() > 0 ? dbPlugins[ui->typeCombo->currentText()] : nullptr;
+    DbPlugin* plugin = getCurrentPlugin();
     if (plugin)
         generatedName = DBLIST->generateUniqueDbName(plugin, getPath());
     else
         generatedName = DBLIST->generateUniqueDbName(getPath());
 
     ui->nameEdit->setText(generatedName);
+    setNameLabelText(generatedName);
+    updateState();
 }
 
 void DbDialog::browseForFile()
@@ -752,7 +825,8 @@ void DbDialog::dbTypeChanged(int index)
 
 void DbDialog::nameModified(const QString &value)
 {
-    nameManuallyEdited = !value.isEmpty();
+    nameManuallyEdited = true;
+    setNameLabelText(value);
     updateState();
 }
 
@@ -763,6 +837,24 @@ void DbDialog::updateCreateMode()
         createMode ? tr("Choose a location for the new database file")
                    : tr("Browse for existing database file on local computer")
     );
+}
+
+void DbDialog::toggleNameEdit()
+{
+    if (ui->nameEdit->isVisible())
+    {
+        nameManuallyEdited = false;
+        valueForNameGenerationChanged();
+        ui->nameEdit->setVisible(false);
+        ui->nameLabel->setVisible(true);
+    }
+    else
+    {
+        ui->nameEdit->setVisible(true);
+        ui->nameLabel->setVisible(false);
+        ui->nameEdit->setFocus();
+    }
+    updateNameLink();
 }
 
 void DbDialog::accept()

@@ -98,10 +98,8 @@ void SqlEditor::init()
     objectsInNamedDbWatcher = new QFutureWatcher<AsyncObjectsRefreshResults>(this);
     connect(objectsInNamedDbWatcher, SIGNAL(finished()), this, SLOT(scheduleQueryParserForSchemaRefresh()));
 
-    textLocator = new SearchTextLocator(document(), this);
-    connect(textLocator, SIGNAL(found(int,int)), this, SLOT(found(int,int)));
+    textLocator = new SearchTextLocator(this);
     connect(textLocator, SIGNAL(reachedEnd()), this, SLOT(reachedEnd()));
-    connect(textLocator, SIGNAL(newCursorPositionAfterAllReplaced(int)), this, SLOT(moveCursorTo(int)));
 
     lineNumberArea = new LineNumberArea(this);
     changeFont(CFG_UI.Fonts.SqlEditor.get());
@@ -169,6 +167,7 @@ void SqlEditor::createActions()
     createAction(SELECT_ALL, ICONS.ACT_SELECT_ALL, tr("Select all", "sql editor"), this, SLOT(selectAll()), this);
     createAction(UNDO, ICONS.ACT_UNDO, tr("Undo", "sql editor"), this, SLOT(undo()), this);
     createAction(REDO, ICONS.ACT_REDO, tr("Redo", "sql editor"), this, SLOT(redo()), this);
+    createAction(OPEN_OBJECT, "", this, SLOT(openObjectAtCurrentPosition()), this);
     createAction(COMPLETE, ICONS.COMPLETE, tr("Complete", "sql editor"), this, SLOT(complete()), this);
     createAction(FORMAT_SQL, ICONS.FORMAT_SQL, tr("Format SQL", "sql editor"), this, SLOT(formatSql()), this);
     createAction(SAVE_SQL_FILE, ICONS.SAVE_SQL_FILE, tr("Save SQL to file", "sql editor"), this, SLOT(saveToFile()), this);
@@ -322,6 +321,24 @@ void SqlEditor::toggleLineCommentForLine(const QTextBlock& block)
         cur.insertText("--");
 }
 
+bool SqlEditor::hasSqlGenerativeDbTreeItemType(const QList<DbTreeItem*>& items) const
+{
+    for (DbTreeItem* item : items)
+    {
+        switch (item->getType())
+        {
+            case DbTreeItem::Type::TABLE:
+            case DbTreeItem::Type::COLUMN:
+            case DbTreeItem::Type::COLUMNS:
+            case DbTreeItem::Type::VIEW:
+                return true;
+            default:
+                break;
+        }
+    }
+    return false;
+}
+
 QString SqlEditor::getLoadedFile() const
 {
     return loadedFile;
@@ -353,6 +370,14 @@ void SqlEditor::setOpenSaveActionsEnabled(bool value)
     }
     else
         noConfigShortcutActions << SAVE_SQL_FILE << SAVE_AS_SQL_FILE << OPEN_SQL_FILE;
+}
+
+void SqlEditor::addContextMenuExtraAction(QAction* act)
+{
+    if (!extraActionsSeparator)
+        extraActionsSeparator = contextMenu->insertSeparator(actionMap[UNDO]);
+
+    contextMenu->insertAction(extraActionsSeparator, act);
 }
 
 void SqlEditor::updateUndoAction(bool enabled)
@@ -862,7 +887,6 @@ void SqlEditor::indentNewLine()
         insertPlainText(QString(" ").repeated(previousFirstPrintable));
         return;
     }
-
 }
 
 void SqlEditor::showSearchDialog()
@@ -1147,11 +1171,6 @@ void SqlEditor::updateLineNumberArea(const QRect& rect, int dy)
 void SqlEditor::cursorMoved()
 {
     highlightCurrentCursorContext();
-    if (!cursorMovingByLocator)
-    {
-        textLocator->setStartPosition(textCursor().position());
-        textLocator->cursorMoved();
-    }
 }
 
 void SqlEditor::checkContentSize()
@@ -1225,22 +1244,29 @@ void SqlEditor::loadFromFile()
         return;
     }
 
-    if (QFile(fName).size() > HUGE_QUERY_LENGTH)
-    {
-        QMessageBox::StandardButton resp = QMessageBox::question(this, tr("Open file"),
-                tr("This file is huge (over %1 MB). Are you sure you want to load it into SQL query editor?")
-                                                                 .arg(HUGE_QUERY_LENGTH / 1024 / 1024));
-        if (resp != QMessageBox::Yes)
-            return;
-    }
-
     if (!toPlainText().trimmed().isEmpty())
     {
         MAINWINDOW->openSqlEditorForFile(db, fName);
         return;
     }
 
+    if (!confirmBigFileLoading(fName))
+        return;
+
     loadFile(fName);
+}
+
+bool SqlEditor::confirmBigFileLoading(const QString& fileName)
+{
+    if (QFile(fileName).size() > HUGE_QUERY_LENGTH)
+    {
+        QMessageBox::StandardButton resp = QMessageBox::question(MAINWINDOW, tr("Open file"),
+                tr("This file is huge (over %1 MB). Are you sure you want to load it into SQL query editor?")
+                                                                 .arg(HUGE_QUERY_LENGTH / 1024 / 1024));
+        if (resp != QMessageBox::Yes)
+            return false;
+    }
+    return true;
 }
 
 bool SqlEditor::loadFile(const QString& fileName)
@@ -1423,7 +1449,6 @@ void SqlEditor::copyBlockUp()
 
 void SqlEditor::find()
 {
-    textLocator->setStartPosition(textCursor().position());
     showSearchDialog();
 }
 
@@ -1440,17 +1465,6 @@ void SqlEditor::findPrevious()
 void SqlEditor::replace()
 {
     showSearchDialog();
-}
-
-void SqlEditor::found(int start, int end)
-{
-    QTextCursor cursor = textCursor();
-    cursor.setPosition(end);
-    cursor.setPosition(start, QTextCursor::KeepAnchor);
-    cursorMovingByLocator = true;
-    setTextCursor(cursor);
-    cursorMovingByLocator = false;
-    ensureCursorVisible();
 }
 
 void SqlEditor::reachedEnd()
@@ -1580,11 +1594,18 @@ void SqlEditor::decrFontSize()
     changeFontSize(-1);
 }
 
-void SqlEditor::moveCursorTo(int pos)
+void SqlEditor::openObjectAtCurrentPosition()
 {
-    QTextCursor cur = textCursor();
-    cur.setPosition(pos);
-    setTextCursor(cur);
+    int position = textCursor().position();
+    DbObject* obj = const_cast<DbObject*>(getValidObjectForPosition(position, true));
+    if (!obj)
+        obj = const_cast<DbObject*>(getValidObjectForPosition(position, false));
+
+    if (obj)
+    {
+        QString objName = toPlainText().mid(obj->from, (obj->to - obj->from + 1));
+        openObject(obj->dbName, stripObjName(objName));
+    }
 }
 
 void SqlEditor::changeFontSize(int factor)
@@ -1877,9 +1898,209 @@ void SqlEditor::showEvent(QShowEvent* event)
     setLineWrapMode(wrapWords ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
 }
 
+QPixmap SqlEditor::getDbItemDragMoveIcon(const QList<DbTreeItem*>& items) const
+{
+    if (!hasSqlGenerativeDbTreeItemType(items))
+        return QPixmap();
+
+    return ICONS.DATA_SELECT;
+}
+
+QPixmap SqlEditor::getDbItemDragCopyIcon(const QList<DbTreeItem*>& items) const
+{
+    if (!hasSqlGenerativeDbTreeItemType(items))
+        return QPixmap();
+
+    return ICONS.DATA_UPDATE;
+}
+
+QPixmap SqlEditor::getDbItemDragLinkIcon(const QList<DbTreeItem*>& items) const
+{
+    if (!hasSqlGenerativeDbTreeItemType(items))
+        return QPixmap();
+
+    return ICONS.DATA_INSERT;
+}
+
+void SqlEditor::handleDbTreeDrop(const QList<DbTreeItem*>& items, Qt::DropAction action)
+{
+    QList<DbTreeItem*> onlyParentSelectedItems = items | FILTER(item, {return !items.contains(item->parentDbTreeItem());});
+    switch (action)
+    {
+        case Qt::CopyAction:
+            handleDbTreeUpdateDrop(onlyParentSelectedItems);
+            break;
+        case Qt::LinkAction:
+            handleDbTreeInsertDrop(onlyParentSelectedItems);
+            break;
+        default:
+            handleDbTreeSelectDrop(onlyParentSelectedItems);
+            break;
+    }
+}
+
+void SqlEditor::handleDbTreeUpdateDrop(const QList<DbTreeItem*>& items)
+{
+    QList<QPair<QString, QStringList>> sourceAndColumns = getSourceAndColumnsForDrop(items);
+
+    static_qstring(updateTpl, "UPDATE %1\n   SET %2\n WHERE false; -- for safety\n");
+    QStringList existingBindParams;
+    QStringList parts;
+    for (const QPair<QString, QStringList>& sourceAndCols : sourceAndColumns)
+    {
+        QString setPart = (sourceAndCols.second |
+                           MAP(col, {
+                                   return wrapObjIfNeeded(col) + " = "
+                                        + generateUniqueName(columnToBindParamName(col), existingBindParams, Qt::CaseInsensitive);
+                               })).join(",\n       ");
+        parts << updateTpl.arg(sourceAndCols.first, setPart);
+    }
+    setFocus(Qt::MouseFocusReason);
+    insertPlainText(parts.join("\n"));
+}
+
+void SqlEditor::handleDbTreeInsertDrop(const QList<DbTreeItem*>& items)
+{
+    QList<QPair<QString, QStringList>> sourceAndColumns = getSourceAndColumnsForDrop(items);
+
+    static_qstring(insertTpl, "INSERT INTO %1 (%2)\n     VALUES (%3);\n");
+    QStringList existingBindParams;
+    QStringList parts;
+    for (const QPair<QString, QStringList>& sourceAndCols : sourceAndColumns)
+    {
+        QString columnsPart = (sourceAndCols.second | MAP(col, {return wrapObjIfNeeded(col);})).join(", ");
+        QString bindParams = (sourceAndCols.second
+                              | MAP(col, {
+                                        return generateUniqueName(columnToBindParamName(col), existingBindParams, Qt::CaseInsensitive);
+                                    })).join(", ");
+        parts << insertTpl.arg(sourceAndCols.first, columnsPart, bindParams);
+    }
+    setFocus(Qt::MouseFocusReason);
+    insertPlainText(parts.join("\n"));
+}
+
+void SqlEditor::handleDbTreeSelectDrop(const QList<DbTreeItem*>& items)
+{
+    QList<QPair<QString, QStringList>> sourceAndColumns = getSourceAndColumnsForDrop(items);
+
+    static_qstring(selectTpl, "SELECT %1\n  FROM %2;\n");
+    QStringList parts;
+    for (const QPair<QString, QStringList>& sourceAndCols : sourceAndColumns)
+    {
+        QString columnsPart = (sourceAndCols.second | MAP(col, {return wrapObjIfNeeded(col);})).join(",\n       ");
+        parts << selectTpl.arg(columnsPart, sourceAndCols.first);
+    }
+    setFocus(Qt::MouseFocusReason);
+    insertPlainText(parts.join("\n"));
+}
+
+QList<QPair<QString, QStringList>> SqlEditor::getSourceAndColumnsForDrop(const QList<DbTreeItem*>& items)
+{
+    QHash<QString, QStringList> sourceAndColumns;
+    QStringList appearanceOrder;
+
+    for (auto&& item : items)
+    {
+        DbTreeItem* itemToLoadSchema = nullptr;
+        DbTreeItem* sourceItem = nullptr;
+        QList<DbTreeItem*> columnItemList;
+        switch (item->getType())
+        {
+            case DbTreeItem::Type::TABLE:
+                itemToLoadSchema = item;
+                sourceItem = item;
+                break;
+            case DbTreeItem::Type::VIEW:
+                itemToLoadSchema = item;
+                sourceItem = item;
+                break;
+            case DbTreeItem::Type::COLUMNS:
+                columnItemList += item->dbTreeChilds();
+                sourceItem = item->parentDbTreeItem();
+                break;
+            case DbTreeItem::Type::COLUMN:
+                columnItemList << item;
+                sourceItem = item->parentDbTreeItem()->parentDbTreeItem();
+                break;
+            case DbTreeItem::Type::DB:
+            case DbTreeItem::Type::VIRTUAL_TABLE:
+            case DbTreeItem::Type::INDEX:
+            case DbTreeItem::Type::TRIGGER:
+            case DbTreeItem::Type::DIR:
+            case DbTreeItem::Type::TABLES:
+            case DbTreeItem::Type::INDEXES:
+            case DbTreeItem::Type::TRIGGERS:
+            case DbTreeItem::Type::VIEWS:
+            case DbTreeItem::Type::ITEM_PROTOTYPE:
+                break;
+        }
+
+        if (!sourceItem)
+            continue;
+
+        if (itemToLoadSchema)
+        {
+            DBTREE->getModel()->loadTableOrViewSchema(itemToLoadSchema);
+            DbTreeItem* columnsItem = itemToLoadSchema->findFirstItem(DbTreeItem::Type::COLUMNS);
+            if (!columnsItem)
+            {
+                qWarning() << "Failed to find COLUMNS item after loading table/view schema in SqlEditor::handleDbTreeSelectDrop. This should not happen.";
+                continue;
+            }
+            columnItemList = columnsItem->dbTreeChilds();
+        }
+
+        for (DbTreeItem* columnItem : columnItemList)
+        {
+            Db* columnDb = columnItem->getDb();
+            QString source = wrapObjIfNeeded(sourceItem->text());
+            static_qstring(pairSrcTpl, "%1.%2");
+            if (columnDb != db)
+                source = pairSrcTpl.arg(wrapObjIfNeeded(columnDb->getName()), source);
+
+            sourceAndColumns[source] << columnItem->text();
+            if (!appearanceOrder.contains(source))
+                appearanceOrder << source;
+        }
+    }
+
+    QList<QPair<QString, QStringList>> result;
+    for (const QString& source : appearanceOrder)
+        result << QPair{source, sourceAndColumns[source]};
+
+    return result;
+}
+
 void SqlEditor::dropEvent(QDropEvent* e)
 {
-    QPlainTextEdit::dropEvent(e);
-    if (MAINWINDOW->getDbTree()->getModel()->hasDbTreeItem(e->mimeData()))
+    const QMimeData* data = e->mimeData();
+    DbTreeModel* treeModel = MAINWINDOW->getDbTree()->getModel();
+    if (DbTreeModel::hasDbTreeItem(data))
+    {
+        QList<DbTreeItem*> srcItems = treeModel->getDragItems(data);
+        if (!hasSqlGenerativeDbTreeItemType(srcItems))
+        {
+            QPlainTextEdit::dropEvent(e);
+            setFocus(Qt::MouseFocusReason);
+            return;
+        }
+
+        // This is a workaround to Qt bug https://www.qtcentre.org/threads/16935-Cursor-stops-being-redrawn-when-QTextEdit-dropEvent()-overrided
+        // (still not fixed...), which causes cursor to stop blinking after customizing the dropEvent().
+        setReadOnly(true);
+        QPlainTextEdit::dropEvent(e);
+        setReadOnly(false);
+
+        handleDbTreeDrop(srcItems, e->dropAction());
         e->ignore();
+        return;
+    }
+
+    // Same workaround as above
+    setReadOnly(true);
+    QPlainTextEdit::dropEvent(e);
+    setReadOnly(false);
+
+    // Ignore - we proparage drops from external apps to main window, where it's handled globally
+    e->ignore();
 }

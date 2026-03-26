@@ -1,12 +1,17 @@
 #include "scriptingpython.h"
 #include "common/global.h"
 #include "db/db.h"
-#include "db/sqlite3.h"
 #include "parser/lexer.h"
 #include "parser/token.h"
 #include "common/utils_sql.h"
+#include <sqlite3.h>
 #include <QDebug>
 #include <QMutexLocker>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+#include <QtSystemDetection>
+#else
+#include <qsystemdetection.h>
+#endif
 
 #ifdef PYTHON_DYNAMIC_BINDING
 #include <QDir>
@@ -240,20 +245,17 @@ CfgMain* ScriptingPython::getMainUiConfig()
 void ScriptingPython::configDialogOpen()
 {
     cfg.ScriptingPython.DiscoveredLibraries.set(discoverLibraries());
-    connect(&cfg.ScriptingPython, SIGNAL(changed(CfgEntry*)), this, SLOT(configModified(CfgEntry*)));
+    connect(&cfg.ScriptingPython.LibraryPath, &CfgEntry::changed, this, &ScriptingPython::configModified);
 }
 
 void ScriptingPython::configDialogClosed()
 {
-    disconnect(&cfg.ScriptingPython, SIGNAL(changed(CfgEntry*)), this, SLOT(configModified(CfgEntry*)));
+    disconnect(&cfg.ScriptingPython.LibraryPath, &CfgEntry::changed, this, &ScriptingPython::configModified);
 }
 
-void ScriptingPython::configModified(CfgEntry* entry)
+void ScriptingPython::configModified(const QVariant& newValue)
 {
-    if (entry != &cfg.ScriptingPython.LibraryPath)
-        return;
-
-    QString value = entry->get().toString();
+    QString value = newValue.toString();
     qDebug() << "Python library config modified signal: " << value;
     setLibraryPath(value);
 }

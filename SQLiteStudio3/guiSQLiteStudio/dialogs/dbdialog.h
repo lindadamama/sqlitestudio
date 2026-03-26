@@ -41,6 +41,7 @@ class GUI_API_EXPORT DbDialog : public QDialog
         QHash<QString,QVariant> collectOptions();
         bool isPermanent();
         void setDoAutoTest(bool value);
+        void setCreateMode(bool createDbMode);
 
     protected:
         void changeEvent(QEvent *e);
@@ -59,12 +60,15 @@ class GUI_API_EXPORT DbDialog : public QDialog
         bool testDatabase(QString& errorMsg);
         bool validate();
         void updateState();
+        void updateNameLink();
+        void setNameLabelText(const QString& value);
+        DbPlugin* getCurrentPlugin() const;
 
         Ui::DbDialog *ui = nullptr;
         Mode mode;
         QStringList existingDatabaseNames;
         Db* db = nullptr;
-        QHash<QString,DbPlugin*> dbPlugins;
+        // QHash<QString,DbPlugin*> dbPlugins;
         QList<QWidget*> optionWidgets;
         QHash<QString,QWidget*> optionKeyToWidget;
         QHash<QString,DbPluginOption::Type> optionKeyToType;
@@ -76,6 +80,7 @@ class GUI_API_EXPORT DbDialog : public QDialog
         bool nameManuallyEdited = false;
         bool createMode = false;
         ImmediateTooltip* connIconTooltip = nullptr;
+        QString initialBrowseTooltip;
 
         static const constexpr int ADDITIONAL_ROWS_BEGIN_INDEX = 1;
 
@@ -90,6 +95,7 @@ class GUI_API_EXPORT DbDialog : public QDialog
         void dbTypeChanged(int index);
         void nameModified(const QString &value);
         void updateCreateMode();
+        void toggleNameEdit();
 
     public slots:
         void accept();

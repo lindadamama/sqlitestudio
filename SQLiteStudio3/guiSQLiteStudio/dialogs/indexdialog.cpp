@@ -9,7 +9,6 @@
 #include "uiconfig.h"
 #include "services/config.h"
 #include "uiutils.h"
-#include "db/sqlite3.h"
 #include "indexexprcolumndialog.h"
 #include "windows/editorwindow.h"
 #include "services/codeformatter.h"
@@ -20,6 +19,7 @@
 #include <QScrollBar>
 #include <QPushButton>
 #include <QMessageBox>
+#include <sqlite3.h>
 
 IndexDialog::IndexDialog(Db* db, QWidget *parent) :
     QDialog(parent),
@@ -192,14 +192,12 @@ void IndexDialog::updateValidation()
     bool partialConditionOk = (!ui->partialIndexCheck->isChecked() ||
                            (ui->partialIndexEdit->isSyntaxChecked() && !ui->partialIndexEdit->haveErrors()));
 
-    bool uniqueAndExprOk = !(ui->uniqueCheck->isChecked() && hasExprColumn);
 
-    setValidState(ui->uniqueCheck, uniqueAndExprOk, tr("Unique index cannot have indexed expressions. Either remove expressions from list below, or uncheck this option."));
     setValidState(ui->tableCombo, tableOk, tr("Pick the table for the index."));
     setValidState(ui->columnsTable, colSelected, tr("Select at least one column."));
     setValidState(ui->partialIndexCheck, partialConditionOk, tr("Enter a valid condition."));
 
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(colSelected && partialConditionOk && uniqueAndExprOk);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(colSelected && partialConditionOk);
 }
 
 void IndexDialog::setTable(const QString& value)

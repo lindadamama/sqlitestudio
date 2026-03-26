@@ -38,7 +38,7 @@ class Icon;
  * It's optional. It doesn't need to be declared, but if you want to refer
  * to keys as to configuration values, then you will need this.
  */
-#define CFG_KEYS_INSTANCE(Type) (*Cfg::getShortcuts##Type##Instance())
+#define CFG_KEYS_INSTANCE(Type) (Cfg::getShortcuts##Type##Instance()->ShortcutsCategory##Type)
 
 /**
  * @def Binds shortcuts configuration with actions enumerator.
@@ -144,6 +144,13 @@ class GUI_API_EXPORT ExtActionContainer
         void setShortcutContext(const QList<qint32> actions, Qt::ShortcutContext context);
 
         /**
+         * @brief Shortcut on one action will be shown in tooltips/menus of other actions.
+         * @param fromAction Action which shortcut label will be shown in tooltips/menus of other actions.
+         * @param toActions Actions which tooltips/menus will show shortcut label of fromAction.
+         */
+        void inheritShortcut(int fromAction, QSet<int> toActions);
+
+        /**
          * @brief attachActionInMenu
          * @param parentAction Action that will have a submenu. Must already exist.
          * @param childAction Action to add to the submenu. Must already exist.
@@ -176,8 +183,9 @@ class GUI_API_EXPORT ExtActionContainer
          */
         virtual QToolBar* getToolBar(int toolbar) const = 0;
 
-        void handleActionInsert(int toolbar, ActionDetails* details);
-        void handleActionRemoval(int toolbar, ActionDetails* details);
+        void handleActionInsert(int toolbarIdx, ActionDetails* details);
+        void handleActionRemoval(int toolbarIdx, ActionDetails* details);
+        QList<QAction*> getNonToolbarExtraActions() const;
 
     private:
         typedef QPair<int,ActionDetails*> ToolbarAndProto;
@@ -186,6 +194,7 @@ class GUI_API_EXPORT ExtActionContainer
         {
             public:
                 bool eventFilter(QObject* watched, QEvent* e);
+                QObject* installedIn = nullptr;
         };
 
         void refreshShortcuts();
@@ -208,6 +217,7 @@ class GUI_API_EXPORT ExtActionContainer
         QHash<QAction*,ToolbarAndProto> extraActionToToolbarAndProto;
         QHash<ToolbarAndProto,QAction*> toolbarAndProtoToAction;
         KeySequenceFilter keySeqFilter;
+        QHash<int, QSet<int>> inheritShortcutFromTo;
 };
 
 template <class T>

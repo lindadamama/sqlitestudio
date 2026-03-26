@@ -3,7 +3,8 @@
 set -e
 
 printUsage() {
-    echo "$0 [-q]... <sqlitestudio build output directory> <qmake path> [dmg|dist|dist_full]"
+    echo "$0 [-q]... <sqlitestudio build output directory> <Qt path> [dmg|dist|dist_full]"
+    echo "You can define DEP_LIB_DIR environment variable pointing to directory with *.dylib files of sqlite3, icu, tcl to use for building the result image."
 }
 
 quiet=0
@@ -121,20 +122,20 @@ if [ "$#" -eq 3 ] && [ "$3" != "dmg" ] && [ "$3" != "dist" ] && [ "$3" != "dist_
   exit 1
 fi
 
-qt_version="$("$2" -v | awk '/Qt version/ { print $4 }')"
-info "Qt version detected: $qt_version"
-case "$qt_version" in
-  5*) qt_version_path=5 ;;
-  6*) qt_version_path=A ;;
-esac
-qmake_basename="${2##*/}"
-qt_deploy_bin="$(echo "$2" | sed "s/$qmake_basename\$/macdeployqt/")"
-info "macdeployqt executable found: $qt_deploy_bin"
+qt_deploy_bin="$2/bin/macdeployqt"
 if [ ! -x "$qt_deploy_bin" ]; then
     abort "$qt_deploy_bin program missing!"
 fi
+info "macdeployqt executable found: $qt_deploy_bin"
 
 cd "$1/SQLiteStudio" || abort "Could not chdir to $1/SQLiteStudio!"
+
+if [[ -n "${DEP_LIB_DIR:-}" ]]; then
+    libdir="$DEP_LIB_DIR"
+else
+    libdir="$(cd ../../../lib/ && pwd)"
+fi
+debug "lib:" "$(ls -l "$libdir")"
 
 rm -rf SQLiteStudio.app/Contents/Frameworks
 rm -rf SQLiteStudio.app/Contents/PlugIns
@@ -149,9 +150,11 @@ mv SQLiteStudio.app/Contents/plugins SQLiteStudio.app/Contents/PlugIns
 mkdir -p SQLiteStudio.app/Contents/PlugIns/styles
 cp -RP styles/* SQLiteStudio.app/Contents/PlugIns/styles
 
-cp -RP lib*SQLiteStudio*.dylib SQLiteStudio.app/Contents/Frameworks
+cp -RP lib/lib*SQLiteStudio*.dylib SQLiteStudio.app/Contents/Frameworks
 
 # Determine our version before any patching, while we have a presumably working binary
+export DYLD_FRAMEWORK_PATH=$QT_ROOT_DIR/lib
+export DYLD_LIBRARY_PATH=lib:$QT_ROOT_DIR/lib:$libdir
 VERSION="$(./sqlitestudiocli -v | awk '{print $2}')"
 [ -n "$VERSION" ] || abort "could not determine SQLiteStudio version"
 
@@ -159,7 +162,7 @@ BUILD_ARCHS="$(lipo -archs SQLiteStudio.app/Contents/MacOS/SQLiteStudio)"
 
 # CLI paths
 qtcore_path=`otool -L sqlitestudiocli | awk '/QtCore/ {print $1;}'`
-new_qtcore_path="@rpath/QtCore.framework/Versions/$qt_version_path/QtCore"
+new_qtcore_path="@rpath/QtCore.framework/Versions/A/QtCore"
 
 cp -P sqlitestudiocli SQLiteStudio.app/Contents/MacOS
 install_name_tool -change libcoreSQLiteStudio.1.dylib "@rpath/libcoreSQLiteStudio.1.dylib" SQLiteStudio.app/Contents/MacOS/sqlitestudiocli
@@ -173,9 +176,6 @@ install_name_tool -change libguiSQLiteStudio.1.dylib "@rpath/libguiSQLiteStudio.
 install_name_tool -change libcoreSQLiteStudio.1.dylib "@rpath/libcoreSQLiteStudio.1.dylib" SQLiteStudio.app/Contents/Frameworks/libguiSQLiteStudio.1.dylib
 install_name_tool -change libsqlite3.0.dylib "@rpath/libsqlite3.0.dylib" SQLiteStudio.app/Contents/Frameworks/libcoreSQLiteStudio.1.dylib
 
-libdir=$(cd ../../../lib/ && pwd)
-debug "lib:" "$(ls -l "$libdir")"
-
 embed_libsqlite3() {
     cp -RPf "$libdir/libsqlite3.0.dylib" "$1/Contents/Frameworks"
     ln -sf libsqlite3.0.dylib "$1/Contents/Frameworks/libsqlite3.dylib"
@@ -185,24 +185,11 @@ embed_libtcl() {
     cp -RPf $libdir/libtcl*.dylib "$1/Contents/Frameworks"
 }
 
-# < HEAD
 debug "in frameworks - 1:" "$(ls -l SQLiteStudio.app/Contents/Frameworks)"
 embed_libsqlite3 SQLiteStudio.app
 debug "in frameworks - 2:" "$(ls -l SQLiteStudio.app/Contents/Frameworks)"
 embed_libtcl SQLiteStudio.app
 debug "in frameworks - 3:" "$(ls -l SQLiteStudio.app/Contents/Frameworks)"
-# =======
-# cp -RP ../../../lib/libsqlite3.0.dylib SQLiteStudio.app/Contents/Frameworks
-# cp -RP ../../../lib/libtcl8.6.dylib SQLiteStudio.app/Contents/Frameworks
-# cp -RP ../../../lib/libcrypto.3.dylib SQLiteStudio.app/Contents/Frameworks
-# cd SQLiteStudio.app/Contents/Frameworks
-# ln -s libsqlite3.0.dylib libsqlite3.dylib
-# ln -s libcrypto.3.dylib libcrypto.dylib
-# cd ../../..
-#
-# echo "in frameworks - 2:"
-# ls -l SQLiteStudio.app/Contents/Frameworks
-# > 3.4.18
 
 # Plugin paths
 fixPluginPaths() {
@@ -218,16 +205,6 @@ fixPluginPaths() {
     done
 }
 fixPluginPaths SQLiteStudio.app/Contents/PlugIns
-
-replaceInfo() {
-    local _contents="$1/SQLiteStudio/SQLiteStudio.app/Contents"
-    info "Replacing Info.plist"
-    YEAR=`date '+%Y'`
-
-    sed -e "s/%VERSION%/$VERSION/g" -e "s/%YEAR%/$YEAR/g" "$_contents/Info.plist" > "$_contents/Info.plist.new"
-    debug "New plist:" "$(cat "$_contents/Info.plist.new")"
-    run mv "$_contents/Info.plist.new" "$_contents/Info.plist"
-}
 
 propose_dylib_changes() {
     local _changes _dest _ref
@@ -250,31 +227,6 @@ propose_dylib_changes() {
     done
 }
 
-embed_python_framework() (
-    local _src_framework="$1" _ver="$2" _app="$3"
-    local _dest_framework="$_app/Contents/Frameworks/Python.framework"
-    run mkdir -p "$_dest_framework/Versions"
-    run cd "$_dest_framework"
-    run cp -RP "$_src_framework/Versions/$PYTHON_VERSION" Versions/
-    run rm -fr "Versions/$PYTHON_VERSION/lib/python$PYTHON_VERSION/idlelib"
-    run rm -fr "Versions/$PYTHON_VERSION/lib/python$PYTHON_VERSION/test"
-    run ln -s "$PYTHON_VERSION" Versions/Current
-    run ln -s Versions/Current/Headers Versions/Current/Python Versions/Current/Resources .
-    run install_name_tool -id "@executable_path/../Frameworks/Python.framework/Versions/$PYTHON_VERSION/Python" "Versions/$PYTHON_VERSION/Python"
-
-    # In each executable, apply /opt/local/lib changes
-    find "Versions/$PYTHON_VERSION" -type f -perm +111 | while read -r _filename; do
-        if [ "$_filename" = "Versions/$PYTHON_VERSION/Resources/Python.app/Contents/MacOS/Python" ]; then
-            _changes="-change /opt/local/lib/libintl.8.dylib @loader_path/../../../../../../../libintl.8.dylib
--change $_src_framework/Versions/$PYTHON_VERSION/Python @loader_path/../../../../Python"
-        else
-            _changes="$(propose_dylib_changes "$_filename" ..)"
-        fi
-        # shellcheck disable=SC2086
-        [ -z "$_changes" ] || run install_name_tool $_changes "$_filename"
-    done
-)
-
 find_local_dependencies() {
     find "$1" -type f -perm +111 -print0 | xargs -0 otool -L \
     | awk '/:$/ { sub(/:$/, ""); f = $1 } /\/(opt|usr)\/local\// { print f, $1 }'
@@ -292,12 +244,13 @@ deploy_qt() {
 }
 
 if [ "$3" = "dmg" ]; then
-    replaceInfo "$1"
     deploy_qt SQLiteStudio.app -dmg
 elif [ "$3" = "dist" ]; then
-    replaceInfo "$1"
-
     deploy_qt SQLiteStudio.app -executable=SQLiteStudio.app/Contents/MacOS/SQLiteStudio
+
+    # Fix executable's RPATH
+    run install_name_tool -add_rpath @executable_path/../Frameworks SQLiteStudio.app/Contents/MacOS/sqlitestudiocli
+    run install_name_tool -add_rpath @executable_path/../Frameworks SQLiteStudio.app/Contents/MacOS/SQLiteStudio
 
     # Fix sqlite3 file in the image
     embed_libsqlite3 SQLiteStudio.app
@@ -332,5 +285,4 @@ elif [ "$3" = "dist" ]; then
     info "Done."
 else
     deploy_qt SQLiteStudio.app
-    replaceInfo "$1"
 fi
